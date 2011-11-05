@@ -102,7 +102,7 @@ class NullCache(object):
         """
         return True
 
-    def incr(key, delta=1, initial_value=None):
+    def incr(self, key, delta=1, initial_value=None):
         """ Atomically increments a key's value. The value, if too
             large, will wrap around.
 
@@ -117,7 +117,7 @@ class NullCache(object):
         """
         return None
 
-    def decr(key, delta=1, initial_value=None)
+    def decr(self, key, delta=1, initial_value=None):
         """ Atomically decrements a key's value. The value, if too
             large, will wrap around.
 

@@ -21,9 +21,9 @@ def expires(now, time):
         otherwise
 
         >>> expires(0, 0)
-        0
+        2147483647
         >>> expires(0, -1)
-        0
+        2147483647
     """
     if time > 0:
         if time < 2592000:  # 1 month
@@ -31,7 +31,7 @@ def expires(now, time):
         else:
             return time
     else:
-        return 0
+        return 0x7FFFFFFF
 
 
 def find_expired(bucket_items, now):
@@ -287,6 +287,69 @@ class MemoryCache(object):
             self.lock.release()
         return True
 
+    def incr(self, key, delta=1, initial_value=None):
+        """ Atomically increments a key's value. The value, if too
+            large, will wrap around.
+
+            If the key does not yet exist in the cache and you specify
+            an initial_value, the key's value will be set to this
+            initial value and then incremented. If the key does not
+            exist and no initial_value is specified, the key's value
+            will not be set.
+
+            >>> c = MemoryCache()
+            >>> c.incr('k')
+            >>> c.incr('k', initial_value=0)
+            1
+            >>> c.incr('k')
+            2
+
+            There is item in cached that expired
+
+            >>> c.items['k'] = CacheItem('k', 1, 1)
+            >>> c.incr('k')
+        """
+        now = int(unixtime())
+        items = self.items
+        self.lock.acquire(1)
+        try:
+            try:
+                entry = items[key]
+                if entry.expires < now:
+                    del items[key]
+                    entry = None
+            except KeyError:
+                    entry = None
+            if entry is None:
+                if initial_value is None:
+                    return None
+                else:
+                    entry = items[key] = CacheItem(key,
+                            initial_value, expires(now, 0))
+            value = entry.value = entry.value + delta
+            return value
+        finally:
+            self.lock.release()
+
+    def decr(self, key, delta=1, initial_value=None):
+        """ Atomically decrements a key's value. The value, if too
+            large, will wrap around.
+
+            If the key does not yet exist in the cache and you specify
+            an initial_value, the key's value will be set to this
+            initial value and then decremented. If the key does not
+            exist and no initial_value is specified, the key's value
+            will not be set.
+
+            >>> c = MemoryCache()
+            >>> c.decr('k')
+            >>> c.decr('k', initial_value=10)
+            9
+            >>> c.decr('k')
+            8
+        """
+        return self.incr(key, -delta, initial_value)
+
     def store(self, key, value, time=0, op=0):
         """
             There is item in cached that expired
@@ -322,7 +385,7 @@ class MemoryCache(object):
             items[key] = CacheItem(key, value, time)
         finally:
             self.lock.release()
-        if time > 0:
+        if time < 0x7FFFFFFF:
             expired_keys = None
             bucket_id = (now % self.period) / self.interval
             bucket_lock, bucket_items = self.expire_buckets[bucket_id - 1]
@@ -380,7 +443,7 @@ class MemoryCache(object):
                 succeeded.append((key, time))
         finally:
             self.lock.release()
-        if time > 0 and succeeded:
+        if time < 0x7FFFFFFF and succeeded:
             expired_keys = None
             bucket_id = (now % self.period) / self.interval
             bucket_lock, bucket_items = self.expire_buckets[bucket_id - 1]
