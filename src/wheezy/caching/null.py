@@ -67,8 +67,7 @@ class NullCache(object):
         return []
 
     def get(self, key, namespace=None):
-        """
-            Looks up a single key.
+        """ Looks up a single key.
 
             >>> c = NullCache()
             >>> c.get('k')
@@ -76,8 +75,7 @@ class NullCache(object):
         return None
 
     def get_multi(self, keys, key_prefix=''):
-        """
-            Looks up multiple keys from cache in one operation.
+        """ Looks up multiple keys from cache in one operation.
             This is the recommended way to do bulk loads.
 
             >>> c = NullCache()
@@ -87,8 +85,7 @@ class NullCache(object):
         return {}
 
     def delete(self, key, seconds=0):
-        """
-            Deletes a key from cache.
+        """ Deletes a key from cache.
 
             >>> c = NullCache()
             >>> c.delete('k')
@@ -97,8 +94,7 @@ class NullCache(object):
         return True
 
     def delete_multi(self, keys, seconds=0, key_prefix=''):
-        """
-            Delete multiple keys at once.
+        """ Delete multiple keys at once.
 
             >>> c = NullCache()
             >>> c.delete_multi([])
@@ -106,9 +102,38 @@ class NullCache(object):
         """
         return True
 
-    def flush_all(self):
+    def incr(key, delta=1, initial_value=None):
+        """ Atomically increments a key's value. The value, if too
+            large, will wrap around.
+
+            If the key does not yet exist in the cache and you specify
+            an initial_value, the key's value will be set to this
+            initial value and then incremented. If the key does not
+            exist and no initial_value is specified, the key's value
+            will not be set.
+
+            >>> c = NullCache()
+            >>> c.incr('k')
         """
-            Deletes everything in cache.
+        return None
+
+    def decr(key, delta=1, initial_value=None)
+        """ Atomically decrements a key's value. The value, if too
+            large, will wrap around.
+
+            If the key does not yet exist in the cache and you specify
+            an initial_value, the key's value will be set to this
+            initial value and then decremented. If the key does not
+            exist and no initial_value is specified, the key's value
+            will not be set.
+
+            >>> c = NullCache()
+            >>> c.decr('k')
+        """
+        return None
+
+    def flush_all(self):
+        """ Deletes everything in cache.
 
             >>> c = NullCache()
             >>> c.flush_all()
