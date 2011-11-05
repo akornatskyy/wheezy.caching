@@ -83,8 +83,8 @@ class MemoryCache(object):
         self.last_expire_bucket_id = -1
 
     def set(self, key, value, time=0):
-        """
-            Sets a key's value, regardless of previous contents in cache
+        """ Sets a key's value, regardless of previous contents
+            in cache.
 
             >>> c = MemoryCache()
             >>> c.set('k', 'v', 100)
@@ -93,7 +93,8 @@ class MemoryCache(object):
         return self.store(key, value, time, 0)
 
     def set_multi(self, mapping, time=0, key_prefix=''):
-        """
+        """ Set multiple keys' values at once.
+
             >>> c = MemoryCache()
             >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
             []
@@ -101,8 +102,8 @@ class MemoryCache(object):
         return self.store_multi(mapping, time, key_prefix)
 
     def add(self, key, value, time=0):
-        """
-            Sets a key's value, if and only if the item is not already
+        """ Sets a key's value, if and only if the item is not
+            already.
 
             >>> c = MemoryCache()
             >>> c.add('k', 'v', 100)
@@ -113,7 +114,9 @@ class MemoryCache(object):
         return self.store(key, value, time, 1)
 
     def add_multi(self, mapping, time=0, key_prefix=''):
-        """
+        """ Adds multiple values at once, with no effect for keys
+            already in cache.
+
             >>> c = MemoryCache()
             >>> c.add_multi({'k': 'v'}, 100)
             []
@@ -123,8 +126,7 @@ class MemoryCache(object):
         return self.store_multi(mapping, time, key_prefix, 1)
 
     def replace(self, key, value, time=0):
-        """
-            Replaces a key's value, failing if item isn't already
+        """ Replaces a key's value, failing if item isn't already.
 
             >>> c = MemoryCache()
             >>> c.replace('k', 'v', 100)
@@ -137,7 +139,9 @@ class MemoryCache(object):
         return self.store(key, value, time, 2)
 
     def replace_multi(self, mapping, time=0, key_prefix=''):
-        """
+        """ Replaces multiple values at once, with no effect for
+            keys not in cache.
+
             >>> c = MemoryCache()
             >>> c.replace_multi({'k': 'v'}, 100)
             ['k']
@@ -149,8 +153,7 @@ class MemoryCache(object):
         return self.store_multi(mapping, time, key_prefix, 2)
 
     def get(self, key, namespace=None):
-        """
-            Looks up a single key.
+        """ Looks up a single key.
 
             If ``key`` is not found return None
 
@@ -163,8 +166,6 @@ class MemoryCache(object):
             True
             >>> c.get('k')
             'v'
-            >>> from timeit import timeit
-            >>> #timeit(lambda: c.get('k'))
 
             There is item in cached that expired
 
@@ -186,7 +187,8 @@ class MemoryCache(object):
             self.lock.release()
 
     def get_multi(self, keys, key_prefix=''):
-        """
+        """ Looks up multiple keys from cache in one operation.
+            This is the recommended way to do bulk loads.
 
             >>> c = MemoryCache()
             >>> c.get_multi(('k1', 'k2', 'k3'))
@@ -197,9 +199,6 @@ class MemoryCache(object):
             True
             >>> c.get_multi(('k1', 'k2'))
             {'k2': 'v2', 'k1': 'v1'}
-
-            >>> from timeit import timeit
-            >>> #timeit(lambda: c.get_multi(('k1', 'k2')))
 
             There is item in cache that expired
 
@@ -227,8 +226,7 @@ class MemoryCache(object):
         return results
 
     def delete(self, key, seconds=0):
-        """
-            Deletes a key from cache.
+        """ Deletes a key from cache.
 
             If ``key`` is not found return False
 
@@ -261,7 +259,7 @@ class MemoryCache(object):
             self.lock.release()
 
     def delete_multi(self, keys, seconds=0, key_prefix=''):
-        """
+        """ Delete multiple keys at once.
 
             >>> c = MemoryCache()
             >>> c.delete_multi(('k1', 'k2', 'k3'))
@@ -399,7 +397,8 @@ class MemoryCache(object):
         return keys_failed
 
     def flush_all(self):
-        """
+        """ Deletes everything in cache.
+
             >>> c = MemoryCache()
             >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
             []

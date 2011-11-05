@@ -9,8 +9,8 @@ class NullCache(object):
         pass
 
     def set(self, key, value, time=0):
-        """
-            Sets a key's value, regardless of previous contents in cache.
+        """ Sets a key's value, regardless of previous contents
+            in cache.
 
             >>> c = NullCache()
             >>> c.set('k', 'v')
@@ -19,8 +19,7 @@ class NullCache(object):
         return True
 
     def set_multi(self, mapping, time=0, key_prefix=''):
-        """
-            Set multiple keys' values at once.
+        """ Set multiple keys' values at once.
 
             >>> c = NullCache()
             >>> c.set_multi({})
@@ -29,8 +28,8 @@ class NullCache(object):
         return []
 
     def add(self, key, value, time=0):
-        """
-            Sets a key's value, if and only if the item is not already.
+        """ Sets a key's value, if and only if the item is not
+            already.
 
             >>> c = NullCache()
             >>> c.add('k', 'v')
@@ -39,8 +38,7 @@ class NullCache(object):
         return True
 
     def add_multi(self, mapping, time=0, key_prefix=''):
-        """
-            Adds multiple values at once, with no effect for keys
+        """ Adds multiple values at once, with no effect for keys
             already in cache.
 
             >>> c = NullCache()
@@ -50,8 +48,7 @@ class NullCache(object):
         return []
 
     def replace(self, key, value, time=0):
-        """
-            Replaces a key's value, failing if item isn't already
+        """ Replaces a key's value, failing if item isn't already.
 
             >>> c = NullCache()
             >>> c.replace('k', 'v')
@@ -60,8 +57,7 @@ class NullCache(object):
         return True
 
     def replace_multi(self, mapping, time=0, key_prefix=''):
-        """
-            Replaces multiple values at once, with no effect for
+        """ Replaces multiple values at once, with no effect for
             keys not in cache.
 
             >>> c = NullCache()
