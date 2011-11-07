@@ -66,7 +66,7 @@ class NullCache(object):
         """
         return []
 
-    def get(self, key, namespace=None):
+    def get(self, key):
         """ Looks up a single key.
 
             >>> c = NullCache()
