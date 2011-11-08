@@ -2,8 +2,11 @@
 """ ``memory`` module.
 """
 
-from thread import allocate_lock
 from time import time as unixtime
+
+from wheezy.caching.comp import allocate_lock
+from wheezy.caching.comp import iteritems
+from wheezy.caching.comp import xrange
 
 
 def expires(now, time):
@@ -176,13 +179,14 @@ class MemoryCache(object):
         items = self.items
         self.lock.acquire(1)
         try:
-            entry = items[key]
-            if entry.expires < now:
-                del items[key]
+            try:
+                entry = items[key]
+                if entry.expires < now:
+                    del items[key]
+                    return None
+                return entry.value
+            except KeyError:
                 return None
-            return entry.value
-        except KeyError:
-            return None
         finally:
             self.lock.release()
 
@@ -248,13 +252,14 @@ class MemoryCache(object):
         items = self.items
         self.lock.acquire(1)
         try:
-            entry = items[key]
-            del items[key]
-            if entry.expires < now:
+            try:
+                entry = items[key]
+                del items[key]
+                if entry.expires < now:
+                    return False
+                return True
+            except KeyError:
                 return False
-            return True
-        except KeyError:
-            return False
         finally:
             self.lock.release()
 
@@ -362,7 +367,7 @@ class MemoryCache(object):
             There is item in expire_buckets that expired
 
             >>> c = MemoryCache()
-            >>> i = ((int(unixtime()) % c.period)
+            >>> i = int((int(unixtime()) % c.period)
             ...         / c.interval) - 1
             >>> c.expire_buckets[i] = (allocate_lock(), [('x', 10)])
             >>> c.store('k', 'v', 100)
@@ -387,7 +392,7 @@ class MemoryCache(object):
             self.lock.release()
         if time < 0x7FFFFFFF:
             expired_keys = None
-            bucket_id = (now % self.period) / self.interval
+            bucket_id = int((now % self.period) / self.interval)
             bucket_lock, bucket_items = self.expire_buckets[bucket_id - 1]
             bucket_lock.acquire(1)
             try:
@@ -413,7 +418,7 @@ class MemoryCache(object):
             There is item in expire_buckets that expired
 
             >>> c = MemoryCache()
-            >>> i = ((int(unixtime()) % c.period)
+            >>> i = int((int(unixtime()) % c.period)
             ...         / c.interval) - 1
             >>> c.expire_buckets[i] = (allocate_lock(), [('x', 10)])
             >>> c.store_multi({'k': 'v'}, 100)
@@ -426,7 +431,7 @@ class MemoryCache(object):
         succeeded = []
         self.lock.acquire(1)
         try:
-            for k, value in mapping.iteritems():
+            for k, value in iteritems(mapping):
                 key = key_prefix + k
                 try:
                     entry = items[key]
@@ -445,7 +450,7 @@ class MemoryCache(object):
             self.lock.release()
         if time < 0x7FFFFFFF and succeeded:
             expired_keys = None
-            bucket_id = (now % self.period) / self.interval
+            bucket_id = int((now % self.period) / self.interval)
             bucket_lock, bucket_items = self.expire_buckets[bucket_id - 1]
             bucket_lock.acquire(1)
             try:

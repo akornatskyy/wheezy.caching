@@ -2,6 +2,9 @@
 """ ``dependency`` module.
 """
 
+from wheezy.caching.comp import itervalues
+from wheezy.caching.comp import xrange
+
 
 class CacheDependency(object):
     __slots__ = ['cache', 'master_key', 'time']
@@ -116,6 +119,6 @@ class CacheDependency(object):
         if n is None:
             return True
         keys = [self.master_key + str(i) for i in xrange(1, n + 1)]
-        keys.extend(self.cache.get_multi(keys).itervalues())
+        keys.extend(itervalues(self.cache.get_multi(keys)))
         keys.append(self.master_key)
         return self.cache.delete_multi(keys)
