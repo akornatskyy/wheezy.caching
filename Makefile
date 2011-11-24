@@ -8,16 +8,16 @@ PYTHON=env/bin/python$(VERSION)
 EASY_INSTALL=env/bin/easy_install-$(VERSION)
 PYTEST=env/bin/py.test-$(VERSION)
 NOSE=env/bin/nosetests-$(VERSION)
-SPHINX=env/bin/sphinx-build
+SPHINX=/usr/bin/python /usr/bin/sphinx-build
 
 all: clean test release
 
 debian:
-	apt-get -yq update
-	apt-get -yq dist-upgrade
+	apt-get -y update
+	apt-get -y dist-upgrade
 	# How to Compile Python from Source
 	# http://mindref.blogspot.com/2011/09/compile-python-from-source.html
-	apt-get -yq install libbz2-dev build-essential python \
+	apt-get -y install libbz2-dev build-essential python \
 		python-dev python-setuptools python-virtualenv \
 		python-sphinx mercurial
 
