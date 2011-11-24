@@ -1,5 +1,5 @@
-.SILENT: clean env doc release test
-.PHONY: clean env doc release test
+.SILENT: clean env doctest-cover test doc release
+.PHONY: clean env doctest-cover test doc release
 
 VERSION=2.6
 PYPI=http://pypi.python.org/simple
@@ -10,7 +10,7 @@ PYTEST=env/bin/py.test-$(VERSION)
 NOSE=env/bin/nosetests-$(VERSION)
 SPHINX=/usr/bin/python /usr/bin/sphinx-build
 
-all: clean test release
+all: clean doctest-cover test release
 
 debian:
 	apt-get -y update
