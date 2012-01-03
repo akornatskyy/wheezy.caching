@@ -85,7 +85,7 @@ class MemoryCache(object):
                 for i in xrange(0, buckets)]
         self.last_expire_bucket_id = -1
 
-    def set(self, key, value, time=0):
+    def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents
             in cache.
 
@@ -95,7 +95,7 @@ class MemoryCache(object):
         """
         return self.store(key, value, time, 0)
 
-    def set_multi(self, mapping, time=0, key_prefix=''):
+    def set_multi(self, mapping, time=0, key_prefix='', namespace=None):
         """ Set multiple keys' values at once.
 
             >>> c = MemoryCache()
@@ -104,7 +104,7 @@ class MemoryCache(object):
         """
         return self.store_multi(mapping, time, key_prefix)
 
-    def add(self, key, value, time=0):
+    def add(self, key, value, time=0, namespace=None):
         """ Sets a key's value, if and only if the item is not
             already.
 
@@ -116,7 +116,7 @@ class MemoryCache(object):
         """
         return self.store(key, value, time, 1)
 
-    def add_multi(self, mapping, time=0, key_prefix=''):
+    def add_multi(self, mapping, time=0, key_prefix='', namespace=None):
         """ Adds multiple values at once, with no effect for keys
             already in cache.
 
@@ -128,7 +128,7 @@ class MemoryCache(object):
         """
         return self.store_multi(mapping, time, key_prefix, 1)
 
-    def replace(self, key, value, time=0):
+    def replace(self, key, value, time=0, namespace=None):
         """ Replaces a key's value, failing if item isn't already.
 
             >>> c = MemoryCache()
@@ -141,7 +141,7 @@ class MemoryCache(object):
         """
         return self.store(key, value, time, 2)
 
-    def replace_multi(self, mapping, time=0, key_prefix=''):
+    def replace_multi(self, mapping, time=0, key_prefix='', namespace=None):
         """ Replaces multiple values at once, with no effect for
             keys not in cache.
 
@@ -190,7 +190,7 @@ class MemoryCache(object):
         finally:
             self.lock.release()
 
-    def get_multi(self, keys, key_prefix=''):
+    def get_multi(self, keys, key_prefix='', namespace=None):
         """ Looks up multiple keys from cache in one operation.
             This is the recommended way to do bulk loads.
 
@@ -229,7 +229,7 @@ class MemoryCache(object):
             self.lock.release()
         return results
 
-    def delete(self, key, seconds=0):
+    def delete(self, key, seconds=0, namespace=None):
         """ Deletes a key from cache.
 
             If ``key`` is not found return False
@@ -263,7 +263,7 @@ class MemoryCache(object):
         finally:
             self.lock.release()
 
-    def delete_multi(self, keys, seconds=0, key_prefix=''):
+    def delete_multi(self, keys, seconds=0, key_prefix='', namespace=None):
         """ Delete multiple keys at once.
 
             >>> c = MemoryCache()
@@ -292,7 +292,7 @@ class MemoryCache(object):
             self.lock.release()
         return True
 
-    def incr(self, key, delta=1, initial_value=None):
+    def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too
             large, will wrap around.
 
@@ -336,7 +336,7 @@ class MemoryCache(object):
         finally:
             self.lock.release()
 
-    def decr(self, key, delta=1, initial_value=None):
+    def decr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically decrements a key's value. The value, if too
             large, will wrap around.
 
@@ -353,7 +353,7 @@ class MemoryCache(object):
             >>> c.decr('k')
             8
         """
-        return self.incr(key, -delta, initial_value)
+        return self.incr(key, -delta, namespace, initial_value)
 
     def store(self, key, value, time=0, op=0):
         """
