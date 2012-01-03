@@ -14,7 +14,7 @@ class CacheDependency(object):
         self.master_key = master_key
         self.time = time
 
-    def next_key(self):
+    def next_key(self, namespace=None):
         """ Returns the next unique key for dependency.
 
             >>> from wheezy.caching.memory import MemoryCache
@@ -26,9 +26,9 @@ class CacheDependency(object):
             'key2'
         """
         return self.master_key + str(self.cache.incr(
-            self.master_key, initial_value=0))
+            self.master_key, namespace=namespace, initial_value=0))
 
-    def next_keys(self, n):
+    def next_keys(self, n, namespace=None):
         """ Returns ``n`` number of dependency keys.
 
             >>> from wheezy.caching.memory import MemoryCache
@@ -40,11 +40,11 @@ class CacheDependency(object):
             ['key2', 'key3', 'key4']
         """
         last_id = self.cache.incr(self.master_key,
-                delta=n, initial_value=0)
+                delta=n, namespace=namespace, initial_value=0)
         return [self.master_key + str(i)
                 for i in xrange(last_id - n + 1, last_id + 1)]
 
-    def add(self, key, key_prefix=''):
+    def add(self, key, key_prefix='', namespace=None):
         """ Adds a given key to dependency.
 
             >>> from wheezy.caching.memory import MemoryCache
@@ -63,9 +63,9 @@ class CacheDependency(object):
             'key-y'
         """
         return self.cache.add(self.next_key(),
-                key_prefix + key, self.time)
+                key_prefix + key, self.time, namespace=namespace)
 
-    def add_multi(self, keys, key_prefix=''):
+    def add_multi(self, keys, key_prefix='', namespace=None):
         """
             >>> from wheezy.caching.memory import MemoryCache
             >>> c = MemoryCache()
@@ -88,9 +88,9 @@ class CacheDependency(object):
         """
         mapping = dict(zip(self.next_keys(len(keys)),
             map(lambda k: key_prefix + k, keys)))
-        return self.cache.add_multi(mapping, self.time)
+        return self.cache.add_multi(mapping, self.time, namespace=namespace)
 
-    def delete(self):
+    def delete(self, namespace=None):
         """
             >>> from wheezy.caching.memory import MemoryCache
             >>> c = MemoryCache()
@@ -115,10 +115,11 @@ class CacheDependency(object):
             >>> len(c.items)
             0
         """
-        n = self.cache.get(self.master_key)
+        n = self.cache.get(self.master_key, namespace=namespace)
         if n is None:
             return True
         keys = [self.master_key + str(i) for i in xrange(1, n + 1)]
-        keys.extend(itervalues(self.cache.get_multi(keys)))
+        keys.extend(itervalues(
+            self.cache.get_multi(keys, namespace=namespace)))
         keys.append(self.master_key)
-        return self.cache.delete_multi(keys)
+        return self.cache.delete_multi(keys, namespace=namespace)
