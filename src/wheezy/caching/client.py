@@ -1,5 +1,5 @@
 
-""" ``interface`` module.
+""" ``client`` module.
 """
 
 
