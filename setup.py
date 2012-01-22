@@ -10,17 +10,17 @@ except:
 README = open(os.path.join(os.path.dirname(__file__), 'README')).read()
 
 setup(
-    name = 'wheezy.caching',
-    version = '0.1',
-    description = 'A lightweight caching library',
-    long_description = README,
-    url = 'https://bitbucket.org/akorn/wheezy.caching',
+    name='wheezy.caching',
+    version='0.1',
+    description='A lightweight caching library',
+    long_description=README,
+    url='https://bitbucket.org/akorn/wheezy.caching',
 
-    author = 'Andriy Kornatskyy',
-    author_email = 'andriy.kornatskyy at live.com',
+    author='Andriy Kornatskyy',
+    author_email='andriy.kornatskyy at live.com',
 
-    license = 'MIT',
-    classifiers = [
+    license='MIT',
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
@@ -37,17 +37,15 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities'
     ],
-    keywords = [
-        'caching'
-    ],
-    packages = ['wheezy', 'wheezy.caching'],
-    package_dir = {'': 'src'},
+    keywords='caching dependency memory null',
+    packages=['wheezy', 'wheezy.caching'],
+    package_dir={'': 'src'},
     namespace_packages=['wheezy'],
 
-    zip_safe = True,
-    install_requires = [
+    zip_safe=True,
+    install_requires=[
     ],
-    extras_require = {
+    extras_require={
         'dev': [
             'coverage',
             'nose',
@@ -57,5 +55,5 @@ setup(
         ]
     },
 
-    platforms = 'any'
+    platforms='any'
 )
