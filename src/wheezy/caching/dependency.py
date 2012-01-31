@@ -7,6 +7,11 @@ from wheezy.caching.comp import xrange
 
 
 class CacheDependency(object):
+    """ CacheDependency introduces a `wire` between cache items
+        so they can be invalidated via a single operation, thus
+        simplifing code necessary to manage dependencies in cache.
+    """
+    
     __slots__ = ['cache', 'master_key', 'time']
 
     def __init__(self, cache, master_key, time=0):
@@ -66,7 +71,8 @@ class CacheDependency(object):
                 key_prefix + key, self.time, namespace=namespace)
 
     def add_multi(self, keys, key_prefix='', namespace=None):
-        """
+        """ Adds several keys to dependency.
+        
             >>> from wheezy.caching.memory import MemoryCache
             >>> c = MemoryCache()
             >>> d = CacheDependency(c, 'key')
@@ -91,7 +97,8 @@ class CacheDependency(object):
         return self.cache.add_multi(mapping, self.time, namespace=namespace)
 
     def delete(self, namespace=None):
-        """
+        """ Delete all items wired by this cache dependency.
+        
             >>> from wheezy.caching.memory import MemoryCache
             >>> c = MemoryCache()
             >>> d = CacheDependency(c, 'key')

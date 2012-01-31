@@ -4,6 +4,10 @@
 
 
 class NullCache(object):
+    """ NullCache is a cache implementation that actually doesn't
+        do anything but silently performs cache operations that
+        result no change to state.
+    """
 
     def __init__(self):
         pass

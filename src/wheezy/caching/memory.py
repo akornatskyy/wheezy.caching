@@ -66,6 +66,8 @@ def find_expired(bucket_items, now):
 
 
 class CacheItem(object):
+    """ A single cache item stored in cache.
+    """
     __slots__ = ['key', 'value', 'expires']
 
     def __init__(self, key, value, expires):
@@ -75,6 +77,8 @@ class CacheItem(object):
 
 
 class MemoryCache(object):
+    """ Effectively implements in-memory cache.
+    """ 
 
     def __init__(self, buckets=60, bucket_interval=15):
         self.period = buckets * bucket_interval
