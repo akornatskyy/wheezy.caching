@@ -56,7 +56,7 @@ namespaces reside in a single cache::
         'funds': cache,
     }, default_namespace='default')
 
-That happend we no changes to application code, just configuration
+That happend with no changes to application code, just configuration
 settings.
 
 MemoryCache
@@ -70,9 +70,9 @@ checked on each get operation.
 In order to effectively manage invalidation of expired items (those 
 that are not actively requested) each item being added to cache is
 assigned to time bucket. Each time bucket has a number associated
-with point of time. So if incoming store in cache operation relates
-to time bucket N, all items from what bucket are being checked and
-expired items removed.
+with a point in time. So if incoming store operation relates to time 
+bucket N, all items from that bucket are being checked and expired 
+items removed.
 
 You control a number of buckets during initialization of 
 :py:class:`~wheezy.caching.memory.MemoryCache`. Here are attributes
@@ -84,7 +84,7 @@ that are acepted:
 
 Inteval set by ``bucket_interval`` shows how often items in cache will
 be checked for expiration. So if it set to 15 means that every 15 seconds
-cache will choose a bucket related to that point of time and all items in 
+cache will choose a bucket related to that point in time and all items in 
 bucket will be checked for expiration. Since there are 60 buckets in the
 cache that means only 1/60 part of cache items are locked. This lock
 does not impact items requested by ``get``/``get_multi`` operations. 
@@ -115,23 +115,40 @@ any particular cache implementation.
 invalidate items across different cache partitions (namespaces). Note
 that ``delete`` must be performed for each namespace.
 
+Example
+~~~~~~~
 
+Let demostrate this by example. We establish dependency between keys
+``k1``, ``k2`` and ``k3``. Please note that dependency doesn't need to
+be passed between varios parts of application. You can create it in
+one place, than in other, etc. ``CacheDependency`` stores it state in
+cache::
 
+    # this is sample from from module a.
+    dependency = CacheDependency(cache, 'master-key')
+    dependency.add_multi(['k1', 'k2', 'k3'])
 
+    # this is sample from from module b.
+    dependency = CacheDependency(cache, 'master-key')
+    dependency.add('k4')
 
+Note that module `b` have no idea about keys used in module `a`. Instead
+they share `virtually` cache dependency.
 
+Once we need invalidate items related to cache dependency this is what we
+do::
+    
+    dependency = CacheDependency(cache, 'master-key')
+    dependency.delete()
+    
+``delete`` operation must be repeated for each namespace (it doesn't manage
+namespace dependency)::
 
+    dependency = CacheDependency(cache, 'master-key')
+    dependency.delete(namespace='membership')
+    dependency.delete(namespace='funds')
 
-
-
-
-
-
-
-
-
-
-
-
+Cache dependency is effective way to reduce coupling between modules in 
+terms of cache items invalidation.
 
 
