@@ -7,15 +7,14 @@ class CacheClient(object):
     """ CacheClient serves mediator purpose between a single entry
         point that implements Cache and one or many namespaces
         targeted to concrete cache implementations. CacheClient
-        let partition application cache by namespaces effectively 
+        let partition application cache by namespaces effectively
         hiding details from client code.
-        
     """
 
     def __init__(self, namespaces, default_namespace):
         """
             ``namespaces`` - a mapping between namespace and cache
-            ``default_namespace`` - namespace to use in case it is not 
+            ``default_namespace`` - namespace to use in case it is not
                 specified in cache operation.
         """
         self.default = namespaces[default_namespace]

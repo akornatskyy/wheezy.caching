@@ -11,7 +11,7 @@ class CacheDependency(object):
         so they can be invalidated via a single operation, thus
         simplifing code necessary to manage dependencies in cache.
     """
-    
+
     __slots__ = ['cache', 'master_key', 'time']
 
     def __init__(self, cache, master_key, time=0):
@@ -72,7 +72,7 @@ class CacheDependency(object):
 
     def add_multi(self, keys, key_prefix='', namespace=None):
         """ Adds several keys to dependency.
-        
+
             >>> from wheezy.caching.memory import MemoryCache
             >>> c = MemoryCache()
             >>> d = CacheDependency(c, 'key')
@@ -98,7 +98,7 @@ class CacheDependency(object):
 
     def delete(self, namespace=None):
         """ Delete all items wired by this cache dependency.
-        
+
             >>> from wheezy.caching.memory import MemoryCache
             >>> c = MemoryCache()
             >>> d = CacheDependency(c, 'key')

@@ -78,7 +78,7 @@ class CacheItem(object):
 
 class MemoryCache(object):
     """ Effectively implements in-memory cache.
-    """ 
+    """
 
     def __init__(self, buckets=60, bucket_interval=15):
         self.period = buckets * bucket_interval
