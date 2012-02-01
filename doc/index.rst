@@ -1,7 +1,7 @@
 .. _`wheezy.caching`:
 
 Wheezy Caching
-=================
+==============
 
 Introduction
 ------------
