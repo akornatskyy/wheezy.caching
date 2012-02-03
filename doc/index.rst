@@ -36,5 +36,5 @@ Contents
 .. _`issues`: http://bitbucket.org/akorn/wheezy.caching/issues
 .. _`pypi`: http://pypi.python.org
 .. _`python`: http://www.python.org
-.. _`readthedocs`: http://readthedocs.org/builds/wheezycore/
+.. _`readthedocs`: http://readthedocs.org/builds/wheezycaching/
 .. _`source code`: http://bitbucket.org/akorn/wheezy.caching/src
