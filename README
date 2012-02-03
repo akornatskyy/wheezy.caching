@@ -56,7 +56,7 @@ If you run into any issue or have comments, go ahead and add on
 `bitbucket`_.
 
 .. _`article`: http://mindref.blogspot.com/2011/09/compile-python-from-source.html
-.. _`bitbucket`: http://bitbucket.org/akorn/wheezy.caching/issues
+.. _`bitbucket`: http://bitbucket.org/akorn/wheezy.caching
 .. _`doctest`: http://docs.python.org/library/doctest.html
 .. _`documentation`: http://packages.python.org/wheezy.caching
 .. _`eggs`: http://pypi.python.org/pypi/wheezy.caching
