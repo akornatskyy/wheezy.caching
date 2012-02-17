@@ -1,5 +1,5 @@
-.SILENT: clean env doctest-cover test doc release
-.PHONY: clean env doctest-cover test doc release
+.SILENT: clean env doctest-cover test doc release upload
+.PHONY: clean env doctest-cover test doc release upload
 
 VERSION=2.7
 PYPI=http://pypi.python.org/simple
@@ -58,7 +58,9 @@ upload:
 	if [ "$$(echo $(VERSION) | sed 's/\.//')" -eq 27 ]; then \
 		$(PYTHON) setup.py -q egg_info --tag-build .$$REV \
 			sdist register upload; \
-		make -s doc; \
+		$(EASY_INSTALL) -i $(PYPI) sphinx; \
+		$(PYTHON) env/bin/sphinx-build -D release=0.1.$$REV \
+			-a -b html doc/ doc/_build/;\
 		python setup.py upload_docs; \
 	fi; \
 	$(PYTHON) setup.py -q egg_info --tag-build .$$REV \
