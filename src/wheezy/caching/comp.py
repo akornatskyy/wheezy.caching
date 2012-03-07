@@ -33,3 +33,8 @@ else:  # pragma: nocover
     __saved_import__ = __import__
     __import__ = lambda n, g=None, l=None, f=None:\
             __saved_import__(n, g, l, f, 0)
+
+if PY3:  # pragma: nocover
+    from queue import Queue
+else:  # pragma: nocover
+    from Queue import Queue

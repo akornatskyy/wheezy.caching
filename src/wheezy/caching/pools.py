@@ -2,7 +2,7 @@
 """ ``pools`` module.
 """
 
-from Queue import Queue
+from wheezy.caching.comp import Queue
 
 
 class EagerPool(object):
