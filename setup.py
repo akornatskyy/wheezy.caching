@@ -38,7 +38,7 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    keywords='caching dependency memory null',
+    keywords='caching dependency memory null memcache memcached pylibmc',
     packages=['wheezy', 'wheezy.caching'],
     package_dir={'': 'src'},
     namespace_packages=['wheezy'],
@@ -47,6 +47,12 @@ setup(
     install_requires=[
     ],
     extras_require={
+        'pylibmc': [
+            'pylibmc'
+        ],
+        'python-memcache': [
+            'python-memcache'
+        ],
         'dev': [
             'coverage',
             'nose',
