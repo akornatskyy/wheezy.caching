@@ -40,9 +40,12 @@ env:
 	$(EASY_INSTALL) -i $(PYPI) -O2 coverage nose pytest \
 		pytest-pep8 pytest-cov
 	# The following packages available for python < 3.0
-	#if [ "$$(echo $(VERSION) | sed 's/\.//')" -lt 30 ]; then \
-	#	$(EASY_INSTALL) sphinx; \
-	#fi;
+	if [ "$$(echo $(VERSION) | sed 's/\.//')" -lt 30 ]; then \
+		$(EASY_INSTALL) -i $(PYPI) -U -O2 python-memcached; \
+		if [ "$$(echo $(VERSION) | sed 's/\.//')" -gt 24 ]; then \
+			$(EASY_INSTALL) -i $(PYPI) -U -O2 pylibmc; \
+		fi; \
+	fi;
 	$(PYTHON) setup.py develop -i $(PYPI)
 
 clean:
