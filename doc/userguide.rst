@@ -10,7 +10,7 @@ User Guide
 
 :ref:`wheezy.caching` provides integration with:
 
-* `python-memcache`_ - Pure Python `memcached`_ client.
+* `python-memcached`_ - Pure Python `memcached`_ client.
 * `pylibmc`_ - Quick and small `memcached`_ client for Python written in C.
 
 It introduces idea of *cache dependency* that let effectively invalidate
@@ -21,9 +21,9 @@ Contract
 
 All cache implementations and integrations provide the same contract. That
 means caches can be swapped without a need to modify the code. However
-there do exist challenge: some caches are sigletons and correctly 
+there do exist challenge: some caches are sigletons and correctly
 provide inter-thread synchronization (thread safe), while others require
-an instance per thread (not thread safe), some sort of pooling is 
+an instance per thread (not thread safe), some sort of pooling is
 required. In order to provide an easy interchangeable approach for various cache
 implementations it is recommended use: factory method plus context
 manager.
@@ -40,10 +40,10 @@ Let demonstrate this by examples::
     with cache_factory() as cache:
         cache.set(...)
 
-Above factory and context manager use is somewhat dummy since you are 
+Above factory and context manager use is somewhat dummy since you are
 fine to work directly with cache. However what happens if at some point
-of time you will need to use some other cache implementation (e.g. 
-pylibmc - `memcached`_ client written in C). The client code will not 
+of time you will need to use some other cache implementation (e.g.
+pylibmc - `memcached`_ client written in C). The client code will not
 change, we just provide another ``cache_factory``::
 
     from wheezy.caching.pools import EagerPool
@@ -151,13 +151,13 @@ result no change to state.
 * ``get``, ``get_multi`` operations always report miss.
 * ``set``, ``add``, etc (all store operations) always succeed.
 
-python-memcache
----------------
+python-memcached
+----------------
 
-`python-memcache`_ is a pure Python `memcached`_ client. You can install
+`python-memcached`_ is a pure Python `memcached`_ client. You can install
 this package via easy_install::
 
-    $ env/bin/easy_install python-memcache
+    $ env/bin/easy_install python-memcached
 
 Here is a typical use case::
 
@@ -166,9 +166,9 @@ Here is a typical use case::
     cache = client_factory(['unix:/tmp/memcached.sock'])
     cache_factory = lambda: cache
 
-All arguments passed to 
+All arguments passed to
 :py:meth:`~wheezy.caching.memcache.client_factory` are the same as to
-original ``Client`` from python-memcache. Note, `python-memcache`_ 
+original ``Client`` from python-memcache. Note, `python-memcached`_
 ``Client`` implementation is *thread local* object.
 
 pylibmc
@@ -193,15 +193,15 @@ Here is a typical use case::
     pool = EagerPool(lambda: client_factory(['/tmp/memcached.sock']), size=10)
     cache_factory = lambda: Pooled(pool)
 
-All arguments passed to 
+All arguments passed to
 :py:meth:`~wheezy.caching.pylibmc.client_factory` are the same as to
 original ``Client`` from pylibmc. Default client factory configures
-`pylibmc`_ Client to use binary protocol, tcp_nodelay and ketama 
+`pylibmc`_ Client to use binary protocol, tcp_nodelay and ketama
 algorithm.
 
 Since `pylibmc`_ implementation is not thread safe it requires pooling,
 so we do here. :py:class:`~wheezy.caching.pools.EagerPool` holds
-a number of `pylibmc`_ instances, while 
+a number of `pylibmc`_ instances, while
 :py:class:`~wheezy.caching.pools.Pooled` serves context manager purpose,
 effectively acquiring and returning item to the pool.
 
@@ -252,17 +252,17 @@ namespace dependency) and/or cache::
     dependency = CacheDependency(cache, 'master-key')
     dependency.delete(namespace='membership')
     dependency.delete(namespace='funds')
-    
+
     # Using caches
     dependency = CacheDependency(membership_cache, 'master-key')
     dependency.delete()
     dependency = CacheDependency(funds_cache, 'master-key')
     dependency.delete()
 
-Cache dependency is an effective way to reduce coupling between modules 
+Cache dependency is an effective way to reduce coupling between modules
 in terms of cache items invalidation.
 
 .. _`memcached`: http://memcached.org
 .. _`pylibmc`: http://pypi.python.org/pypi/pylibmc
-.. _`python-memcache`: http://pypi.python.org/pypi/python-memcached
+.. _`python-memcached`: http://pypi.python.org/pypi/python-memcached
 
