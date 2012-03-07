@@ -20,7 +20,7 @@ debian:
 	# http://mindref.blogspot.com/2011/09/compile-python-from-source.html
 	apt-get -y install libbz2-dev build-essential python \
 		python-dev python-setuptools python-virtualenv \
-		python-sphinx mercurial
+		python-sphinx mercurial memcached libmemcached-dev
 
 env:
 	PYTHON_EXE=/usr/local/bin/python$(VERSION); \
@@ -69,17 +69,23 @@ upload:
 		upload;
 
 test:
+	memcached -s /tmp/memcached.sock -d
 	$(PYTEST) -q -x --pep8 --doctest-modules \
 		src/wheezy/caching
+	killall -u $(USER) -s 3 memcached
 
 doctest-cover:
+	memcached -s /tmp/memcached.sock -d
 	$(NOSE) --stop --with-doctest --detailed-errors \
 		--with-coverage --cover-package=wheezy.caching
+	killall -u $(USER) -s 3 memcached
 
 test-cover:
+	memcached -s /tmp/memcached.sock -d
 	$(PYTEST) -q --cov wheezy.caching \
 		--cov-report term-missing \
 		src/wheezy/caching/tests
+	killall -u $(USER) -s 3 memcached
 
 doc:
 	$(SPHINX) -a -b html doc/ doc/_build/
