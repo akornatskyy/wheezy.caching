@@ -19,6 +19,12 @@ wheezy.caching.dependency
 .. automodule:: wheezy.caching.dependency
    :members:
    
+wheezy.caching.memcache
+-----------------------
+
+.. automodule:: wheezy.caching.memcache
+   :members:
+   
 wheezy.caching.memory
 ---------------------
 
@@ -29,4 +35,16 @@ wheezy.caching.null
 -------------------
 
 .. automodule:: wheezy.caching.null
+   :members:
+         
+wheezy.caching.pools
+--------------------
+
+.. automodule:: wheezy.caching.pools
+   :members:
+         
+wheezy.caching.pylibmc
+----------------------
+
+.. automodule:: wheezy.caching.pylibmc
    :members:

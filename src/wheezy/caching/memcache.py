@@ -6,12 +6,17 @@ try:
     Client = __import__('memcache', None, None, ['Client']).Client
 
     def client_factory(*args, **kwargs):
+        """ Client factory for python-memcache.
+        """
         return MemcachedClient(Client(*args, **kwargs))
 except ImportError:  # pragma: nocover
     pass
 
 
 class MemcachedClient(object):
+    """ A wrapper around python-memcache Client in order to adapt
+        cache contract.
+    """
 
     def __init__(self, client):
         self.client = client

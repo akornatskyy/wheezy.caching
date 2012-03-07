@@ -8,8 +8,58 @@ User Guide
 * MemoryCache
 * NullCache
 
-It introduces idea of cache dependency that let effectively invalidate
+:ref:`wheezy.caching` provides integration with:
+
+* `python-memcache`_ - Pure Python `memcached`_ client.
+* `pylibmc`_ - Quick and small `memcached`_ client for Python written in C.
+
+It introduces idea of *cache dependency* that let effectively invalidate
 dependent cache items.
+
+Contract
+--------
+
+All cache implementations and integrations provide the same contract. That
+means caches can be swapped without a need to modify the code. However
+there do exist challenge: some caches are sigletons and correctly 
+provide inter-thread synchronization (thread safe), while others require
+an instance per thread (not thread safe), some sort of pooling is 
+required. In order to provide an easy interchangeable approach for various cache
+implementations it is recommended use: factory method plus context
+manager.
+
+Let demonstrate this by examples::
+
+    from wheezy.caching.memory import MemoryCache
+
+    # Singleton
+    cache = MemoryCache()
+    # Factory
+    cache_factory = lambda: memory
+    # Client code
+    with cache_factory() as cache:
+        cache.set(...)
+
+Above factory and context manager use is somewhat dummy since you are 
+fine to work directly with cache. However what happens if at some point
+of time you will need to use some other cache implementation (e.g. 
+pylibmc - `memcached`_ client written in C). The client code will not 
+change, we just provide another ``cache_factory``::
+
+    from wheezy.caching.pools import EagerPool
+    from wheezy.caching.pools import Pooled
+    from wheezy.caching.pylibmc import client_factory
+
+    # Cache Pool
+    pool = EagerPool(lambda: client_factory(['/tmp/memcached.sock']), size=10)
+    # Factory
+    cache_factory = lambda: Pooled(pool)
+    # Client code
+    with cache_factory() as cache:
+        cache.set(...)
+
+The client code remains unchanged, however we where able to switch to
+completely different cache implementation that requires pooling.
 
 CacheClient
 -----------
@@ -101,6 +151,60 @@ result no change to state.
 * ``get``, ``get_multi`` operations always report miss.
 * ``set``, ``add``, etc (all store operations) always succeed.
 
+python-memcache
+---------------
+
+`python-memcache`_ is a pure Python `memcached`_ client. You can install
+this package via easy_install::
+
+    $ env/bin/easy_install python-memcache
+
+Here is a typical use case::
+
+    from wheezy.caching.memcache import client_factory
+
+    cache = client_factory(['unix:/tmp/memcached.sock'])
+    cache_factory = lambda: cache
+
+All arguments passed to 
+:py:meth:`~wheezy.caching.memcache.client_factory` are the same as to
+original ``Client`` from python-memcache. Note, `python-memcache`_ 
+``Client`` implementation is *thread local* object.
+
+pylibmc
+-------
+
+`pylibmc`_ is a quick and small `memcached`_ client for Python written in C.
+Since this package is an interface to *libmemcached* you need development
+version of this library so it can be compiled. If you are using Debian::
+
+    apt-get install libmemcached-dev
+
+Now, you can install this package via easy_install::
+
+    $ env/bin/easy_install pylibmc
+
+Here is a typical use case::
+
+    from wheezy.caching.pools import EagerPool
+    from wheezy.caching.pools import Pooled
+    from wheezy.caching.pylibmc import client_factory
+
+    pool = EagerPool(lambda: client_factory(['/tmp/memcached.sock']), size=10)
+    cache_factory = lambda: Pooled(pool)
+
+All arguments passed to 
+:py:meth:`~wheezy.caching.pylibmc.client_factory` are the same as to
+original ``Client`` from pylibmc. Default client factory configures
+`pylibmc`_ Client to use binary protocol, tcp_nodelay and ketama 
+algorithm.
+
+Since `pylibmc`_ implementation is not thread safe it requires pooling,
+so we do here. :py:class:`~wheezy.caching.pools.EagerPool` holds
+a number of `pylibmc`_ instances, while 
+:py:class:`~wheezy.caching.pools.Pooled` serves context manager purpose,
+effectively acquiring and returning item to the pool.
+
 CacheDependency
 ---------------
 
@@ -113,7 +217,7 @@ any particular cache implementation.
 
 :py:class:`~wheezy.caching.dependency.CacheDependency` can be used to
 invalidate items across different cache partitions (namespaces). Note
-that ``delete`` must be performed for each namespace.
+that ``delete`` must be performed for each namespace and/or cache.
 
 Example
 ~~~~~~~
@@ -142,13 +246,23 @@ do::
     dependency.delete()
 
 ``delete`` operation must be repeated for each namespace (it doesn't manage
-namespace dependency)::
+namespace dependency) and/or cache::
 
+    # Using namespaces
     dependency = CacheDependency(cache, 'master-key')
     dependency.delete(namespace='membership')
     dependency.delete(namespace='funds')
+    
+    # Using caches
+    dependency = CacheDependency(membership_cache, 'master-key')
+    dependency.delete()
+    dependency = CacheDependency(funds_cache, 'master-key')
+    dependency.delete()
 
-Cache dependency is effective way to reduce coupling between modules in
-terms of cache items invalidation.
+Cache dependency is an effective way to reduce coupling between modules 
+in terms of cache items invalidation.
 
+.. _`memcached`: http://memcached.org
+.. _`pylibmc`: http://pypi.python.org/pypi/pylibmc
+.. _`python-memcache`: http://pypi.python.org/pypi/python-memcached
 

@@ -129,7 +129,7 @@ try:
     from wheezy.caching.pools import Pooled
     from wheezy.caching.pylibmc import client_factory as pylibmc_client
 
-    pool = EagerPool(lambda: pylibmc_client(['/tmp/memcached.sock']), 2)
+    pool = EagerPool(lambda: pylibmc_client(['/tmp/memcached.sock']), 1)
     pylibmc_factory = lambda: Pooled(pool)
 
     class PylibmcClientTestCase(TestCase, MemcachedClientTestMixin):

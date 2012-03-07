@@ -8,6 +8,8 @@ try:
     NotFound = c.NotFound
 
     def client_factory(*args, **kwargs):
+        """ Client factory for pylibmc.
+        """
         kwargs.setdefault('binary', True)
         behaviors = kwargs.setdefault('behaviors', {})
         behaviors.setdefault('tcp_nodelay', True)
@@ -20,6 +22,8 @@ except ImportError:  # pragma: nocover
 
 
 class MemcachedClient(object):
+    """ A wrapper around pylibmc Client in order to adapt cache contract.
+    """
 
     def __init__(self, client):
         self.client = client

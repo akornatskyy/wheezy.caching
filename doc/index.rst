@@ -7,7 +7,13 @@ Introduction
 ------------
 
 :ref:`wheezy.caching` is a `python`_ package written in pure Python code. 
-It is a lightweight caching library.
+It is a lightweight caching library that provides integration with:
+
+* `python-memcache`_ - Pure Python `memcached`_ client.
+* `pylibmc`_ - Quick and small `memcached`_ client for Python written in C.
+
+It introduces idea of *cache dependency* that let effectively invalidate
+dependent cache items as well as other cache related algorithms.
 
 It is optimized for performance, well tested and documented.
 
@@ -34,7 +40,11 @@ Contents
 .. _`eggs`: http://pypi.python.org/pypi/wheezy.caching
 .. _`examples`: http://bitbucket.org/akorn/wheezy.caching/src/tip/demos
 .. _`issues`: http://bitbucket.org/akorn/wheezy.caching/issues
+.. _`memcached`: http://memcached.org
+.. _`pylibmc`: http://pypi.python.org/pypi/pylibmc
 .. _`pypi`: http://pypi.python.org
 .. _`python`: http://www.python.org
-.. _`readthedocs`: http://readthedocs.org/builds/wheezycaching/
+.. _`python-memcache`: http://pypi.python.org/pypi/python-memcached
+.. _`readthedocs`: http://readthedocs.org/builds/wheezycaching
 .. _`source code`: http://bitbucket.org/akorn/wheezy.caching/src
+
