@@ -20,6 +20,12 @@ class CacheClient(object):
         self.default = namespaces[default_namespace]
         self.namespaces = namespaces
 
+    def __enter__(self):  # pragma: nocover
+        return self.default.__enter__()
+
+    def __exit__(self, exc_type, exc_value, traceback):  # pragma: nocover
+        self.default.__exit__(exc_type, exc_value, traceback)
+
     def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents
             in cache.

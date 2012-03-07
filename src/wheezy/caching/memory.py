@@ -89,6 +89,12 @@ class MemoryCache(object):
                 for i in xrange(0, buckets)]
         self.last_expire_bucket_id = -1
 
+    def __enter__(self):  # pragma: nocover
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):  # pragma: nocover
+        pass
+
     def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents
             in cache.

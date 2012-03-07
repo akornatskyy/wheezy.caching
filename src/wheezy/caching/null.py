@@ -12,6 +12,12 @@ class NullCache(object):
     def __init__(self):
         pass
 
+    def __enter__(self):  # pragma: nocover
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):  # pragma: nocover
+        pass
+
     def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents
             in cache.
