@@ -66,15 +66,15 @@ CacheClient
 
 :py:class:`~wheezy.caching.client.CacheClient` serves mediator purpose
 between a single entry point that implements Cache and one or many
-namespaces targeted to concrete cache implementations.
+namespaces targeted to cache factories.
 
 :py:class:`~wheezy.caching.client.CacheClient` let partition application
 cache by namespaces effectively hiding details from client code.
 
-:py:class:`~wheezy.caching.client.CacheClient` acepts the following
+:py:class:`~wheezy.caching.client.CacheClient` accepts the following
 arguments:
 
-* ``namespaces`` - a mapping between namespace and cache
+* ``namespaces`` - a mapping between namespace and cache factory.
 * ``default_namespace`` - namespace to use in case it is not specified
   in cache operation.
 
@@ -85,28 +85,32 @@ membership and funds)::
     from wheezy.caching import MemoryCache
     from wheezy.caching import NullCache
 
-    cache = ClientCache({
-        'default': MemoryCache(),
-        'membership': MemoryCache(),
-        'funds': NullCache(),
+    default_cache = MemoryCache()
+    membership_cache = MemoryCache() 
+    funds_cache = NullCache()
+    cache_factory = lambda: ClientCache({
+        'default': lambda: default_cache,
+        'membership': lambda: membership_cache,
+        'funds': lambda: funds_cache,
     }, default_namespace='default')
 
 Application code is designed to work with a single cache by specifying
 namespace to use::
 
-    cache.add('x1', 1, namespace='default')
+    with cache_factory() as cache:
+        cache.add('x1', 1, namespace='default')
 
-At somepoint of time we might change our partitioning scheme so all
+At some point of time we might change our partitioning scheme so all
 namespaces reside in a single cache::
 
-    cache = MemoryCache()
-    cache = ClientCache({
-        'default': cache,
-        'membership': cache,
-        'funds': cache,
+    default_cache = MemoryCache()
+    cache_factory = lambda: ClientCache({
+        'default': lambda: default_cache,
+        'membership': lambda: default_cache,
+        'funds': lambda: default_cache
     }, default_namespace='default')
 
-That happend with no changes to application code, just configuration
+That happened with no changes to application code, just configuration
 settings.
 
 MemoryCache

@@ -12,8 +12,8 @@ It is a lightweight caching library that provides integration with:
 * `python-memcached`_ - Pure Python `memcached`_ client.
 * `pylibmc`_ - Quick and small `memcached`_ client for Python written in C.
 
-It introduces idea of *cache dependency* that let effectively invalidate
-dependent cache items as well as other cache related algorithms.
+It introduces idea of *cache dependency* (effectively invalidate dependent 
+cache items) and other cache related algorithms.
 
 It is optimized for performance, well tested and documented.
 
@@ -47,4 +47,3 @@ Contents
 .. _`python-memcached`: http://pypi.python.org/pypi/python-memcached
 .. _`readthedocs`: http://readthedocs.org/builds/wheezycaching
 .. _`source code`: http://bitbucket.org/akorn/wheezy.caching/src
-
