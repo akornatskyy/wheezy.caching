@@ -233,12 +233,12 @@ one place, than in other, etc. ``CacheDependency`` stores it state in
 cache::
 
     # this is sample from module a.
-    dependency = CacheDependency(cache, 'master-key')
-    dependency.add_multi(['k1', 'k2', 'k3'])
+    dependency = CacheDependency('master-key')
+    dependency.add_multi(cache, ['k1', 'k2', 'k3'])
 
     # this is sample from module b.
-    dependency = CacheDependency(cache, 'master-key')
-    dependency.add('k4')
+    dependency = CacheDependency('master-key')
+    dependency.add(cache, 'k4')
 
 Note that module `b` have no idea about keys used in module `a`. Instead
 they share `virtually` cache dependency.
@@ -246,22 +246,21 @@ they share `virtually` cache dependency.
 Once we need invalidate items related to cache dependency this is what we
 do::
 
-    dependency = CacheDependency(cache, 'master-key')
-    dependency.delete()
+    dependency = CacheDependency('master-key')
+    dependency.delete(cache)
 
 ``delete`` operation must be repeated for each namespace (it doesn't manage
 namespace dependency) and/or cache::
 
     # Using namespaces
-    dependency = CacheDependency(cache, 'master-key')
-    dependency.delete(namespace='membership')
-    dependency.delete(namespace='funds')
+    dependency = CacheDependency('master-key')
+    dependency.delete(cache, namespace='membership')
+    dependency.delete(cache, namespace='funds')
 
     # Using caches
-    dependency = CacheDependency(membership_cache, 'master-key')
-    dependency.delete()
-    dependency = CacheDependency(funds_cache, 'master-key')
-    dependency.delete()
+    dependency = CacheDependency('master-key')
+    dependency.delete(membership_cache)
+    dependency.delete(funds_cache)
 
 Cache dependency is an effective way to reduce coupling between modules
 in terms of cache items invalidation.
