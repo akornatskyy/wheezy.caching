@@ -107,7 +107,7 @@ class MemcachedClient(object):
             return result
         if initial_value is None:
             return None
-        self.client.add(key, str(initial_value))
+        self.client.add(key, initial_value)
         return self.client.incr(key, delta)
 
     def decr(self, key, delta=1, namespace=None, initial_value=None):
@@ -125,7 +125,7 @@ class MemcachedClient(object):
             return result
         if initial_value is None:
             return None
-        self.client.add(key, str(initial_value))
+        self.client.add(key, initial_value)
         return self.client.decr(key, delta)
 
     def flush_all(self):

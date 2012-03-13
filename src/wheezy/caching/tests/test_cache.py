@@ -69,16 +69,20 @@ class CacheTestMixin(object):
 
     def test_incr(self):
         assert 1 == self.client.incr(
-                'ci', initial_value=0, namespace=self.namespace)
+                'ci', namespace=self.namespace, initial_value=0)
+        assert 1 == self.client.get('ci', namespace=self.namespace)
         assert 2 == self.client.incr('ci', namespace=self.namespace)
+        assert 2 == self.client.get('ci', namespace=self.namespace)
 
     def test_incr_returns_none(self):
         assert self.client.incr('ix', namespace=self.namespace) is None
 
     def test_decr(self):
         assert 9 == self.client.decr(
-                'cd', initial_value=10, namespace=self.namespace)
+                'cd', namespace=self.namespace, initial_value=10)
+        assert 9 == self.client.get('cd', namespace=self.namespace)
         assert 8 == self.client.decr('cd', namespace=self.namespace)
+        assert 8 == self.client.get('cd', namespace=self.namespace)
 
     def test_decr_none(self):
         assert self.client.decr('dx') is None
