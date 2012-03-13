@@ -16,6 +16,13 @@ class CacheTestMixin(object):
         for key in keys:
             assert mapping[key] == values[key]
 
+    def test_get_notfound(self):
+        assert None == self.client.get('uknown', self.namespace)
+
+    def test_get_multi_notfound(self):
+        assert {} == self.client.get_multi(['unknown1', 'unknown2'],
+                namespace=self.namespace)
+
     def test_getset(self):
         self.setget('s1', 'some string')
         self.setget('i1', 100)
