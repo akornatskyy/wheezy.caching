@@ -170,6 +170,10 @@ Here is a typical use case::
     cache = client_factory(['unix:/tmp/memcached.sock'])
     cache_factory = lambda: cache
 
+You can specify key encoding function by passing ``key_encode`` argument that
+must be a callable that does key encoding. By default
+:py:meth:`~wheezy.caching.encoding.string_encode` is applied.
+
 All arguments passed to
 :py:meth:`~wheezy.caching.memcache.client_factory` are the same as to
 original ``Client`` from python-memcache. Note, `python-memcached`_
@@ -196,6 +200,10 @@ Here is a typical use case::
 
     pool = EagerPool(lambda: client_factory(['/tmp/memcached.sock']), size=10)
     cache_factory = lambda: Pooled(pool)
+
+You can specify key encoding function by passing ``key_encode`` argument that
+must be a callable that does key encoding. By default
+:py:meth:`~wheezy.caching.encoding.string_encode` is applied.
 
 All arguments passed to
 :py:meth:`~wheezy.caching.pylibmc.client_factory` are the same as to

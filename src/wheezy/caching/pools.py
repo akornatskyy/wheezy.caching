@@ -6,6 +6,10 @@ from wheezy.caching.comp import Queue
 
 
 class EagerPool(object):
+    """ Eager pool implementation.
+
+        Allocates all pool items during initialization.
+    """
 
     def __init__(self, create_factory, size):
         pool = Queue(size)
@@ -17,6 +21,9 @@ class EagerPool(object):
 
 
 class Pooled(object):
+    """ ``Pooled`` serves context manager purpose, effectively acquiring and
+        returning item to the pool.
+    """
 
     def __init__(self, pool):
         self.pool = pool
