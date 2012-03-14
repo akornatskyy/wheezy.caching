@@ -15,10 +15,12 @@ if PY3:  # pragma: nocover
     iteritems = lambda d: d.items()
     itervalues = lambda d: d.values()
     xrange = range
+    string_type = str
 else:  # pragma: nocover
     iteritems = lambda d: d.iteritems()
     itervalues = lambda d: d.itervalues()
     xrange = xrange
+    string_type = unicode
 
 
 if PY3:  # pragma: nocover
