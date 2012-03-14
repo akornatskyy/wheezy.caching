@@ -44,11 +44,12 @@ def string_encode(key):
 def base64_encode(key):
     """ Encodes ``key`` with base64 encoding.
 
-        >>> result = base64_encode('my key')
+        >>> result = base64_encode(string_type('my key'))
         >>> result == 'bXkga2V5'.encode('latin1')
         True
     """
-    key = string_encode(key)
+    if isinstance(key, string_type):
+        key = key.encode('UTF-8')
     return b64encode(key, BASE64_ALTCHARS)
 
 
@@ -65,7 +66,7 @@ def hash_encode(hash_factory):
         >>> try:
         ...     from hashlib import sha1
         ...     key_encode = hash_encode(sha1)
-        ...     r = base64_encode(key_encode('my key'))
+        ...     r = base64_encode(key_encode(string_type('my key')))
         ...     assert r == 'RigVwkWdSuGyFu7au08PzUMloU8='.encode('latin1')
         ... except ImportError:  # Python2.4
         ...     pass
@@ -74,6 +75,8 @@ def hash_encode(hash_factory):
 
     def key_encode(key):
         h = hash_factory()
-        h.update(string_encode(key))
+        if isinstance(key, string_type):
+            key = key.encode('UTF-8')
+        h.update(key)
         return h.digest()
     return key_encode
