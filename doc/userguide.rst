@@ -217,6 +217,32 @@ a number of `pylibmc`_ instances, while
 :py:class:`~wheezy.caching.pools.Pooled` serves context manager purpose,
 effectively acquiring and returning item to the pool.
 
+Key Encoding
+------------
+
+`Memcached`_ has some restrictions concerning keys used. Text protocol requires
+a valid key contain only ASCII characters except space (0x20), carriage
+return (0x0d), line feed (0x0a) since these characters are meaningful in
+text protocol. Key length is restricted to 250.
+
+* :py:meth:`~wheezy.caching.encoding.string_encode` - encodes ``key`` with
+  UTF-8 encoding.
+* :py:meth:`~wheezy.caching.encoding.base64_encode` - encodes ``key`` with
+  base64 encoding.
+* :py:meth:`~wheezy.caching.encoding.hash_encode` - encodes ``key`` with
+  given hash function. See list of available hashes in ``hashlib`` module
+  from Python Statndard Library. Additional algorithms may also be available
+  depending upon the OpenSSL library that Python uses on your platform.
+
+There is general purpose function:
+
+* :py:meth:`~wheezy.caching.encoding.encode_keys` - encodes all keys in mapping
+  with ``key_encode`` callable. Returns a tuple of: *key mapping*
+  (encoded key => key) and *value mapping* (encoded key => value).
+
+You can specify key encoding function by passing ``key_encode`` argument to
+*memcache* and/or *pylibmc* cache factory.
+
 CacheDependency
 ---------------
 
