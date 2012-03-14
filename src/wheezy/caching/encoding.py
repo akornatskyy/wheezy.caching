@@ -2,13 +2,26 @@
 """ ``encoding`` module.
 """
 
+from base64 import b64encode
+
 from wheezy.caching.comp import string_type
+
+
+BASE64_ALTCHARS = '-_'.encode('latin1')
 
 
 def encode_keys(mapping, key_encode):
     """ Encodes all keys in mapping with ``key_encode`` callable.
         Returns tuple of: key mapping (encoded key => key) and
         value mapping (encoded key => value).
+
+        >>> mapping = {'k1': 1, 'k2': 2}
+        >>> keys, mapping = encode_keys(mapping,
+        ...         lambda k: str(base64_encode(k).decode('latin1')))
+        >>> keys
+        {'azE=': 'k1', 'azI=': 'k2'}
+        >>> mapping
+        {'azE=': 1, 'azI=': 2}
     """
     key_mapping = {}
     encoded_mapping = {}
@@ -22,7 +35,45 @@ def encode_keys(mapping, key_encode):
 def string_encode(key):
     """ Encodes ``key`` with UTF-8 encoding.
     """
-    if key and isinstance(key, string_type):
+    if isinstance(key, string_type):
         return key.encode('UTF-8')
     else:
         return key
+
+
+def base64_encode(key):
+    """ Encodes ``key`` with base64 encoding.
+
+        >>> result = base64_encode('my key')
+        >>> result == 'bXkga2V5'.encode('latin1')
+        True
+    """
+    key = string_encode(key)
+    return b64encode(key, BASE64_ALTCHARS)
+
+
+def hash_encode(hash_factory):
+    """ Encodes ``key`` with given hash function.
+
+        See list of available hashes in ``hashlib``
+        module from Python Statndard Library.
+
+        Additional algorithms may also be available
+        depending upon the OpenSSL library that Python
+        uses on your platform.
+
+        >>> try:
+        ...     from hashlib import sha1
+        ...     key_encode = hash_encode(sha1)
+        ...     r = base64_encode(key_encode('my key'))
+        ...     assert r == 'RigVwkWdSuGyFu7au08PzUMloU8='.encode('latin1')
+        ... except ImportError:  # Python2.4
+        ...     pass
+    """
+    assert callable(hash_factory)
+
+    def key_encode(key):
+        h = hash_factory()
+        h.update(string_encode(key))
+        return h.digest()
+    return key_encode
