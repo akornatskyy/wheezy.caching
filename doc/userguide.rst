@@ -257,21 +257,45 @@ any particular cache implementation.
 invalidate items across different cache partitions (namespaces). Note
 that ``delete`` must be performed for each namespace and/or cache.
 
+Master Key
+~~~~~~~~~~
+
+It is important to avoid key collision for master key due to a way
+how dependency keys are built. The dependency keys are built by
+adding a suffix with incremental number to master key, e.g. if master
+key is 'key' than dependent keys used by CacheDependency will be 'key1',
+'key2', 'key3', etc. The master key stores a number of dependent keys
+thus this number is incremented each time you add something to
+dependency.
+
+If a master key is composed as a concatenation with some id it
+must be suffixed with a delimiter (a symbol that is not part of the
+id) to avoid key collision. In the example below id is a number
+so choosing ':' as a delimiter suites our needs::
+
+    def master_key_order(id):
+        return 'mk:order:' + str(id) + ':'
+
+For order id 100 the master key is 'mk:order:100:' and
+dependent keys take space 'mk:order:100:1' for first item added,
+'mk:order:100:2' for the second, etc. If we add 2 items to cache
+dependency the value stored by master key is 2.
+
 Example
 ~~~~~~~
 
 Let demostrate this by example. We establish dependency between keys
-``k1``, ``k2`` and ``k3``. Please note that dependency does not need to
-be passed between various parts of application. You can create it in
-one place, than in other, etc. ``CacheDependency`` stores it state in
-cache::
+``k1``, ``k2`` and ``k3`` for 600 seconds. Please note that dependency
+does not need to be passed between various parts of application. You
+can create it in one place, than in other, etc. ``CacheDependency``
+stores it state in cache::
 
     # this is sample from module a.
-    dependency = CacheDependency('master-key')
+    dependency = CacheDependency('master-key', time=600)
     dependency.add_multi(cache, ['k1', 'k2', 'k3'])
 
     # this is sample from module b.
-    dependency = CacheDependency('master-key')
+    dependency = CacheDependency('master-key', time=600)
     dependency.add(cache, 'k4')
 
 Note that module `b` have no idea about keys used in module `a`. Instead
