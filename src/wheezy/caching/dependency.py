@@ -58,8 +58,9 @@ class CacheDependency(object):
             >>> c.get('key1')
             'key-x'
         """
-        return cache.add(self.next_key(cache, namespace),
-                key, self.time, namespace)
+        return cache.add(
+            self.next_key(cache, namespace),
+            key, self.time, namespace)
 
     def add_multi(self, cache, keys, key_prefix='', namespace=None):
         """ Adds several keys to dependency.
@@ -83,7 +84,8 @@ class CacheDependency(object):
             >>> c.get('key4')
             'key-b'
         """
-        mapping = dict(zip(self.next_keys(cache, len(keys), namespace),
+        mapping = dict(zip(
+            self.next_keys(cache, len(keys), namespace),
             map(lambda k: key_prefix + k, keys)))
         return cache.add_multi(mapping, self.time, '', namespace)
 

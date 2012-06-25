@@ -50,7 +50,7 @@ class CacheClient(object):
         """
         if namespace is None or namespace == self.default_namespace:
             return self.default_cache.set_multi(
-                    mapping, time, key_prefix, namespace)
+                mapping, time, key_prefix, namespace)
         else:
             context = self.namespaces[namespace]()
             cache = context.__enter__()
@@ -80,7 +80,7 @@ class CacheClient(object):
         """
         if namespace is None or namespace == self.default_namespace:
             return self.default_cache.add_multi(
-                    mapping, time, key_prefix, namespace)
+                mapping, time, key_prefix, namespace)
         else:
             context = self.namespaces[namespace]()
             cache = context.__enter__()
@@ -109,13 +109,13 @@ class CacheClient(object):
         """
         if namespace is None or namespace == self.default_namespace:
             return self.default_cache.replace_multi(
-                    mapping, time, key_prefix, namespace)
+                mapping, time, key_prefix, namespace)
         else:
             context = self.namespaces[namespace]()
             cache = context.__enter__()
             try:
                 return cache.replace_multi(
-                        mapping, time, key_prefix, namespace)
+                    mapping, time, key_prefix, namespace)
             finally:
                 context.__exit__(None, None, None)
 
@@ -164,13 +164,13 @@ class CacheClient(object):
         """
         if namespace is None or namespace == self.default_namespace:
             return self.default_cache.delete_multi(
-                    keys, seconds, key_prefix, namespace)
+                keys, seconds, key_prefix, namespace)
         else:
             context = self.namespaces[namespace]()
             cache = context.__enter__()
             try:
                 return cache.delete_multi(
-                        keys, seconds, key_prefix, namespace)
+                    keys, seconds, key_prefix, namespace)
             finally:
                 context.__exit__(None, None, None)
 
@@ -186,7 +186,7 @@ class CacheClient(object):
         """
         if namespace is None or namespace == self.default_namespace:
             return self.default_cache.incr(
-                    key, delta, namespace, initial_value)
+                key, delta, namespace, initial_value)
         else:
             context = self.namespaces[namespace]()
             cache = context.__enter__()
@@ -207,7 +207,7 @@ class CacheClient(object):
         """
         if namespace is None or namespace == self.default_namespace:
             return self.default_cache.decr(
-                    key, delta, namespace, initial_value)
+                key, delta, namespace, initial_value)
         else:
             context = self.namespaces[namespace]()
             cache = context.__enter__()

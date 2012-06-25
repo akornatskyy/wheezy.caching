@@ -8,7 +8,7 @@ from wheezy.caching.comp import string_type
 class CacheTestMixin(object):
 
     def setget(self, key, value):
-        assert self.client.set(key, value, 10, self.namespace) == True
+        assert self.client.set(key, value, 10, self.namespace) is True
         assert value == self.client.get(key, self.namespace)
 
     def setget_multi(self, mapping):
@@ -22,8 +22,8 @@ class CacheTestMixin(object):
         assert None == self.client.get('uknown', self.namespace)
 
     def test_get_multi_notfound(self):
-        assert {} == self.client.get_multi(['unknown1', 'unknown2'],
-                namespace=self.namespace)
+        assert {} == self.client.get_multi(
+            ['unknown1', 'unknown2'], namespace=self.namespace)
 
     def test_getset(self):
         self.setget('s1', 'some string')
@@ -51,9 +51,9 @@ class CacheTestMixin(object):
         mapping = {'a1': 1, 'a2': 2}
         assert self.client.add_multi(mapping, namespace=self.namespace) == []
         assert mapping == self.client.get_multi(
-                ['a1', 'a2'], namespace=self.namespace)
+            ['a1', 'a2'], namespace=self.namespace)
         assert ['a1', 'a2'] == self.client.add_multi(
-                mapping, namespace=self.namespace)
+            mapping, namespace=self.namespace)
 
     def test_replace(self):
         assert self.client.add('r', 100, namespace=self.namespace)
@@ -65,14 +65,14 @@ class CacheTestMixin(object):
     def test_replace_multi(self):
         mapping = {'r1': 1, 'r2': 2}
         assert ['r1', 'r2'] == self.client.replace_multi(
-                mapping, namespace=self.namespace)
+            mapping, namespace=self.namespace)
         assert [] == self.client.add_multi(
-                mapping, namespace=self.namespace)
+            mapping, namespace=self.namespace)
         mapping = {'r1': 100, 'r2': 200}
         assert [] == self.client.replace_multi(
-                mapping, namespace=self.namespace)
+            mapping, namespace=self.namespace)
         assert mapping == self.client.get_multi(
-                ['r1', 'r2'], namespace=self.namespace)
+            ['r1', 'r2'], namespace=self.namespace)
 
     def test_delete(self):
         assert not self.client.delete('d', namespace=self.namespace)
@@ -88,7 +88,7 @@ class CacheTestMixin(object):
 
     def test_incr(self):
         assert 1 == self.client.incr(
-                'ci', namespace=self.namespace, initial_value=0)
+            'ci', namespace=self.namespace, initial_value=0)
         assert 1 == self.client.get('ci', namespace=self.namespace)
         assert 2 == self.client.incr('ci', namespace=self.namespace)
         assert 2 == self.client.get('ci', namespace=self.namespace)
@@ -98,7 +98,7 @@ class CacheTestMixin(object):
 
     def test_decr(self):
         assert 9 == self.client.decr(
-                'cd', namespace=self.namespace, initial_value=10)
+            'cd', namespace=self.namespace, initial_value=10)
         assert 9 == self.client.get('cd', namespace=self.namespace)
         assert 8 == self.client.decr('cd', namespace=self.namespace)
         assert 8 == self.client.get('cd', namespace=self.namespace)

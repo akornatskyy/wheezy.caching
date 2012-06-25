@@ -80,7 +80,7 @@ class MemcachedClient(object):
         for key in mapping:
             try:
                 client.replace(
-                        key_encode(key_prefix + key), mapping[key], time)
+                    key_encode(key_prefix + key), mapping[key], time)
             except NotFound:
                 failed.append(key)
         return failed
@@ -111,8 +111,8 @@ class MemcachedClient(object):
         """ Delete multiple keys at once.
         """
         key_encode = self.key_encode
-        return self.client.delete_multi(map(key_encode, keys),
-                key_encode(key_prefix))
+        return self.client.delete_multi(
+            map(key_encode, keys), key_encode(key_prefix))
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too

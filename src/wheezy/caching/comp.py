@@ -33,8 +33,8 @@ if PY2 and PY_MINOR == 4:  # pragma: nocover
 else:  # pragma: nocover
     # perform absolute import
     __saved_import__ = __import__
-    __import__ = lambda n, g=None, l=None, f=None:\
-            __saved_import__(n, g, l, f, 0)
+    __import__ = lambda n, g=None, l=None, f=None: \
+        __saved_import__(n, g, l, f, 0)
 
 if PY3:  # pragma: nocover
     from queue import Queue

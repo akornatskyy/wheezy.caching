@@ -85,8 +85,8 @@ class MemoryCache(object):
         self.interval = bucket_interval
         self.items = {}
         self.lock = allocate_lock()
-        self.expire_buckets = [(allocate_lock(), [])
-                for i in xrange(0, buckets)]
+        self.expire_buckets = [
+            (allocate_lock(), []) for i in xrange(0, buckets)]
         self.last_expire_bucket_id = -1
 
     def __enter__(self):  # pragma: nocover
@@ -339,8 +339,8 @@ class MemoryCache(object):
                 if initial_value is None:
                     return None
                 else:
-                    entry = items[key] = CacheItem(key,
-                            initial_value, expires(now, 0))
+                    entry = items[key] = CacheItem(
+                        key, initial_value, expires(now, 0))
             value = entry.value = entry.value + delta
             return value
         finally:

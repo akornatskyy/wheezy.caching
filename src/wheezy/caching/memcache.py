@@ -12,7 +12,7 @@ try:
         """ Client factory for python-memcache.
         """
         key_encode = kwargs.pop('key_encode', None)
-        return MemcachedClient(Client(*args, **kwargs),  key_encode)
+        return MemcachedClient(Client(*args, **kwargs), key_encode)
 except ImportError:  # pragma: nocover
     pass
 
@@ -44,7 +44,7 @@ class MemcachedClient(object):
         key_encode = self.key_encode
         keys, mapping = encode_keys(mapping, key_encode)
         failed = self.client.set_multi(
-                mapping, time, key_encode(key_prefix))
+            mapping, time, key_encode(key_prefix))
         return failed and [keys[key] for key in failed] or failed
 
     def add(self, key, value, time=0, namespace=None):
@@ -114,9 +114,10 @@ class MemcachedClient(object):
         """ Delete multiple keys at once.
         """
         key_encode = self.key_encode
-        return self.client.delete_multi(map(key_encode, keys),
-                seconds,
-                key_encode(key_prefix)) == 1
+        return self.client.delete_multi(
+            map(key_encode, keys),
+            seconds,
+            key_encode(key_prefix)) == 1
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too
