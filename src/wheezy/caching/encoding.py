@@ -18,10 +18,10 @@ def encode_keys(mapping, key_encode):
         >>> mapping = {'k1': 1, 'k2': 2}
         >>> keys, mapping = encode_keys(mapping,
         ...         lambda k: str(base64_encode(k).decode('latin1')))
-        >>> keys
-        {'azE=': 'k1', 'azI=': 'k2'}
-        >>> mapping
-        {'azE=': 1, 'azI=': 2}
+        >>> sorted(keys.items())
+        [('azE=', 'k1'), ('azI=', 'k2')]
+        >>> sorted(mapping.items())
+        [('azE=', 1), ('azI=', 2)]
     """
     key_mapping = {}
     encoded_mapping = {}

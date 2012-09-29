@@ -211,8 +211,8 @@ class MemoryCache(object):
             True
             >>> c.store('k2', 'v2', 100)
             True
-            >>> c.get_multi(('k1', 'k2'))
-            {'k2': 'v2', 'k1': 'v1'}
+            >>> sorted(c.get_multi(('k1', 'k2')).items())
+            [('k1', 'v1'), ('k2', 'v2')]
 
             There is item in cache that expired
 
