@@ -5,7 +5,7 @@ code. It is a lightweight caching library that provides integration with:
 * `pylibmc`_ - Quick and small `memcached`_ client for Python written
   in C.
 
-It introduces idea of *cache dependency* (effectively invalidate dependent 
+It introduces idea of *cache dependency* (effectively invalidate dependent
 cache items) and other cache related algorithms.
 
 It is optimized for performance, well tested and documented.
@@ -20,7 +20,7 @@ Resources:
 Install
 -------
 
-`wheezy.caching`_ requires `python`_ version 2.4 to 2.7 or 3.2.
+`wheezy.caching`_ requires `python`_ version 2.4 to 2.7 or 3.2+.
 It is independent of operating system. You can install it from `pypi`_
 site using `setuptools`_::
 
