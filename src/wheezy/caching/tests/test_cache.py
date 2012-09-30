@@ -52,8 +52,8 @@ class CacheTestMixin(object):
         assert self.client.add_multi(mapping, namespace=self.namespace) == []
         assert mapping == self.client.get_multi(
             ['a1', 'a2'], namespace=self.namespace)
-        assert ['a1', 'a2'] == self.client.add_multi(
-            mapping, namespace=self.namespace)
+        assert ['a1', 'a2'] == sorted(self.client.add_multi(
+            mapping, namespace=self.namespace))
 
     def test_replace(self):
         assert self.client.add('r', 100, namespace=self.namespace)
@@ -64,8 +64,8 @@ class CacheTestMixin(object):
 
     def test_replace_multi(self):
         mapping = {'r1': 1, 'r2': 2}
-        assert ['r1', 'r2'] == self.client.replace_multi(
-            mapping, namespace=self.namespace)
+        assert ['r1', 'r2'] == sorted(self.client.replace_multi(
+            mapping, namespace=self.namespace))
         assert [] == self.client.add_multi(
             mapping, namespace=self.namespace)
         mapping = {'r1': 100, 'r2': 200}
