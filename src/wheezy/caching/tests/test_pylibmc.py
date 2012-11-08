@@ -9,8 +9,11 @@ from wheezy.caching.tests.test_cache import CacheTestMixin
 
 
 try:
-    from wheezy.caching.pylibmc import MemcachedClient
     from wheezy.caching.pylibmc import client_factory
+except ImportError:
+    pass
+else:
+    from wheezy.caching.pylibmc import MemcachedClient
 
     class EagerPool(object):
 
@@ -40,6 +43,3 @@ try:
             assert not self.client.delete_multi(keys)
             self.setget_multi(mapping)
             assert self.client.delete_multi(keys)
-
-except ImportError:
-    pass

@@ -9,6 +9,8 @@ try:
     Client = __import__('memcache', None, None, ['Client']).Client
 except ImportError:  # pragma: nocover
     Client = None
+    import warnings
+    warnings.warn("No module named 'memcache'", stacklevel=2)
 
 
 class MemcachedClient(object):
@@ -18,6 +20,8 @@ class MemcachedClient(object):
 
     def __init__(self, *args, **kwargs):
         self.key_encode = kwargs.pop('key_encode', string_encode)
+        if Client is None:  # pragma: nocover
+            raise ImportError("No module named 'memcache'")
         self.client = Client(*args, **kwargs)
 
     def set(self, key, value, time=0, namespace=None):

@@ -5,8 +5,10 @@
 from unittest import TestCase
 
 from wheezy.caching.tests.test_cache import CacheTestMixin
+from wheezy.caching.memcache import Client
 
-try:
+
+if Client:
     from wheezy.caching.memcache import MemcachedClient
 
     class MemcacheClientTestCase(TestCase, CacheTestMixin):
@@ -22,6 +24,3 @@ try:
             assert self.client.delete('d')
             self.setget('d', 1)
             assert self.client.delete('d')
-
-except ImportError:
-    pass

@@ -21,7 +21,8 @@ try:
 
     del c
 except ImportError:  # pragma: nocover
-    pass
+    import warnings
+    warnings.warn("No module named 'pylibmc'", stacklevel=2)
 
 
 class MemcachedClient(object):
