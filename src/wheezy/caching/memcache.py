@@ -7,14 +7,8 @@ from wheezy.caching.encoding import string_encode
 
 try:
     Client = __import__('memcache', None, None, ['Client']).Client
-
-    def client_factory(*args, **kwargs):
-        """ Client factory for python-memcache.
-        """
-        key_encode = kwargs.pop('key_encode', None)
-        return MemcachedClient(Client(*args, **kwargs), key_encode)
 except ImportError:  # pragma: nocover
-    pass
+    Client = None
 
 
 class MemcachedClient(object):
@@ -22,15 +16,9 @@ class MemcachedClient(object):
         cache contract.
     """
 
-    def __init__(self, client, key_encode):
-        self.client = client
-        self.key_encode = key_encode or string_encode
-
-    def __enter__(self):  # pragma: nocover
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):  # pragma: nocover
-        pass
+    def __init__(self, *args, **kwargs):
+        self.key_encode = kwargs.pop('key_encode', string_encode)
+        self.client = Client(*args, **kwargs)
 
     def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents

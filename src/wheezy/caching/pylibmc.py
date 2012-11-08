@@ -13,12 +13,11 @@ try:
     def client_factory(*args, **kwargs):
         """ Client factory for pylibmc.
         """
-        key_encode = kwargs.pop('key_encode', None)
         kwargs.setdefault('binary', True)
         behaviors = kwargs.setdefault('behaviors', {})
         behaviors.setdefault('tcp_nodelay', True)
         behaviors.setdefault('ketama', True)
-        return MemcachedClient(Client(*args, **kwargs), key_encode)
+        return Client(*args, **kwargs)
 
     del c
 except ImportError:  # pragma: nocover
@@ -29,29 +28,46 @@ class MemcachedClient(object):
     """ A wrapper around pylibmc Client in order to adapt cache contract.
     """
 
-    def __init__(self, client, key_encode):
-        self.client = client
+    def __init__(self, pool, key_encode=None):
+        assert hasattr(pool, 'acquire')
+        assert hasattr(pool, 'get_back')
+        self.pool = pool
         self.key_encode = key_encode or string_encode
 
     def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents
             in cache.
         """
-        return self.client.set(self.key_encode(key), value, time)
+        key = self.key_encode(key)
+        try:
+            client = self.pool.acquire()
+            return client.set(key, value, time)
+        finally:
+            self.pool.get_back(client)
 
     def set_multi(self, mapping, time=0, key_prefix='', namespace=None):
         """ Set multiple keys' values at once.
         """
         key_encode = self.key_encode
         keys, mapping = encode_keys(mapping, key_encode)
-        failed = self.client.set_multi(mapping, time, key_encode(key_prefix))
+        key_prefix = key_encode(key_prefix)
+        try:
+            client = self.pool.acquire()
+            failed = client.set_multi(mapping, time, key_prefix)
+        finally:
+            self.pool.get_back(client)
         return failed and [keys[key] for key in failed] or failed
 
     def add(self, key, value, time=0, namespace=None):
         """ Sets a key's value, if and only if the item is not
             already.
         """
-        return self.client.add(self.key_encode(key), value, time)
+        key = self.key_encode(key)
+        try:
+            client = self.pool.acquire()
+            return client.add(key, value, time)
+        finally:
+            self.pool.get_back(client)
 
     def add_multi(self, mapping, time=0, key_prefix='', namespace=None):
         """ Adds multiple values at once, with no effect for keys
@@ -59,16 +75,26 @@ class MemcachedClient(object):
         """
         key_encode = self.key_encode
         keys, mapping = encode_keys(mapping, key_encode)
-        failed = self.client.add_multi(mapping, time, key_encode(key_prefix))
+        key_prefix = key_encode(key_prefix)
+        try:
+            client = self.pool.acquire()
+            failed = client.add_multi(mapping, time, key_prefix)
+        finally:
+            self.pool.get_back(client)
         return failed and [keys[key] for key in failed] or failed
 
     def replace(self, key, value, time=0, namespace=None):
         """ Replaces a key's value, failing if item isn't already.
         """
+        key = self.key_encode(key)
         try:
-            return self.client.replace(self.key_encode(key), value, time)
-        except NotFound:
-            return False
+            try:
+                client = self.pool.acquire()
+                return client.replace(key, value, time)
+            except NotFound:
+                return False
+        finally:
+            self.pool.get_back(client)
 
     def replace_multi(self, mapping, time=0, key_prefix='', namespace=None):
         """ Replaces multiple values at once, with no effect for
@@ -76,19 +102,28 @@ class MemcachedClient(object):
         """
         key_encode = self.key_encode
         failed = []
-        client = self.client
-        for key in mapping:
-            try:
-                client.replace(
-                    key_encode(key_prefix + key), mapping[key], time)
-            except NotFound:
-                failed.append(key)
+        mapping = [(key, key_encode(key_prefix + key), mapping[key])
+                   for key in mapping]
+        try:
+            client = self.pool.acquire()
+            for key, key_encoded, value in mapping:
+                try:
+                    client.replace(key_encoded, value, time)
+                except NotFound:
+                    failed.append(key)
+        finally:
+            self.pool.get_back(client)
         return failed
 
     def get(self, key, namespace=None):
         """ Looks up a single key.
         """
-        return self.client.get(self.key_encode(key))
+        key = self.key_encode(key)
+        try:
+            client = self.pool.acquire()
+            return client.get(key)
+        finally:
+            self.pool.get_back(client)
 
     def get_multi(self, keys, key_prefix='', namespace=None):
         """ Looks up multiple keys from cache in one operation.
@@ -96,7 +131,12 @@ class MemcachedClient(object):
         """
         key_encode = self.key_encode
         encoded_keys = map(key_encode, keys)
-        mapping = self.client.get_multi(encoded_keys, key_encode(key_prefix))
+        key_prefix = key_encode(key_prefix)
+        try:
+            client = self.pool.acquire()
+            mapping = client.get_multi(encoded_keys, key_prefix)
+        finally:
+            self.pool.get_back(client)
         if mapping:
             key_mapping = dict(zip(encoded_keys, keys))
             return dict([(key_mapping[key], mapping[key]) for key in mapping])
@@ -105,14 +145,24 @@ class MemcachedClient(object):
     def delete(self, key, seconds=0, namespace=None):
         """ Deletes a key from cache.
         """
-        return self.client.delete(self.key_encode(key))
+        key = self.key_encode(key)
+        try:
+            client = self.pool.acquire()
+            return client.delete(key)
+        finally:
+            self.pool.get_back(client)
 
     def delete_multi(self, keys, seconds=0, key_prefix='', namespace=None):
         """ Delete multiple keys at once.
         """
         key_encode = self.key_encode
-        return self.client.delete_multi(
-            map(key_encode, keys), key_encode(key_prefix))
+        keys = map(key_encode, keys)
+        key_prefix = key_encode(key_prefix)
+        try:
+            client = self.pool.acquire()
+            return client.delete_multi(keys, key_prefix)
+        finally:
+            self.pool.get_back(client)
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too
@@ -126,12 +176,16 @@ class MemcachedClient(object):
         """
         key = self.key_encode(key)
         try:
-            return self.client.incr(key, delta)
-        except NotFound:
-            if initial_value is None:
-                return None
-            self.client.add(key, initial_value)
-            return self.client.incr(key, delta)
+            client = self.pool.acquire()
+            try:
+                return client.incr(key, delta)
+            except NotFound:
+                if initial_value is None:
+                    return None
+                client.add(key, initial_value)
+                return client.incr(key, delta)
+        finally:
+            self.pool.get_back(client)
 
     def decr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically decrements a key's value. The value, if too
@@ -145,15 +199,23 @@ class MemcachedClient(object):
         """
         key = self.key_encode(key)
         try:
-            return self.client.decr(key, delta)
-        except NotFound:
-            if initial_value is None:
-                return None
-            self.client.add(key, initial_value)
-            return self.client.decr(key, delta)
+            client = self.pool.acquire()
+            try:
+                return client.decr(key, delta)
+            except NotFound:
+                if initial_value is None:
+                    return None
+                client.add(key, initial_value)
+                return client.decr(key, delta)
+        finally:
+            self.pool.get_back(client)
 
     def flush_all(self):
         """ Deletes everything in cache.
         """
-        self.client.flush_all()
+        try:
+            client = self.pool.acquire()
+            client.flush_all()
+        finally:
+            self.pool.get_back(client)
         return True

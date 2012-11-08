@@ -24,42 +24,25 @@ means caches can be swapped without a need to modify the code. However
 there do exist challenge: some caches are singletons and correctly
 provide inter-thread synchronization (thread safe), while others require
 an instance per thread (not thread safe), some sort of pooling is
-required. In order to provide an easy interchangeable approach for various cache
-implementations it is recommended use: factory method plus context
-manager.
+required. This challenge is transparently resolved.
 
-Let demonstrate this by examples::
+Here is an example how to configure pylibmc - `memcached`_ client written
+in C): ::
 
-    from wheezy.caching.memory import MemoryCache
-
-    # Singleton
-    cache = MemoryCache()
-    # Factory
-    cache_factory = lambda: memory
-    # Client code
-    with cache_factory() as cache:
-        cache.set(...)
-
-Above factory and context manager use is somewhat dummy since you are
-fine to work directly with cache. However what happens if at some point
-of time you will need to use some other cache implementation (e.g.
-pylibmc - `memcached`_ client written in C). The client code will not
-change, we just provide another ``cache_factory``::
-
-    from wheezy.caching.pools import EagerPool
-    from wheezy.caching.pools import Pooled
+    from wheezy.core.pooling import EagerPool
+    from wheezy.caching.pylibmc import MemcachedClient
     from wheezy.caching.pylibmc import client_factory
 
     # Cache Pool
     pool = EagerPool(lambda: client_factory(['/tmp/memcached.sock']), size=10)
     # Factory
-    cache_factory = lambda: Pooled(pool)
-    # Client code
-    with cache_factory() as cache:
-        cache.set(...)
+    cache = MemcachedClient(pool)
 
-The client code remains unchanged, however we where able to switch to
-completely different cache implementation that requires pooling.
+    # Client code
+    cache.set(...)
+
+The client code remains unchanged even some cache implementations
+require pooling to remain thread safe.
 
 CacheClient
 -----------
@@ -88,29 +71,28 @@ membership and funds)::
     default_cache = MemoryCache()
     membership_cache = MemoryCache()
     funds_cache = NullCache()
-    cache_factory = lambda: ClientCache({
-        'default': lambda: default_cache,
-        'membership': lambda: membership_cache,
-        'funds': lambda: funds_cache,
+    cache = ClientCache({
+        'default': default_cache,
+        'membership': membership_cache,
+        'funds': funds_cache,
     }, default_namespace='default')
 
 Application code is designed to work with a single cache by specifying
 namespace to use::
 
-    with cache_factory() as cache:
-        cache.add('x1', 1, namespace='default')
+    cache.add('x1', 1, namespace='default')
 
 At some point of time we might change our partitioning scheme so all
 namespaces reside in a single cache::
 
     default_cache = MemoryCache()
-    cache_factory = lambda: ClientCache({
-        'default': lambda: default_cache,
-        'membership': lambda: default_cache,
-        'funds': lambda: default_cache
+    cachey = ClientCache({
+        'default': default_cache,
+        'membership': default_cache,
+        'funds': default_cache
     }, default_namespace='default')
 
-That happened with no changes to application code, just configuration
+What happened with no changes to application code? Just configuration
 settings.
 
 MemoryCache
@@ -165,17 +147,16 @@ this package via easy_install::
 
 Here is a typical use case::
 
-    from wheezy.caching.memcache import client_factory
+    from wheezy.caching.memcache import MemcachedClient
 
-    cache = client_factory(['unix:/tmp/memcached.sock'])
-    cache_factory = lambda: cache
+    cache = MemcachedClient(['unix:/tmp/memcached.sock'])
 
 You can specify key encoding function by passing ``key_encode`` argument that
 must be a callable that does key encoding. By default
 :py:meth:`~wheezy.caching.encoding.string_encode` is applied.
 
 All arguments passed to
-:py:meth:`~wheezy.caching.memcache.client_factory` are the same as to
+:py:meth:`~wheezy.caching.memcache.MemcachedClient` are the same as to
 original ``Client`` from python-memcache. Note, `python-memcached`_
 ``Client`` implementation is *thread local* object.
 
@@ -194,12 +175,12 @@ Now, you can install this package via easy_install::
 
 Here is a typical use case::
 
-    from wheezy.caching.pools import EagerPool
-    from wheezy.caching.pools import Pooled
+    from wheezy.core.pooling import EagerPool
+    from wheezy.caching.pylibmc import MemcachedClient
     from wheezy.caching.pylibmc import client_factory
 
     pool = EagerPool(lambda: client_factory(['/tmp/memcached.sock']), size=10)
-    cache_factory = lambda: Pooled(pool)
+    cache = MemcachedClient(pool)
 
 You can specify key encoding function by passing ``key_encode`` argument that
 must be a callable that does key encoding. By default
@@ -212,10 +193,8 @@ original ``Client`` from pylibmc. Default client factory configures
 algorithm.
 
 Since `pylibmc`_ implementation is not thread safe it requires pooling,
-so we do here. :py:class:`~wheezy.caching.pools.EagerPool` holds
-a number of `pylibmc`_ instances, while
-:py:class:`~wheezy.caching.pools.Pooled` serves context manager purpose,
-effectively acquiring and returning item to the pool.
+so we do here. :py:class:`~wheezy.core.pooling.EagerPool` holds
+a number of `pylibmc`_ instances.
 
 Key Encoding
 ------------

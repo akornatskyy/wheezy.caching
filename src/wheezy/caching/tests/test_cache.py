@@ -1,5 +1,5 @@
 
-""" ``test_cache`` module.
+""" Unit tests for ``wheezy.caching``.
 """
 
 from wheezy.caching.comp import string_type

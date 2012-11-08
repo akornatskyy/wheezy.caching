@@ -1,7 +1,7 @@
 
 """ ``memory`` module.
 """
-
+from operator import itemgetter
 from time import time as unixtime
 
 from wheezy.caching.comp import allocate_lock
@@ -58,7 +58,7 @@ def find_expired(bucket_items, now):
     """
     expired_keys = []
     for i in xrange(len(bucket_items) - 1, -1, -1):
-        (key, expires) = bucket_items[i]
+        key, expires = bucket_items[i]
         if expires < now:
             expired_keys.append(key)
             del bucket_items[i]
@@ -68,7 +68,7 @@ def find_expired(bucket_items, now):
 class CacheItem(object):
     """ A single cache item stored in cache.
     """
-    __slots__ = ['key', 'value', 'expires']
+    __slots__ = ('key', 'value', 'expires')
 
     def __init__(self, key, value, expires):
         self.key = key
@@ -88,12 +88,6 @@ class MemoryCache(object):
         self.expire_buckets = [
             (allocate_lock(), []) for i in xrange(0, buckets)]
         self.last_expire_bucket_id = -1
-
-    def __enter__(self):  # pragma: nocover
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):  # pragma: nocover
-        pass
 
     def set(self, key, value, time=0, namespace=None):
         """ Sets a key's value, regardless of previous contents
