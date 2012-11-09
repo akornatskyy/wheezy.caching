@@ -26,7 +26,7 @@ else:  # pragma: nocover
 if PY3:  # pragma: nocover
     from _thread import allocate_lock
 else:  # pragma: nocover
-    from thread import allocate_lock
+    from thread import allocate_lock  # noqa
 
 if PY2 and PY_MINOR == 4:  # pragma: nocover
     __import__ = __import__
@@ -39,4 +39,4 @@ else:  # pragma: nocover
 if PY3:  # pragma: nocover
     from queue import Queue
 else:  # pragma: nocover
-    from Queue import Queue
+    from Queue import Queue  # noqa

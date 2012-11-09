@@ -1,7 +1,7 @@
 
 """ ``memory`` module.
 """
-from operator import itemgetter
+
 from time import time as unixtime
 
 from wheezy.caching.comp import allocate_lock
