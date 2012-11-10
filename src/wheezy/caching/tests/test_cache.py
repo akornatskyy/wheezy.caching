@@ -21,6 +21,11 @@ class CacheTestMixin(object):
     def test_get_notfound(self):
         assert None == self.client.get('uknown', self.namespace)
 
+    def test_get_multi_some_found(self):
+        self.setget('s1', 'some string')
+        assert {'s1': 'some string'} == self.client.get_multi(
+            ['unknown1', 's1'], namespace=self.namespace)
+
     def test_get_multi_notfound(self):
         assert {} == self.client.get_multi(
             ['unknown1', 'unknown2'], namespace=self.namespace)
