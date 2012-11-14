@@ -26,8 +26,7 @@ def get_or_add(key, create_factory, dependency_factory=None,
     return result
 
 
-def partial_get_or_add(cache, time=0, namespace=None,
-                       timeout=10, key_prefix='one_pass:'):
+def partial_get_or_add(cache, time=0, namespace=None):
     """ Specializes `get_or_add` cache pattern to::
 
             get_or_add(key, create_factory, dependency_factory=None)
@@ -59,8 +58,7 @@ def get_or_set(key, create_factory, dependency_factory=None,
     return result
 
 
-def partial_get_or_set(cache, time=0, namespace=None,
-                       timeout=10, key_prefix='one_pass:'):
+def partial_get_or_set(cache, time=0, namespace=None):
     """ Specializes `get_or_set` cache pattern to::
 
             get_or_set(key, create_factory, dependency_factory=None)
