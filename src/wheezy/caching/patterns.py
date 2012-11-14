@@ -6,6 +6,46 @@ from time import sleep
 from time import time
 
 
+def get_or_add(key, create_factory, dependency_factory=None,
+               time=0, namespace=None, cache=None):
+    """ Cache Pattern: get an item by *key* from *cache* and
+        if it is not available use *create_factory* to aquire one.
+        If result is not `None` use cache `add` operation to store
+        result and if operation succeed use *dependency_factory*
+        to get an instance of `CacheDependency` to add *key* to it.
+    """
+    result = cache.get(key, namespace)
+    if result is not None:
+        return result
+    result = create_factory()
+    if result is not None:
+        succeed = cache.add(key, result, time, namespace)
+        if succeed and dependency_factory is not None:
+            dependency = dependency_factory()
+            dependency.add(key, namespace)
+    return result
+
+
+def get_or_set(key, create_factory, dependency_factory=None,
+               time=0, namespace=None, cache=None):
+    """ Cache Pattern: get an item by *key* from *cache* and
+        if it is not available use *create_factory* to aquire one.
+        If result is not `None` use cache `set` operation to store
+        result and use *dependency_factory* to get an instance of
+        `CacheDependency` to add *key* to it.
+    """
+    result = cache.get(key, namespace)
+    if result is not None:
+        return result
+    result = create_factory()
+    if result is not None:
+        cache.set(key, result, time, namespace)
+        if dependency_factory is not None:
+            dependency = dependency_factory()
+            dependency.add(key, namespace)
+    return result
+
+
 class OnePass(object):
     """ A solution to `Thundering Head` problem.
 
