@@ -120,6 +120,19 @@ class GetOrAddTestCase(unittest.TestCase):
         mock_dependency_factory.return_value.add.assert_called_once_with(
             'key', 'ns')
 
+    @patch('wheezy.caching.patterns.get_or_add')
+    def test_partial(self, mock_get_or_add):
+        """ Ensure call defaults.
+        """
+        from wheezy.caching.patterns import partial_get_or_add
+        cached = partial_get_or_add(
+            'cache', time='time', namespace='namespace')
+
+        cached('key', 'create_factory', 'dependency_factory')
+        mock_get_or_add.assert_called_once_with(
+            'key', 'create_factory', 'dependency_factory',
+            'time', 'namespace', 'cache')
+
 
 class GetOrSetTestCase(unittest.TestCase):
 
@@ -164,6 +177,19 @@ class GetOrSetTestCase(unittest.TestCase):
         self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
         mock_dependency_factory.return_value.add.assert_called_once_with(
             'key', 'ns')
+
+    @patch('wheezy.caching.patterns.get_or_set')
+    def test_partial(self, mock_get_or_set):
+        """ Ensure call defaults.
+        """
+        from wheezy.caching.patterns import partial_get_or_set
+        cached = partial_get_or_set(
+            'cache', time='time', namespace='namespace')
+
+        cached('key', 'create_factory', 'dependency_factory')
+        mock_get_or_set.assert_called_once_with(
+            'key', 'create_factory', 'dependency_factory',
+            'time', 'namespace', 'cache')
 
 
 class OnePassCreateTestCase(unittest.TestCase):
@@ -242,6 +268,21 @@ class OnePassCreateTestCase(unittest.TestCase):
 
         assert 'x' == self.one_pass_create()
 
+    @patch('wheezy.caching.patterns.one_pass_create')
+    def test_partial(self, mock_one_pass_create):
+        """ Ensure call defaults.
+        """
+        from wheezy.caching.patterns import partial_one_pass_create
+        cached = partial_one_pass_create(
+            'cache', time='time', namespace='namespace',
+            timeout='timeout', key_prefix='key_prefix')
+
+        cached('key', 'create_factory', 'dependency_factory')
+        mock_one_pass_create.assert_called_once_with(
+            'key', 'create_factory', 'dependency_factory',
+            'time', 'namespace', 'cache',
+            'timeout', 'key_prefix')
+
 
 class GetOrCreateTestCase(unittest.TestCase):
 
@@ -269,3 +310,30 @@ class GetOrCreateTestCase(unittest.TestCase):
         self.mock_create_factory.return_value = 'x'
         assert 'x' == self.get_or_create()
         self.mock_cache.get.assert_called_once_with('key', 'ns')
+
+    def test_partial_found(self):
+        """ An item found in cache.
+        """
+        from wheezy.caching.patterns import partial_get_or_create
+        self.mock_cache.get.return_value = 'x'
+        cached = partial_get_or_create(
+            self.mock_cache, time='time', namespace='namespace',
+            timeout='timeout', key_prefix='key_prefix')
+
+        assert 'x' == cached('key', None)
+
+    @patch('wheezy.caching.patterns.one_pass_create')
+    def test_partial(self, mock_one_pass_create):
+        """ Ensure call defaults.
+        """
+        from wheezy.caching.patterns import partial_get_or_create
+        self.mock_cache.get.return_value = None
+        cached = partial_get_or_create(
+            self.mock_cache, time='time', namespace='namespace',
+            timeout='timeout', key_prefix='key_prefix')
+
+        cached('key', 'create_factory', 'dependency_factory')
+        mock_one_pass_create.assert_called_once_with(
+            'key', 'create_factory', 'dependency_factory',
+            'time', 'namespace', self.mock_cache,
+            'timeout', 'key_prefix')

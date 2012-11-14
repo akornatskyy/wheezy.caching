@@ -26,6 +26,19 @@ def get_or_add(key, create_factory, dependency_factory=None,
     return result
 
 
+def partial_get_or_add(cache, time=0, namespace=None,
+                       timeout=10, key_prefix='one_pass:'):
+    """ Specializes `get_or_add` cache pattern to::
+
+            get_or_add(key, create_factory, dependency_factory=None)
+    """
+    def get_or_add_wrapper(key, create_factory, dependency_factory=None):
+        return get_or_add(
+            key, create_factory, dependency_factory,
+            time, namespace, cache)
+    return get_or_add_wrapper
+
+
 def get_or_set(key, create_factory, dependency_factory=None,
                time=0, namespace=None, cache=None):
     """ Cache Pattern: get an item by *key* from *cache* and
@@ -44,6 +57,19 @@ def get_or_set(key, create_factory, dependency_factory=None,
             dependency = dependency_factory()
             dependency.add(key, namespace)
     return result
+
+
+def partial_get_or_set(cache, time=0, namespace=None,
+                       timeout=10, key_prefix='one_pass:'):
+    """ Specializes `get_or_set` cache pattern to::
+
+            get_or_set(key, create_factory, dependency_factory=None)
+    """
+    def get_or_set_wrapper(key, create_factory, dependency_factory=None):
+        return get_or_set(
+            key, create_factory, dependency_factory,
+            time, namespace, cache)
+    return get_or_set_wrapper
 
 
 def one_pass_create(key, create_factory, dependency_factory=None,
@@ -75,6 +101,20 @@ def one_pass_create(key, create_factory, dependency_factory=None,
     return result
 
 
+def partial_one_pass_create(cache, time=0, namespace=None,
+                            timeout=10, key_prefix='one_pass:'):
+    """ Specializes `one_pass_create` cache pattern to::
+
+            one_pass_create(key, create_factory, dependency_factory=None)
+    """
+    def one_pass_create_wrapper(key, create_factory, dependency_factory=None):
+        return one_pass_create(
+            key, create_factory, dependency_factory,
+            time, namespace, cache,
+            timeout, key_prefix)
+    return one_pass_create_wrapper
+
+
 def get_or_create(key, create_factory, dependency_factory=None,
                   time=0, namespace=None, cache=None,
                   timeout=10, key_prefix='one_pass:'):
@@ -86,6 +126,23 @@ def get_or_create(key, create_factory, dependency_factory=None,
         return result
     return one_pass_create(key, create_factory, dependency_factory,
                            time, namespace, cache, timeout, key_prefix)
+
+
+def partial_get_or_create(cache, time=0, namespace=None,
+                          timeout=10, key_prefix='one_pass:'):
+    """ Specializes `get_or_create` cache pattern to::
+
+            get_or_create(key, create_factory, dependency_factory=None)
+    """
+    def get_or_create_wrapper(key, create_factory, dependency_factory=None):
+        result = cache.get(key, namespace)
+        if result is not None:
+            return result
+        return one_pass_create(
+            key, create_factory, dependency_factory,
+            time, namespace, cache,
+            timeout, key_prefix)
+    return get_or_create_wrapper
 
 
 class OnePass(object):
