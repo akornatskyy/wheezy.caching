@@ -43,10 +43,10 @@ wheezy.caching.null
 .. automodule:: wheezy.caching.null
    :members:
 
-wheezy.caching.pools
---------------------
+wheezy.caching.patterns
+-----------------------
 
-.. automodule:: wheezy.caching.pools
+.. automodule:: wheezy.caching.patterns
    :members:
 
 wheezy.caching.pylibmc
