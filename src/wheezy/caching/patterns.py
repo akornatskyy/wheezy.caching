@@ -2,6 +2,7 @@
 """ ``patterns`` module.
 """
 
+from inspect import getargspec
 from time import sleep
 from time import time
 
@@ -143,6 +144,46 @@ def partial_get_or_create(cache, time=0, namespace=None,
     return get_or_create_wrapper
 
 
+def args_key_builder(key_prefix):
+    """ Returns a key builder that allows build a make cache key
+        function at runtime.
+
+        >>> def list_items(self, locale='en', sort_order=1):
+        ...     pass
+
+        >>> make_key = args_key_builder('repo')(list_items)
+        >>> make_key('self')
+        "repo-list_items:'en':1"
+        >>> make_key('self', 'uk')
+        "repo-list_items:'uk':1"
+        >>> make_key('self', sort_order=0)
+        "repo-list_items:'en':0"
+
+        Here is an example of make key function::
+
+            def key_list_items(self, locale='en', sort_order=1):
+                return "repo-list_items:%r:%r" % (locale, sort_order)
+
+    """
+    def build(f):
+        argnames, varargs, kwargs, defaults = getargspec(f)
+        if defaults:
+            n = len(defaults)
+            args = argnames[:-n]
+            args.extend('%s=%r' % x for x in zip(argnames[-n:], defaults))
+        else:
+            args = argnames
+        if argnames and argnames[0] in ('self', 'cls', 'klass'):
+            argnames = argnames[1:]
+        key_format = '%s-%s%s' % (key_prefix, f.__name__,
+                                  ':%r' * len(argnames))
+        fname = 'key_' + f.__name__
+        code = 'def %s(%s): return "%s" %% (%s)' % (
+            fname, ', '.join(args), key_format, ', '.join(argnames))
+        return compile_source(code, 'keys_' + key_prefix)[fname]
+    return build
+
+
 class OnePass(object):
     """ A solution to `Thundering Head` problem.
 
@@ -198,3 +239,12 @@ class OnePass(object):
         if self.acquired:
             self.cache.delete(self.key, self.namespace)
             self.acquired = False
+
+
+# region: internal details
+
+def compile_source(source, name):
+    compiled = compile(source, name, 'exec')
+    local_vars = {}
+    exec(compiled, {}, local_vars)
+    return local_vars

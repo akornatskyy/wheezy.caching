@@ -337,3 +337,34 @@ class GetOrCreateTestCase(unittest.TestCase):
             'key', 'create_factory', 'dependency_factory',
             'time', 'namespace', self.mock_cache,
             'timeout', 'key_prefix')
+
+
+class KeyBuilderTestCase(unittest.TestCase):
+
+    def setUp(self):
+        from wheezy.caching.patterns import args_key_builder
+        self.mk = args_key_builder('prefix')
+
+    def test_noargs(self):
+        def items():
+            pass
+        assert 'prefix-items' == self.mk(items)()
+
+    def test_args(self):
+        def items(x, y):
+            pass
+        assert "prefix-items:'None':None" == self.mk(items)('None', None)
+
+    def test_defaults(self):
+        def items(x, y=''):
+            pass
+        assert "prefix-items:1:''" == self.mk(items)(1)
+        assert "prefix-items:1:'s'" == self.mk(items)(1, y='s')
+        assert "prefix-items:1:2" == self.mk(items)(1, y=2)
+
+    def test_sepecial(self):
+        def items(cls, y):
+            pass
+        assert 'prefix-items:1' == self.mk(items)('cls', 1)
+        assert 'prefix-items:None' == self.mk(items)('cls', None)
+        assert "prefix-items:''" == self.mk(items)('cls', '')
