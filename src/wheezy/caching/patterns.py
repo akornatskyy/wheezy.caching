@@ -7,7 +7,7 @@ from time import time
 
 
 class OnePass(object):
-    """ A solution to `Thundering head` problem.
+    """ A solution to `Thundering Head` problem.
 
         see http://en.wikipedia.org/wiki/Thundering_herd_problem
 
