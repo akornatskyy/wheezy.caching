@@ -46,6 +46,48 @@ def get_or_set(key, create_factory, dependency_factory=None,
     return result
 
 
+def one_pass_create(key, create_factory, dependency_factory=None,
+                    time=0, namespace=None, cache=None,
+                    timeout=10, key_prefix='one_pass:'):
+    """ Cache Pattern: try enter one pass: (1) if entered
+        use *create_factory* to get a value if result is not `None`
+        use cache `set` operation to store result and use
+        *dependency_factory* to get an instance of `CacheDependency`
+        to add *key* to it; (2) if not entered `wait` until one
+        pass is available and it is not timed out get an item by *key*
+        from *cache*.
+    """
+    result = None
+    one_pass = OnePass(cache, key_prefix + key, timeout, namespace)
+    try:
+        one_pass.__enter__()
+        if one_pass.acquired:
+            result = create_factory()
+            if result is not None:
+                cache.set(key, result, time, namespace)
+                if dependency_factory is not None:
+                    dependency = dependency_factory()
+                    dependency.add(key, namespace)
+        elif one_pass.wait():
+            result = cache.get(key, namespace)
+    finally:
+        one_pass.__exit__(None, None, None)
+    return result
+
+
+def get_or_create(key, create_factory, dependency_factory=None,
+                  time=0, namespace=None, cache=None,
+                  timeout=10, key_prefix='one_pass:'):
+    """ Cache Pattern: get an item by *key* from *cache* and
+        if it is not available see `one_pass_create`.
+    """
+    result = cache.get(key, namespace)
+    if result is not None:
+        return result
+    return one_pass_create(key, create_factory, dependency_factory,
+                           time, namespace, cache, timeout, key_prefix)
+
+
 class OnePass(object):
     """ A solution to `Thundering Head` problem.
 

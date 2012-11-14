@@ -164,3 +164,108 @@ class GetOrSetTestCase(unittest.TestCase):
         self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
         mock_dependency_factory.return_value.add.assert_called_once_with(
             'key', 'ns')
+
+
+class OnePassCreateTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.mock_cache = Mock()
+        self.mock_create_factory = Mock()
+
+    def one_pass_create(self, dependency_factory=None):
+        from wheezy.caching.patterns import one_pass_create as opc
+        return opc('key', self.mock_create_factory, dependency_factory,
+                   10, 'ns', self.mock_cache, 5)
+
+    def test_create_none(self):
+        """ One pass has been entered and create factory returns None.
+        """
+        self.mock_cache.add.return_value = True
+        self.mock_create_factory.return_value = None
+        assert not self.one_pass_create()
+
+        self.mock_cache.add.assert_called_once_with(
+            'one_pass:key', ANY, 5, 'ns')
+        self.mock_create_factory.assert_called_once_with()
+        assert not self.mock_cache.set.called
+        self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
+
+    def test_no_dependency(self):
+        """ Create factory returned value.
+        """
+        self.mock_cache.add.return_value = True
+        self.mock_create_factory.return_value = 'x'
+        assert 'x' == self.one_pass_create()
+
+        self.mock_cache.add.assert_called_once_with(
+            'one_pass:key', ANY, 5, 'ns')
+        self.mock_create_factory.assert_called_once_with()
+        self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
+        self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
+
+    def test_with_dependency(self):
+        """ Create factory returned value.
+        """
+        self.mock_cache.add.return_value = True
+        self.mock_create_factory.return_value = 'x'
+        mock_dependency_factory = Mock()
+        assert 'x' == self.one_pass_create(mock_dependency_factory)
+
+        self.mock_cache.add.assert_called_once_with(
+            'one_pass:key', ANY, 5, 'ns')
+        self.mock_create_factory.assert_called_once_with()
+        self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
+        self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
+        mock_dependency_factory.return_value.add.assert_called_once_with(
+            'key', 'ns')
+
+    @patch('wheezy.caching.patterns.OnePass')
+    def test_wait_timedout(self, mock_cls_one_pass):
+        """ Wait on one pass has timed out.
+        """
+        mock_one_pass = mock_cls_one_pass.return_value
+        self.mock_cache.add.return_value = False
+        mock_one_pass.acquired = False
+        mock_one_pass.wait.return_value = False
+
+        assert not self.one_pass_create()
+
+    @patch('wheezy.caching.patterns.OnePass')
+    def test_wait_get(self, mock_cls_one_pass):
+        """ Wait on one pass succeed, get value.
+        """
+        mock_one_pass = mock_cls_one_pass.return_value
+        self.mock_cache.add.return_value = False
+        mock_one_pass.acquired = False
+        mock_one_pass.wait.return_value = True
+        self.mock_cache.get.return_value = 'x'
+
+        assert 'x' == self.one_pass_create()
+
+
+class GetOrCreateTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.mock_cache = Mock()
+        self.mock_create_factory = Mock()
+
+    def get_or_create(self):
+        from wheezy.caching.patterns import get_or_create as gc
+        return gc('key', self.mock_create_factory, None,
+                  10, 'ns', self.mock_cache, 5)
+
+    def test_found(self):
+        """ An item found in cache.
+        """
+        self.mock_cache.get.return_value = 'x'
+        assert 'x' == self.get_or_create()
+        self.mock_cache.get.assert_called_once_with('key', 'ns')
+        assert not self.mock_create_factory.called
+
+    def test_not_found(self):
+        """ Not found in cache.
+        """
+        self.mock_cache.get.return_value = None
+        self.mock_create_factory.return_value = 'x'
+        assert 'x' == self.get_or_create()
+        self.mock_cache.get.assert_called_once_with('key', 'ns')
