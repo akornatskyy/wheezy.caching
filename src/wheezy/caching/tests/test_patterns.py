@@ -120,6 +120,9 @@ class GetOrAddTestCase(unittest.TestCase):
         mock_dependency_factory.return_value.add.assert_called_once_with(
             'key', 'ns')
 
+
+class PartialGetOrAddTestCase(GetOrAddTestCase):
+
     @patch('wheezy.caching.patterns.get_or_add')
     def test_partial(self, mock_get_or_add):
         """ Ensure call defaults.
@@ -132,6 +135,24 @@ class GetOrAddTestCase(unittest.TestCase):
         mock_get_or_add.assert_called_once_with(
             'key', 'create_factory', 'dependency_factory',
             'time', 'namespace', 'cache')
+
+
+class WrapsGetOrAddTestCase(GetOrAddTestCase):
+
+    def setUp(self):
+        self.mock_cache = Mock()
+        self.mock_create_factory = Mock()
+
+    def get_or_add(self, dependency_factory=None):
+        from wheezy.caching.patterns import wraps_get_or_add as wga
+        key_builder = lambda f: lambda *args, **kwargs: 'key'
+        return wga(self.mock_cache, key_builder, 10, 'ns')(
+            self.mock_create_factory)()
+
+    def test_has_dependency(self):
+        """ Not supported.
+        """
+        pass
 
 
 class GetOrSetTestCase(unittest.TestCase):
@@ -164,6 +185,17 @@ class GetOrSetTestCase(unittest.TestCase):
         self.mock_create_factory.assert_called_once_with()
         assert not self.mock_cache.add.called
 
+    def test_no_dependency(self):
+        """ There is specified `dependency_factory`.
+        """
+        self.mock_cache.get.return_value = None
+        self.mock_create_factory.return_value = 'x'
+        self.mock_cache.set.return_value = True
+
+        assert 'x' == self.get_or_set()
+        self.mock_cache.get.assert_called_once_with('key', 'ns')
+        self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
+
     def test_has_dependency(self):
         """ There is specified `dependency_factory`.
         """
@@ -178,6 +210,9 @@ class GetOrSetTestCase(unittest.TestCase):
         mock_dependency_factory.return_value.add.assert_called_once_with(
             'key', 'ns')
 
+
+class PartialGetOrSetTestCase(GetOrSetTestCase):
+
     @patch('wheezy.caching.patterns.get_or_set')
     def test_partial(self, mock_get_or_set):
         """ Ensure call defaults.
@@ -190,6 +225,24 @@ class GetOrSetTestCase(unittest.TestCase):
         mock_get_or_set.assert_called_once_with(
             'key', 'create_factory', 'dependency_factory',
             'time', 'namespace', 'cache')
+
+
+class WrapsGetOrSetTestCase(GetOrSetTestCase):
+
+    def setUp(self):
+        self.mock_cache = Mock()
+        self.mock_create_factory = Mock()
+
+    def get_or_set(self, dependency_factory=None):
+        from wheezy.caching.patterns import wraps_get_or_set as wgs
+        key_builder = lambda f: lambda *args, **kwargs: 'key'
+        return wgs(self.mock_cache, key_builder, 10, 'ns')(
+            self.mock_create_factory)()
+
+    def test_has_dependency(self):
+        """ Not supported.
+        """
+        pass
 
 
 class OnePassCreateTestCase(unittest.TestCase):
@@ -268,6 +321,9 @@ class OnePassCreateTestCase(unittest.TestCase):
 
         assert 'x' == self.one_pass_create()
 
+
+class PartialOnePassCreateTestCase(unittest.TestCase):
+
     @patch('wheezy.caching.patterns.one_pass_create')
     def test_partial(self, mock_one_pass_create):
         """ Ensure call defaults.
@@ -322,6 +378,9 @@ class GetOrCreateTestCase(unittest.TestCase):
 
         assert 'x' == cached('key', None)
 
+
+class PartialGetOrCreateTestCase(GetOrCreateTestCase):
+
     @patch('wheezy.caching.patterns.one_pass_create')
     def test_partial(self, mock_one_pass_create):
         """ Ensure call defaults.
@@ -339,11 +398,24 @@ class GetOrCreateTestCase(unittest.TestCase):
             'timeout', 'key_prefix')
 
 
+class WrapsGetOrCreateTestCase(GetOrCreateTestCase):
+
+    def setUp(self):
+        self.mock_cache = Mock()
+        self.mock_create_factory = Mock()
+
+    def get_or_create(self, dependency_factory=None):
+        from wheezy.caching.patterns import wraps_get_or_create as wgc
+        key_builder = lambda f: lambda *args, **kwargs: 'key'
+        return wgc(self.mock_cache, key_builder, 10, 'ns', 5)(
+            self.mock_create_factory)()
+
+
 class KeyBuilderTestCase(unittest.TestCase):
 
     def setUp(self):
-        from wheezy.caching.patterns import args_key_builder
-        self.mk = args_key_builder('prefix')
+        from wheezy.caching.patterns import key_builder
+        self.mk = key_builder('prefix')
 
     def test_noargs(self):
         def items():
