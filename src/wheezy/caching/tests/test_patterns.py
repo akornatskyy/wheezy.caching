@@ -120,6 +120,15 @@ class CachedTestCase(unittest.TestCase):
         self.cached.decr('key', 1, 0)
         self.mock_cache.decr.assert_called_once_with('key', 1, 'ns', 0)
 
+    def test_dependency(self):
+        """ Ensure returned CacheDependency is properly initialized.
+        """
+        d = self.cached.dependency('master_key')
+        assert self.cached.cache == d.cache
+        assert 'master_key' == d.master_key
+        assert self.cached.time == d.time
+        assert self.cached.namespace == d.namespace
+
 
 class OnePassTestCase(unittest.TestCase):
 

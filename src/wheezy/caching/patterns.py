@@ -6,6 +6,8 @@ from inspect import getargspec
 from time import sleep
 from time import time
 
+from wheezy.caching.dependency import CacheDependency
+
 
 class Cached(object):
     """ Specializes access to cache by using a number of common settings
@@ -96,6 +98,13 @@ class Cached(object):
         """ Atomically decrements a key's value.
         """
         return self.cache.decr(key, delta, self.namespace, initial_value)
+
+    def dependency(self, master_key):
+        """ Returns an instance of `CacheDependency` initialized by
+            given *master_key*.
+        """
+        return CacheDependency(self.cache, master_key, self.time,
+                               self.namespace)
 
     def get_or_add(self, key, create_factory, dependency_factory):
         """ Cache Pattern: get an item by *key* from *cache* and
