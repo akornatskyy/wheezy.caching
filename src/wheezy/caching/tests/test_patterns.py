@@ -494,3 +494,15 @@ class KeyBuilderTestCase(unittest.TestCase):
         assert 'prefix-items:1' == self.mk(items)('cls', 1)
         assert 'prefix-items:None' == self.mk(items)('cls', None)
         assert "prefix-items:''" == self.mk(items)('cls', '')
+
+    def test_object(self):
+        class Spec(object):
+            def __init__(self, locale='en'):
+                self.locale = locale
+
+            def __repr__(self):
+                return '<spec:%s>' % self.locale
+
+        def items(spec):
+            pass
+        assert 'prefix-items:<spec:en>' == self.mk(items)(Spec())

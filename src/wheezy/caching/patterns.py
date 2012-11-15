@@ -361,24 +361,25 @@ def key_builder(key_prefix):
         argnames, varargs, kwargs, defaults = getargspec(func)
         if defaults:
             n = len(defaults)
+            defaults = dict(zip(argnames[-n:], defaults))
             args = argnames[:-n]
-            args.extend('%s=%r' % x for x in zip(argnames[-n:], defaults))
+            args.extend('%s=defaults["%s"]' % (n, n) for n in argnames[-n:])
         else:
             args = argnames
         if argnames and argnames[0] in ('self', 'cls', 'klass'):
             argnames = argnames[1:]
         fname = 'key_' + func.__name__
-        code = 'def %s(%s): return "%s" %% (%s)' % (
+        code = 'def %s(%s): return "%s" %% (%s)\ndel defaults' % (
             fname, ', '.join(args), key_format(func, key_prefix),
             ', '.join(argnames))
-        return compile_source(code, 'keys_' + key_prefix)[fname]
+        return compile_source(code, 'keys_' + key_prefix, defaults)[fname]
     return build
 
 
 # region: internal details
 
-def compile_source(source, name):
+def compile_source(source, name, defaults):
     compiled = compile(source, name, 'exec')
-    local_vars = {}
+    local_vars = {'defaults': defaults}
     exec(compiled, {}, local_vars)
     return local_vars
