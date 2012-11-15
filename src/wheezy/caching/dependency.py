@@ -28,28 +28,12 @@ class CacheDependency(object):
 
     def next_key(self, namespace=None):
         """ Returns the next unique key for dependency.
-
-            >>> from wheezy.caching.memory import MemoryCache
-            >>> c = MemoryCache()
-            >>> d = CacheDependency(c, 'key')
-            >>> d.next_key()
-            'key1'
-            >>> d.next_key()
-            'key2'
         """
         return self.master_key + str(self.cache.incr(
             self.master_key, 1, namespace or self.namespace, 0))
 
     def next_keys(self, n, namespace=None):
         """ Returns ``n`` number of dependency keys.
-
-            >>> from wheezy.caching.memory import MemoryCache
-            >>> c = MemoryCache()
-            >>> d = CacheDependency(c, 'key')
-            >>> d.next_keys(1)
-            ['key1']
-            >>> d.next_keys(3)
-            ['key2', 'key3', 'key4']
         """
         last_id = self.cache.incr(self.master_key, n,
                                   namespace or self.namespace, 0)
@@ -58,14 +42,6 @@ class CacheDependency(object):
 
     def add(self, key, namespace=None):
         """ Adds a given key to dependency.
-
-            >>> from wheezy.caching.memory import MemoryCache
-            >>> c = MemoryCache()
-            >>> d = CacheDependency(c, 'key')
-            >>> d.add('key-x')
-            True
-            >>> c.get('key1')
-            'key-x'
         """
         namespace = namespace or self.namespace
         return self.cache.add(self.next_key(namespace),
@@ -73,56 +49,15 @@ class CacheDependency(object):
 
     def add_multi(self, keys, key_prefix='', namespace=None):
         """ Adds several keys to dependency.
-
-            >>> from wheezy.caching.memory import MemoryCache
-            >>> c = MemoryCache()
-            >>> d = CacheDependency(c, 'key')
-            >>> d.add_multi(('key-x', 'key-y'))
-            []
-            >>> c.get('key1')
-            'key-x'
-            >>> c.get('key2')
-            'key-y'
-
-            With ``key_prefix``
-
-            >>> d.add_multi(('a', 'b'), key_prefix='key-')
-            []
-            >>> c.get('key3')
-            'key-a'
-            >>> c.get('key4')
-            'key-b'
         """
         namespace = namespace or self.namespace
-        mapping = dict(zip(self.next_keys(len(keys), namespace),
-                           map(lambda k: key_prefix + k, keys)))
+        mapping = dict(zip(self.next_keys(
+            len(keys), namespace),
+            key_prefix and map(lambda k: key_prefix + k, keys) or keys))
         return self.cache.add_multi(mapping, self.time, '', namespace)
 
     def delete(self, namespace=None):
         """ Delete all items wired by this cache dependency.
-
-            >>> from wheezy.caching.memory import MemoryCache
-            >>> c = MemoryCache()
-            >>> d = CacheDependency(c, 'key')
-
-            If there are no dependent items, delete succeed.
-
-            >>> d.delete(c)
-            True
-
-            Clears all dependent items
-
-            >>> mapping = {'key-x': 1, 'key-y': 2}
-            >>> c.set_multi(mapping, 100)
-            []
-            >>> d.add_multi(mapping.keys())
-            []
-            >>> len(c.items)
-            5
-            >>> d.delete()
-            True
-            >>> len(c.items)
-            0
         """
         namespace = namespace or self.namespace
         cache = self.cache
