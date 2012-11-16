@@ -16,6 +16,7 @@ class CachedTestCase(unittest.TestCase):
         self.mock_cache = Mock()
         self.mock_dependency = Mock()
         self.cached = Cached(self.mock_cache, time=10, namespace='ns')
+        self.cached.dependency = self.mock_dependency
 
     def test_set(self):
         """ Ensure set operation is passed to cache.
@@ -27,9 +28,9 @@ class CachedTestCase(unittest.TestCase):
         """ Ensure set operation is passed to cache and
             key added to dependency.
         """
-        self.cached.set('key', 'value', self.mock_dependency)
+        self.cached.set('key', 'value', 'master_key')
         self.mock_cache.set.assert_called_once_with('key', 'value', 10, 'ns')
-        self.mock_dependency.add.assert_called_once_with('key', 'ns')
+        self.mock_dependency.add.assert_called_once_with('master_key', 'key')
 
     def test_set_multi(self):
         """ Ensure set_multi operation is passed to cache.
@@ -57,9 +58,9 @@ class CachedTestCase(unittest.TestCase):
         """ Ensure add operation is passed to cache and
             key added to dependency.
         """
-        self.cached.add('key', 'value', self.mock_dependency)
+        self.cached.add('key', 'value', 'master_key')
         self.mock_cache.add.assert_called_once_with('key', 'value', 10, 'ns')
-        self.mock_dependency.add.assert_called_once_with('key', 'ns')
+        self.mock_dependency.add.assert_called_once_with('master_key', 'key')
 
     def test_add_multi(self):
         """ Ensure add_multi operation is passed to cache.
@@ -123,10 +124,12 @@ class CachedTestCase(unittest.TestCase):
     def test_dependency(self):
         """ Ensure returned CacheDependency is properly initialized.
         """
-        d = self.cached.dependency
-        assert self.cached.cache == d.cache
-        assert self.cached.time == d.time
-        assert self.cached.namespace == d.namespace
+        from wheezy.caching.patterns import Cached
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+        d = cached.dependency
+        assert cached.cache == d.cache
+        assert cached.time == d.time
+        assert cached.namespace == d.namespace
 
 
 class OnePassTestCase(unittest.TestCase):
@@ -190,12 +193,14 @@ class GetOrAddTestCase(unittest.TestCase):
     def setUp(self):
         self.mock_cache = Mock()
         self.mock_create_factory = Mock()
+        self.mock_dependency = Mock()
 
-    def get_or_add(self, dependency_factory=None):
+    def get_or_add(self, dependency_key_factory=None):
         from wheezy.caching.patterns import Cached
         cached = Cached(self.mock_cache, time=10, namespace='ns')
+        cached.dependency = self.mock_dependency
         return cached.get_or_add('key', self.mock_create_factory,
-                                 dependency_factory)
+                                 dependency_key_factory)
 
     def test_found(self):
         """ An item found in cache.
@@ -233,13 +238,13 @@ class GetOrAddTestCase(unittest.TestCase):
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = 'x'
         self.mock_cache.add.return_value = True
-        mock_dependency_factory = Mock()
+        mock_dependency_key_factory = Mock()
+        mock_dependency_key_factory.return_value = 'master_key'
 
-        assert 'x' == self.get_or_add(mock_dependency_factory)
+        assert 'x' == self.get_or_add(mock_dependency_key_factory)
         self.mock_cache.get.assert_called_once_with('key', 'ns')
         self.mock_cache.add.assert_called_once_with('key', 'x', 10, 'ns')
-        mock_dependency_factory.return_value.add.assert_called_once_with(
-            'key', 'ns')
+        self.mock_dependency.add.assert_called_once_with('master_key', 'key')
 
 
 class WrapsGetOrAddTestCase(GetOrAddTestCase):
@@ -265,12 +270,14 @@ class GetOrSetTestCase(unittest.TestCase):
     def setUp(self):
         self.mock_cache = Mock()
         self.mock_create_factory = Mock()
+        self.mock_dependency = Mock()
 
-    def get_or_set(self, dependency_factory=None):
+    def get_or_set(self, dependency_key_factory=None):
         from wheezy.caching.patterns import Cached
         cached = Cached(self.mock_cache, time=10, namespace='ns')
+        cached.dependency = self.mock_dependency
         return cached.get_or_set('key', self.mock_create_factory,
-                                 dependency_factory)
+                                 dependency_key_factory)
 
     def test_found(self):
         """ An item found in cache.
@@ -308,13 +315,13 @@ class GetOrSetTestCase(unittest.TestCase):
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = 'x'
         self.mock_cache.set.return_value = True
-        mock_dependency_factory = Mock()
+        mock_dependency_key_factory = Mock()
+        mock_dependency_key_factory.return_value = 'master_key'
 
-        assert 'x' == self.get_or_set(mock_dependency_factory)
+        assert 'x' == self.get_or_set(mock_dependency_key_factory)
         self.mock_cache.get.assert_called_once_with('key', 'ns')
         self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
-        mock_dependency_factory.return_value.add.assert_called_once_with(
-            'key', 'ns')
+        self.mock_dependency.add.assert_called_once_with('master_key', 'key')
 
 
 class WrapsGetOrSetTestCase(GetOrSetTestCase):
@@ -358,12 +365,14 @@ class OnePassCreateTestCase(unittest.TestCase):
     def setUp(self):
         self.mock_cache = Mock()
         self.mock_create_factory = Mock()
+        self.mock_dependency = Mock()
 
-    def one_pass_create(self, dependency_factory=None):
+    def one_pass_create(self, dependency_key_factory=None):
         from wheezy.caching.patterns import Cached
         cached = Cached(self.mock_cache, time=10, namespace='ns', timeout=5)
+        cached.dependency = self.mock_dependency
         return cached.one_pass_create('key', self.mock_create_factory,
-                                      dependency_factory)
+                                      dependency_key_factory)
 
     def test_create_none(self):
         """ One pass has been entered and create factory returns None.
@@ -396,16 +405,16 @@ class OnePassCreateTestCase(unittest.TestCase):
         """
         self.mock_cache.add.return_value = True
         self.mock_create_factory.return_value = 'x'
-        mock_dependency_factory = Mock()
-        assert 'x' == self.one_pass_create(mock_dependency_factory)
+        mock_dependency_key_factory = Mock()
+        mock_dependency_key_factory.return_value = 'master_key'
+        assert 'x' == self.one_pass_create(mock_dependency_key_factory)
 
         self.mock_cache.add.assert_called_once_with(
             'one_pass:key', ANY, 5, 'ns')
         self.mock_create_factory.assert_called_once_with()
         self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
         self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
-        mock_dependency_factory.return_value.add.assert_called_once_with(
-            'key', 'ns')
+        self.mock_dependency.add.assert_called_once_with('master_key', 'key')
 
     @patch('wheezy.caching.patterns.OnePass')
     def test_wait_timedout(self, mock_cls_one_pass):

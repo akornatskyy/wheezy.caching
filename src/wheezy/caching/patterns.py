@@ -25,13 +25,13 @@ class Cached(object):
         self.key_prefix = key_prefix
         self.dependency = CacheDependency(cache, time, namespace)
 
-    def set(self, key, value, dependency=None):
+    def set(self, key, value, dependency_key=None):
         """ Sets a key's value, regardless of previous contents
-            in cache. If *dependency* is specified the *key* is added.
+            in cache.
         """
         succeed = self.cache.set(key, value, self.time, self.namespace)
-        if dependency:
-            dependency.add(key, self.namespace)
+        if dependency_key:
+            self.dependency.add(dependency_key, key)
         return succeed
 
     def set_multi(self, mapping, key_prefix=''):
@@ -40,13 +40,13 @@ class Cached(object):
         return self.cache.set_multi(mapping, self.time, key_prefix,
                                     self.namespace)
 
-    def add(self, key, value, dependency=None):
+    def add(self, key, value, dependency_key=None):
         """ Sets a key's value, if and only if the item is not
-            already. If *dependency* is specified the *key* is added.
+            already.
         """
         succeed = self.cache.add(key, value, self.time, self.namespace)
-        if succeed and dependency:
-            dependency.add(key, self.namespace)
+        if succeed and dependency_key:
+            self.dependency.add(dependency_key, key)
         return succeed
 
     def add_multi(self, mapping, key_prefix=''):
@@ -100,12 +100,12 @@ class Cached(object):
         """
         return self.cache.decr(key, delta, self.namespace, initial_value)
 
-    def get_or_add(self, key, create_factory, dependency_factory):
+    def get_or_add(self, key, create_factory, dependency_key_factory):
         """ Cache Pattern: get an item by *key* from *cache* and
             if it is not available use *create_factory* to aquire one.
             If result is not `None` use cache `add` operation to store
-            result and if operation succeed use *dependency_factory*
-            to get an instance of `CacheDependency` to add *key* to it.
+            result and if operation succeed use *dependency_key_factory*
+            to get an instance of `dependency_key` to link with *key*.
         """
         result = self.cache.get(key, self.namespace)
         if result is not None:
@@ -113,9 +113,8 @@ class Cached(object):
         result = create_factory()
         if result is not None:
             succeed = self.cache.add(key, result, self.time, self.namespace)
-            if succeed and dependency_factory is not None:
-                dependency = dependency_factory()
-                dependency.add(key, self.namespace)
+            if succeed and dependency_key_factory is not None:
+                self.dependency.add(dependency_key_factory(), key)
         return result
 
     def wraps_get_or_add(self, wrapped):
@@ -144,12 +143,12 @@ class Cached(object):
             return result
         return get_or_add_wrapper
 
-    def get_or_set(self, key, create_factory, dependency_factory=None):
+    def get_or_set(self, key, create_factory, dependency_key_factory=None):
         """ Cache Pattern: get an item by *key* from *cache* and
             if it is not available use *create_factory* to aquire one.
             If result is not `None` use cache `set` operation to store
-            result and use *dependency_factory* to get an instance of
-            `CacheDependency` to add *key* to it.
+            result and use *dependency_key_factory* to get an instance
+            of `dependency_key` to link with *key*.
         """
         result = self.cache.get(key, self.namespace)
         if result is not None:
@@ -157,9 +156,8 @@ class Cached(object):
         result = create_factory()
         if result is not None:
             self.cache.set(key, result, self.time, self.namespace)
-            if dependency_factory is not None:
-                dependency = dependency_factory()
-                dependency.add(key, self.namespace)
+            if dependency_key_factory is not None:
+                self.dependency.add(dependency_key_factory(), key)
         return result
 
     def __call__(self, wrapped):
@@ -192,14 +190,15 @@ class Cached(object):
             return result
         return get_or_set_wrapper
 
-    def one_pass_create(self, key, create_factory, dependency_factory=None):
+    def one_pass_create(self, key, create_factory,
+                        dependency_key_factory=None):
         """ Cache Pattern: try enter one pass: (1) if entered
             use *create_factory* to get a value if result is not `None`
             use cache `set` operation to store result and use
-            *dependency_factory* to get an instance of `CacheDependency`
-            to add *key* to it; (2) if not entered `wait` until one
-            pass is available and it is not timed out get an item by *key*
-            from *cache*.
+            *dependency_key_factory* to get an instance of `dependency_key`
+            to link with *key*; (2) if not entered `wait` until one pass is
+            available and it is not timed out get an item by *key* from
+            *cache*.
         """
         result = None
         one_pass = OnePass(self.cache, self.key_prefix + key,
@@ -210,23 +209,23 @@ class Cached(object):
                 result = create_factory()
                 if result is not None:
                     self.cache.set(key, result, self.time, self.namespace)
-                    if dependency_factory is not None:
-                        dependency = dependency_factory()
-                        dependency.add(key, self.namespace)
+                    if dependency_key_factory is not None:
+                        self.dependency.add(dependency_key_factory(), key)
             elif one_pass.wait():
                 result = self.cache.get(key, self.namespace)
         finally:
             one_pass.__exit__(None, None, None)
         return result
 
-    def get_or_create(self, key, create_factory, dependency_factory=None):
+    def get_or_create(self, key, create_factory, dependency_key_factory=None):
         """ Cache Pattern: get an item by *key* from *cache* and
             if it is not available see `one_pass_create`.
         """
         result = self.cache.get(key, self.namespace)
         if result is not None:
             return result
-        return self.one_pass_create(key, create_factory, dependency_factory)
+        return self.one_pass_create(key, create_factory,
+                                    dependency_key_factory)
 
     def wraps_get_or_create(self, wrapped):
         """ Returns specialized decorator for `get_or_create` cache
