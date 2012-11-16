@@ -13,31 +13,30 @@ class CacheDependencyTestCase(unittest.TestCase):
     def setUp(self):
         from wheezy.caching.dependency import CacheDependency
         self.mock_cache = Mock()
-        self.d = CacheDependency(self.mock_cache, 'key',
-                                 time=10, namespace='default')
+        self.d = CacheDependency(self.mock_cache, time=10, namespace='ns')
 
     def test_next_key(self):
         """ Ensures consistency of key issued.
         """
         self.mock_cache.incr.return_value = 1
-        assert 'key1' == self.d.next_key()
-        self.mock_cache.incr.assert_called_once_with('key', 1, 'default', 0)
+        assert 'key1' == self.d.next_key('key')
+        self.mock_cache.incr.assert_called_once_with('key', 1, 'ns', 0)
 
         self.mock_cache.reset_mock()
         self.mock_cache.incr.return_value = 2
-        assert 'key2' == self.d.next_key('ns')
+        assert 'key2' == self.d.next_key('key')
         self.mock_cache.incr.assert_called_once_with('key', 1, 'ns', 0)
 
     def test_next_keys(self):
         """ Ensures consistency of keys issued.
         """
         self.mock_cache.incr.return_value = 2
-        assert ['key1', 'key2'] == self.d.next_keys(2)
-        self.mock_cache.incr.assert_called_once_with('key', 2, 'default', 0)
+        assert ['key1', 'key2'] == self.d.next_keys('key', 2)
+        self.mock_cache.incr.assert_called_once_with('key', 2, 'ns', 0)
 
         self.mock_cache.reset_mock()
         self.mock_cache.incr.return_value = 4
-        assert ['key3', 'key4'] == self.d.next_keys(2, 'ns')
+        assert ['key3', 'key4'] == self.d.next_keys('key', 2)
         self.mock_cache.incr.assert_called_once_with('key', 2, 'ns', 0)
 
     def test_add(self):
@@ -45,14 +44,7 @@ class CacheDependencyTestCase(unittest.TestCase):
         """
         self.mock_cache.incr.return_value = 1
         self.mock_cache.add.return_value = True
-        assert self.d.add('k')
-        self.mock_cache.add.assert_called_once_with(
-            'key1', 'k', 10, 'default')
-
-        self.mock_cache.reset_mock()
-        self.mock_cache.incr.return_value = 1
-        self.mock_cache.add.return_value = True
-        assert self.d.add('k', 'ns')
+        assert self.d.add('key', 'k')
         self.mock_cache.add.assert_called_once_with(
             'key1', 'k', 10, 'ns')
 
@@ -61,35 +53,28 @@ class CacheDependencyTestCase(unittest.TestCase):
         """
         self.mock_cache.incr.return_value = 1
         self.mock_cache.add.return_value = True
-        assert self.d.add_multi(['k'])
-        self.mock_cache.add_multi.assert_called_once_with(
-            {'key1': 'k'}, 10, '', 'default')
-
-        self.mock_cache.reset_mock()
-        self.mock_cache.incr.return_value = 1
-        self.mock_cache.add.return_value = True
-        assert self.d.add_multi(['k'], 'prefix-')
-        self.mock_cache.add_multi.assert_called_once_with(
-            {'key1': 'prefix-k'}, 10, '', 'default')
-
-        self.mock_cache.reset_mock()
-        self.mock_cache.incr.return_value = 1
-        self.mock_cache.add.return_value = True
-        assert self.d.add_multi(['k'], namespace='ns')
+        assert self.d.add_multi('key', ['k'])
         self.mock_cache.add_multi.assert_called_once_with(
             {'key1': 'k'}, 10, '', 'ns')
+
+        self.mock_cache.reset_mock()
+        self.mock_cache.incr.return_value = 1
+        self.mock_cache.add.return_value = True
+        assert self.d.add_multi('key', ['k'], 'prefix-')
+        self.mock_cache.add_multi.assert_called_once_with(
+            {'key1': 'prefix-k'}, 10, '', 'ns')
 
     def test_delete(self):
         """ Ensure related keys are invalidated.
         """
         self.mock_cache.get.return_value = None
-        assert self.d.delete()
+        assert self.d.delete('key')
         self.mock_cache.get.assert_called_once_with(
-            'key', 'default')
+            'key', 'ns')
 
         self.mock_cache.reset_mock()
         self.mock_cache.get.return_value = None
-        assert self.d.delete('ns')
+        assert self.d.delete('key')
         self.mock_cache.get.assert_called_once_with(
             'key', 'ns')
 
@@ -99,12 +84,12 @@ class CacheDependencyTestCase(unittest.TestCase):
         self.mock_cache.reset_mock()
         self.mock_cache.get.return_value = 2
         self.mock_cache.get_multi.side_effect = side_effect
-        assert self.d.delete()
+        assert self.d.delete('key')
         self.mock_cache.get.assert_called_once_with(
-            'key', 'default')
+            'key', 'ns')
         self.mock_cache.get_multi.assert_called_once_with(
-            ANY, '', 'default')
+            ANY, '', 'ns')
         self.mock_cache.delete_multi.assert_called_once_with(
-            ANY, 0, '', 'default')
+            ANY, 0, '', 'ns')
         assert ['k1', 'k2', 'key', 'key1', 'key2'] == sorted(
             self.mock_cache.delete_multi.call_args[0][0])

@@ -123,9 +123,8 @@ class CachedTestCase(unittest.TestCase):
     def test_dependency(self):
         """ Ensure returned CacheDependency is properly initialized.
         """
-        d = self.cached.dependency('master_key')
+        d = self.cached.dependency
         assert self.cached.cache == d.cache
-        assert 'master_key' == d.master_key
         assert self.cached.time == d.time
         assert self.cached.namespace == d.namespace
 

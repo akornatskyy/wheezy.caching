@@ -23,6 +23,7 @@ class Cached(object):
         self.namespace = namespace
         self.timeout = timeout
         self.key_prefix = key_prefix
+        self.dependency = CacheDependency(cache, time, namespace)
 
     def set(self, key, value, dependency=None):
         """ Sets a key's value, regardless of previous contents
@@ -98,13 +99,6 @@ class Cached(object):
         """ Atomically decrements a key's value.
         """
         return self.cache.decr(key, delta, self.namespace, initial_value)
-
-    def dependency(self, master_key):
-        """ Returns an instance of `CacheDependency` initialized by
-            given *master_key*.
-        """
-        return CacheDependency(self.cache, master_key, self.time,
-                               self.namespace)
 
     def get_or_add(self, key, create_factory, dependency_factory):
         """ Cache Pattern: get an item by *key* from *cache* and
