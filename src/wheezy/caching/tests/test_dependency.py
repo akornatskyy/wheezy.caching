@@ -71,12 +71,8 @@ class CacheDependencyTestCase(unittest.TestCase):
         assert self.d.delete('key')
         self.mock_cache.get.assert_called_once_with(
             'key', 'ns')
-
-        self.mock_cache.reset_mock()
-        self.mock_cache.get.return_value = None
-        assert self.d.delete('key')
-        self.mock_cache.get.assert_called_once_with(
-            'key', 'ns')
+        assert not self.mock_cache.get_multi.called
+        assert not self.mock_cache.delete_multi.called
 
         def side_effect(*args):
             assert ['key1', 'key2'] == args[0]
@@ -93,3 +89,32 @@ class CacheDependencyTestCase(unittest.TestCase):
             ANY, 0, '', 'ns')
         assert ['k1', 'k2', 'key', 'key1', 'key2'] == sorted(
             self.mock_cache.delete_multi.call_args[0][0])
+
+    def test_delete_multi(self):
+        """ Ensure related keys are invalidated for multi
+            dependencies.
+        """
+        self.mock_cache.get_multi.return_value = None
+        assert self.d.delete_multi(['ka', 'kb'])
+        self.mock_cache.get_multi.assert_called_once_with(
+            ['ka', 'kb'], '', 'ns')
+        assert not self.mock_cache.delete_multi.called
+
+        calls = [
+            {'ka': 2, 'kb': 1},
+            {'ka1': 'k1', 'ka2': 'k2', 'kb1': 'k3'}
+        ]
+
+        def side_effect(*args):
+            result = calls[0]
+            del calls[0]
+            return result
+        self.mock_cache.reset_mock()
+        self.mock_cache.get_multi.side_effect = side_effect
+
+        assert self.d.delete_multi(['ka', 'kb', 'kc'])
+        assert 2 == self.mock_cache.get_multi.call_count
+        self.mock_cache.delete_multi.assert_called_once_with(
+            ANY, 0, '', 'ns')
+        assert ['k1', 'k2', 'k3', 'ka', 'ka1', 'ka2', 'kb', 'kb1', 'kc'
+                ] == sorted(self.mock_cache.delete_multi.call_args[0][0])

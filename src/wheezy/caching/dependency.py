@@ -54,7 +54,7 @@ class CacheDependency(object):
         return self.cache.add_multi(mapping, self.time, '', self.namespace)
 
     def delete(self, master_key):
-        """ Delete all items wired by this cache dependency.
+        """ Delete all items wired by *master_key* cache dependency.
         """
         cache = self.cache
         n = cache.get(master_key, self.namespace)
@@ -63,4 +63,17 @@ class CacheDependency(object):
         keys = [master_key + str(i) for i in xrange(1, n + 1)]
         keys.extend(itervalues(cache.get_multi(keys, '', self.namespace)))
         keys.append(master_key)
+        return cache.delete_multi(keys, 0, '', self.namespace)
+
+    def delete_multi(self, master_keys):
+        """ Delete all items wired by *master_keys* cache dependencies.
+        """
+        cache = self.cache
+        numbers = cache.get_multi(master_keys, '', self.namespace)
+        if not numbers:
+            return True
+        keys = [master_key + str(i) for master_key, n in numbers.items()
+                for i in xrange(1, n + 1)]
+        keys.extend(itervalues(cache.get_multi(keys, '', self.namespace)))
+        keys.extend(master_keys)
         return cache.delete_multi(keys, 0, '', self.namespace)
