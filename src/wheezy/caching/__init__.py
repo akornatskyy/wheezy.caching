@@ -1,6 +1,8 @@
 
-""" ``caching`` package.
 """
+"""
+
+__version__ = '0.1'
 
 # flake8: noqa
 
