@@ -155,7 +155,7 @@ class OnePassTestCase(unittest.TestCase):
         self.one_pass.__enter__()
         assert self.one_pass.acquired
         self.one_pass.__exit__(None, None, None)
-        self.mock_cache.delete.assert_called_once_with('key', 'ns')
+        self.mock_cache.delete.assert_called_once_with('key', 0, 'ns')
         assert not self.one_pass.acquired
 
     def test_exit_not_acquired(self):
@@ -385,7 +385,8 @@ class OnePassCreateTestCase(unittest.TestCase):
             'one_pass:key', ANY, 5, 'ns')
         self.mock_create_factory.assert_called_once_with()
         assert not self.mock_cache.set.called
-        self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
+        self.mock_cache.delete.assert_called_once_with(
+            'one_pass:key', 0, 'ns')
 
     def test_no_dependency(self):
         """ Create factory returned value.
@@ -398,7 +399,8 @@ class OnePassCreateTestCase(unittest.TestCase):
             'one_pass:key', ANY, 5, 'ns')
         self.mock_create_factory.assert_called_once_with()
         self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
-        self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
+        self.mock_cache.delete.assert_called_once_with(
+            'one_pass:key', 0, 'ns')
 
     def test_with_dependency(self):
         """ Create factory returned value.
@@ -413,7 +415,8 @@ class OnePassCreateTestCase(unittest.TestCase):
             'one_pass:key', ANY, 5, 'ns')
         self.mock_create_factory.assert_called_once_with()
         self.mock_cache.set.assert_called_once_with('key', 'x', 10, 'ns')
-        self.mock_cache.delete.assert_called_once_with('one_pass:key', 'ns')
+        self.mock_cache.delete.assert_called_once_with(
+            'one_pass:key', 0, 'ns')
         self.mock_dependency.add.assert_called_once_with('master_key', 'key')
 
     @patch('wheezy.caching.patterns.OnePass')

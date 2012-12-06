@@ -304,7 +304,7 @@ class OnePass(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.acquired:
-            self.cache.delete(self.key, self.namespace)
+            self.cache.delete(self.key, 0, self.namespace)
             self.acquired = False
 
 
