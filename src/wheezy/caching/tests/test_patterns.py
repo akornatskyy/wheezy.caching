@@ -131,6 +131,28 @@ class CachedTestCase(unittest.TestCase):
         assert cached.time == d.time
         assert cached.namespace == d.namespace
 
+    def test_adapt_make_key(self):
+        """ Adapts make_key to function args.
+        """
+
+        make_key = lambda: 'key'
+
+        def my_func():
+            pass
+        mk = self.cached.adapt(my_func, make_key)
+        assert 'key' == mk()
+
+    def test_adapt_make_key_cls(self):
+        """ Ignore 'cls' argument.
+        """
+
+        make_key = lambda: 'key'
+
+        def my_func(cls):
+            pass
+        mk = self.cached.adapt(my_func, make_key)
+        assert 'key' == mk('cls')
+
 
 class OnePassTestCase(unittest.TestCase):
 
@@ -249,9 +271,8 @@ class GetOrAddTestCase(unittest.TestCase):
 
 class WrapsGetOrAddTestCase(GetOrAddTestCase):
 
-    def setUp(self):
-        self.mock_cache = Mock()
-        self.mock_create_factory = Mock()
+    def test_has_dependency(self):
+        pass
 
     def get_or_add(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
@@ -259,10 +280,17 @@ class WrapsGetOrAddTestCase(GetOrAddTestCase):
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns')
         return cached.wraps_get_or_add(self.mock_create_factory)()
 
-    def test_has_dependency(self):
-        """ Not supported.
-        """
-        pass
+
+class WrapsGetOrAddMakeKeyTestCase(WrapsGetOrAddTestCase):
+
+    def get_or_add(self, dependency_factory=None):
+        from wheezy.caching.patterns import Cached
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+
+        @cached.wraps_get_or_add(make_key=lambda: 'key')
+        def create_factory():
+            return self.mock_create_factory()
+        return create_factory()
 
 
 class GetOrSetTestCase(unittest.TestCase):
@@ -326,9 +354,8 @@ class GetOrSetTestCase(unittest.TestCase):
 
 class WrapsGetOrSetTestCase(GetOrSetTestCase):
 
-    def setUp(self):
-        self.mock_cache = Mock()
-        self.mock_create_factory = Mock()
+    def test_has_dependency(self):
+        pass
 
     def get_or_set(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
@@ -336,10 +363,17 @@ class WrapsGetOrSetTestCase(GetOrSetTestCase):
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns')
         return cached.wraps_get_or_set(self.mock_create_factory)()
 
-    def test_has_dependency(self):
-        """ Not supported.
-        """
-        pass
+
+class WrapsGetOrSetMakeKeyTestCase(WrapsGetOrSetTestCase):
+
+    def get_or_set(self, dependency_factory=None):
+        from wheezy.caching.patterns import Cached
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+
+        @cached.wraps_get_or_set(make_key=lambda: 'key')
+        def create_factory():
+            return self.mock_create_factory()
+        return create_factory()
 
 
 class CachedCallTestCase(GetOrSetTestCase):
@@ -473,16 +507,24 @@ class GetOrCreateTestCase(unittest.TestCase):
 
 class WrapsGetOrCreateTestCase(GetOrCreateTestCase):
 
-    def setUp(self):
-        self.mock_cache = Mock()
-        self.mock_create_factory = Mock()
-
     def get_or_create(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
         kb = lambda f: lambda *args, **kwargs: 'key'
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns',
                         timeout=5)
         return cached.wraps_get_or_create(self.mock_create_factory)()
+
+
+class WrapsGetOrCreateMakeKeyTestCase(WrapsGetOrCreateTestCase):
+
+    def get_or_create(self, dependency_factory=None):
+        from wheezy.caching.patterns import Cached
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+
+        @cached.wraps_get_or_create(make_key=lambda: 'key')
+        def create_factory():
+            return self.mock_create_factory()
+        return create_factory()
 
 
 class KeyBuilderTestCase(unittest.TestCase):

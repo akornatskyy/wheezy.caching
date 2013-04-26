@@ -117,7 +117,7 @@ class Cached(object):
                 self.dependency.add(dependency_key_factory(), key)
         return result
 
-    def wraps_get_or_add(self, wrapped):
+    def wraps_get_or_add(self, wrapped=None, make_key=None):
         """ Returns specialized decorator for `get_or_add` cache
             pattern.
 
@@ -130,18 +130,24 @@ class Cached(object):
                 def list_items(self, locale):
                     pass
         """
-        make_key = self.key_builder(wrapped)
 
-        def get_or_add_wrapper(*args, **kwargs):
-            key = make_key(*args, **kwargs)
-            result = self.cache.get(key, self.namespace)
-            if result is not None:
+        def decorate(func):
+            mk = self.adapt(func, make_key)
+
+            def get_or_add_wrapper(*args, **kwargs):
+                key = mk(*args, **kwargs)
+                result = self.cache.get(key, self.namespace)
+                if result is not None:
+                    return result
+                result = func(*args, **kwargs)
+                if result is not None:
+                    self.cache.add(key, result, self.time, self.namespace)
                 return result
-            result = wrapped(*args, **kwargs)
-            if result is not None:
-                self.cache.add(key, result, self.time, self.namespace)
-            return result
-        return get_or_add_wrapper
+            return get_or_add_wrapper
+        if wrapped is None:
+            return decorate
+        else:
+            return decorate(wrapped)
 
     def get_or_set(self, key, create_factory, dependency_key_factory=None):
         """ Cache Pattern: get an item by *key* from *cache* and
@@ -160,10 +166,10 @@ class Cached(object):
                 self.dependency.add(dependency_key_factory(), key)
         return result
 
-    def __call__(self, wrapped):
-        return self.wraps_get_or_set(wrapped)
+    def __call__(self, wrapped=None, make_key=None):
+        return self.wraps_get_or_set(wrapped, make_key)
 
-    def wraps_get_or_set(self, wrapped):
+    def wraps_get_or_set(self, wrapped=None, make_key=None):
         """ Returns specialized decorator for `get_or_set` cache
             pattern.
 
@@ -177,18 +183,24 @@ class Cached(object):
                 def list_items(self, locale):
                     pass
         """
-        make_key = self.key_builder(wrapped)
 
-        def get_or_set_wrapper(*args, **kwargs):
-            key = make_key(*args, **kwargs)
-            result = self.cache.get(key, self.namespace)
-            if result is not None:
+        def decorate(func):
+            mk = self.adapt(func, make_key)
+
+            def get_or_set_wrapper(*args, **kwargs):
+                key = mk(*args, **kwargs)
+                result = self.cache.get(key, self.namespace)
+                if result is not None:
+                    return result
+                result = func(*args, **kwargs)
+                if result is not None:
+                    self.cache.set(key, result, self.time, self.namespace)
                 return result
-            result = wrapped(*args, **kwargs)
-            if result is not None:
-                self.cache.set(key, result, self.time, self.namespace)
-            return result
-        return get_or_set_wrapper
+            return get_or_set_wrapper
+        if wrapped is None:
+            return decorate
+        else:
+            return decorate(wrapped)
 
     def one_pass_create(self, key, create_factory,
                         dependency_key_factory=None):
@@ -227,7 +239,7 @@ class Cached(object):
         return self.one_pass_create(key, create_factory,
                                     dependency_key_factory)
 
-    def wraps_get_or_create(self, wrapped):
+    def wraps_get_or_create(self, wrapped=None, make_key=None):
         """ Returns specialized decorator for `get_or_create` cache
             pattern.
 
@@ -240,15 +252,35 @@ class Cached(object):
                 def list_items(self, locale):
                     pass
         """
-        make_key = self.key_builder(wrapped)
+        def decorate(func):
+            mk = self.adapt(func, make_key)
 
-        def get_or_create_wrapper(*args, **kwargs):
-            key = make_key(*args, **kwargs)
-            result = self.cache.get(key, self.namespace)
-            if result is not None:
-                return result
-            return self.one_pass_create(key, lambda: wrapped(*args, **kwargs))
-        return get_or_create_wrapper
+            def get_or_create_wrapper(*args, **kwargs):
+                key = mk(*args, **kwargs)
+                result = self.cache.get(key, self.namespace)
+                if result is not None:
+                    return result
+                return self.one_pass_create(
+                    key,
+                    lambda: func(*args, **kwargs))
+            return get_or_create_wrapper
+        if wrapped is None:
+            return decorate
+        else:
+            return decorate(wrapped)
+
+    # region: internal details
+
+    def adapt(self, func, make_key=None):
+        if make_key:
+            argnames = getargspec(func)[0]
+            if argnames and argnames[0] in ('self', 'cls', 'klass'):
+                return lambda ignore, *args, **kwargs: make_key(
+                    *args, **kwargs)
+            else:
+                return make_key
+        else:
+            return self.key_builder(func)
 
 
 class OnePass(object):
