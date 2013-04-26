@@ -202,6 +202,68 @@ class Cached(object):
         else:
             return decorate(wrapped)
 
+    def get_or_set_multi(self, make_key, create_factory, args):
+        """ Cache Pattern: `get_milti` items by *make_key* over
+            *args* from *cache* and if there are any missing use
+            *create_factory* to aquire them. If result is not
+            `None` use cache `set_multi` operation to store results.
+        """
+        key_map = dict((make_key(a), a) for a in args)
+        cache_result = self.get_multi(key_map.keys())
+        if not cache_result:
+            data_result = create_factory(args)
+        elif len(cache_result) != len(key_map):
+            data_result = create_factory(
+                [key_map[key] for key in key_map
+                 if key not in cache_result])
+        else:
+            return dict([(key_map[key], cache_result[key])
+                         for key in cache_result])
+
+        if data_result:
+            self.set_multi(dict([
+                (key, data_result[k])
+                for key, k in key_map.items()
+                if k in data_result
+            ]))
+            data_result.update([(key_map[key], cache_result[key])
+                                for key in cache_result])
+        return data_result
+
+    def wraps_get_or_set_multi(self, make_key):
+        """ Returns specialized decorator for `get_or_set_multi` cache
+            pattern.
+
+            Example::
+
+                cached = Cached(cache, kb, time=60)
+
+                @cached.wraps_get_or_set_multi(
+                    make_key=lambda i: 'key:%r' % i)
+                def get_multi_account(account_ids):
+                    pass
+        """
+        assert make_key
+
+        def decorate(func):
+            argnames = getargspec(func)[0]
+            if argnames and argnames[0] in ('self', 'cls', 'klass'):
+                assert len(argnames) == 2
+
+                def get_or_set_multi_wrapper_with_ctx(ctx, args):
+                    return self.get_or_set_multi(
+                        make_key,
+                        lambda fargs: func(ctx, fargs),
+                        args)
+                return get_or_set_multi_wrapper_with_ctx
+            else:
+                assert len(argnames) == 1
+
+                def get_or_set_multi_wrapper(args):
+                    return self.get_or_set_multi(make_key, func, args)
+                return get_or_set_multi_wrapper
+        return decorate
+
     def one_pass_create(self, key, create_factory,
                         dependency_key_factory=None):
         """ Cache Pattern: try enter one pass: (1) if entered

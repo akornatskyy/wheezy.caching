@@ -527,6 +527,81 @@ class WrapsGetOrCreateMakeKeyTestCase(WrapsGetOrCreateTestCase):
         return create_factory()
 
 
+class GetOrSetMultiTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.mock_cache = Mock()
+        self.mock_create_factory = Mock()
+
+    def get_or_set_multi(self):
+        from wheezy.caching.patterns import Cached
+        mk = lambda i: 'k%d' % i
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+        r = cached.get_or_set_multi(
+            mk, self.mock_create_factory, [1, 2])
+        assert [(1, 'a'), (2, 'b')] == sorted(r.items())
+
+    def test_all_cache_hit(self):
+        """ All items are taken from cache.
+        """
+        def get_multi(keys, key_prefix, namespace):
+            assert ['k1', 'k2'] == sorted(keys)
+        self.mock_cache.get_multi.return_value = {'k1': 'a', 'k2': 'b'}
+        self.get_or_set_multi()
+        self.mock_cache.get_multi.side_effect = get_multi
+        assert not self.mock_create_factory.called
+
+    def test_all_cache_miss(self):
+        """ All items are missed in cache.
+        """
+        def set_multi(keys, time, key_prefix, namespace):
+            assert [('k1', 'a'), ('k2', 'b')] == sorted(keys.items())
+        self.mock_cache.get_multi.return_value = {}
+        self.mock_create_factory.return_value = {1: 'a', 2: 'b'}
+        self.mock_cache.set_multi.side_effect = set_multi
+        self.get_or_set_multi()
+        self.mock_create_factory.assert_called_once_with([1, 2])
+        assert self.mock_cache.set_multi.called
+
+    def test_some_cache_miss(self):
+        """ Some items are missed in cache.
+        """
+        self.mock_cache.get_multi.return_value = {'k2': 'b'}
+        self.mock_create_factory.return_value = {1: 'a'}
+        self.get_or_set_multi()
+        self.mock_create_factory.assert_called_once_with([1])
+        self.mock_cache.set_multi.assert_called_once_with(
+            {'k1': 'a'}, 10, '', 'ns')
+
+
+class WrapsGetOrSetMultiTestCase(GetOrSetMultiTestCase):
+
+    def get_or_set_multi(self):
+        from wheezy.caching.patterns import Cached
+        mk = lambda i: 'k%d' % i
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+
+        @cached.wraps_get_or_set_multi(make_key=mk)
+        def create_factory(ids):
+            return self.mock_create_factory(ids)
+        r = create_factory([1, 2])
+        assert [(1, 'a'), (2, 'b')] == sorted(r.items())
+
+
+class WrapsGetOrSetMultiCtxTestCase(GetOrSetMultiTestCase):
+
+    def get_or_set_multi(self):
+        from wheezy.caching.patterns import Cached
+        mk = lambda i: 'k%d' % i
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+
+        @cached.wraps_get_or_set_multi(make_key=mk)
+        def create_factory(cls, ids):
+            return self.mock_create_factory(ids)
+        r = create_factory('cls', [1, 2])
+        assert [(1, 'a'), (2, 'b')] == sorted(r.items())
+
+
 class KeyBuilderTestCase(unittest.TestCase):
 
     def setUp(self):
