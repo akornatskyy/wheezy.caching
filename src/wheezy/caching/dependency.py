@@ -4,6 +4,7 @@
 
 from wheezy.caching.comp import itervalues
 from wheezy.caching.comp import xrange
+from wheezy.caching.utils import total_seconds
 
 
 class CacheDependency(object):
@@ -19,7 +20,7 @@ class CacheDependency(object):
            *namespace* - a default namespace.
         """
         self.cache = cache
-        self.time = time
+        self.time = total_seconds(time)
         self.namespace = namespace
 
     def next_key(self, master_key):

@@ -7,6 +7,7 @@ from time import sleep
 from time import time
 
 from wheezy.caching.dependency import CacheDependency
+from wheezy.caching.utils import total_seconds
 
 
 class Cached(object):
@@ -19,9 +20,9 @@ class Cached(object):
                  timeout=10, key_prefix='one_pass:'):
         self.cache = cache
         self.key_builder = key_builder
-        self.time = time
+        self.time = total_seconds(time)
         self.namespace = namespace
-        self.timeout = timeout
+        self.timeout = total_seconds(timeout)
         self.key_prefix = key_prefix
         self.dependency = CacheDependency(cache, time, namespace)
 
@@ -366,7 +367,7 @@ class OnePass(object):
     def __init__(self, cache, key, time=10, namespace=None):
         self.cache = cache
         self.key = key
-        self.time = time
+        self.time = total_seconds(time)
         self.namespace = namespace
         self.acquired = False
 
@@ -417,12 +418,12 @@ def key_format(func, key_prefix):
     return '%s-%s%s' % (key_prefix, func.__name__, ':%r' * n)
 
 
-def key_formater(key_prefix):
+def key_formatter(key_prefix):
     """ Specialize a key format with *key_prefix*.
 
         >>> def list_items(self, locale='en', sort_order=1):
         ...     pass
-        >>> repo_key_format = key_formater('repo')
+        >>> repo_key_format = key_formatter('repo')
         >>> repo_key_format(list_items)
         'repo-list_items:%r:%r'
     """
