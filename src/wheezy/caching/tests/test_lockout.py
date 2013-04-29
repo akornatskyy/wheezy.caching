@@ -98,6 +98,13 @@ class MyService(object):
         else:
             return 'show error'
 
+    @lockout.forbid_locked(action=lambda s: "show captcha")
+    def action2(self):
+        if self.do_action():
+            return 'show ok'
+        else:
+            return 'show error'
+
     @lockout.guard
     def do_action(self):
         return self.action_result
@@ -106,6 +113,9 @@ class MyService(object):
 # region: test case
 
 class LockoutTestCase(unittest.TestCase):
+
+    def setUp(self):
+        del alerts[:]
 
     def test_forbidden(self):
         s = MyService()
@@ -147,3 +157,11 @@ class LockoutTestCase(unittest.TestCase):
         for i in range(4):
             assert 'show error' == s.action()
         assert 'forbidden' == s.action()
+
+    def test_custom_forbid_action(self):
+        s = MyService()
+        s.user_id = 'cfa-u1'
+        s.user_ip = 'cfa-ip1'
+        for i in range(4):
+            assert 'show error' == s.action2()
+        assert 'show captcha' == s.action2()

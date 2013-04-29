@@ -54,25 +54,29 @@ class Lockout(object):
         self.name = name
         self.counters = counters
         self.cache = cache
-        self.namespace = namespace,
+        self.namespace = namespace
         self.key_prefix = key_prefix
         self.forbid_action = forbid_action
 
     def guard(self, func):
         """ A guard decorator is applied to a `func` which returns a
             boolean indicating success or failure. Each failure is a
-            subject to increase counter. The counters that supports
-            `reset` are deleted on success.
+            subject to increase counter. The counters that support
+            `reset` (and related locks) are deleted on success.
         """
         def guard_wrapper(ctx, *args, **kwargs):
             succeed = func(ctx, *args, **kwargs)
+            key_prefix = self.key_prefix
             if succeed:
-                keys = [self.key_prefix + c.key_func(ctx)
+                keys = [key_prefix + c.key_func(ctx)
                         for c in self.counters if c.reset]
+                key_prefix = 'lock:' + key_prefix
+                keys.extend([key_prefix + c.key_func(ctx)
+                             for c in self.counters if c.reset])
                 keys and self.cache.delete_multi(keys, 0, '', self.namespace)
             else:
                 for c in self.counters:
-                    key = self.key_prefix + c.key_func(ctx)
+                    key = key_prefix + c.key_func(ctx)
                     max_try = self.cache.add(
                         key, 1, c.period, self.namespace
                     ) and 1 or self.cache.incr(key, 1, self.namespace)
@@ -85,17 +89,29 @@ class Lockout(object):
             return succeed
         return guard_wrapper
 
-    def forbid_locked(self, func):
+    def forbid_locked(self, wrapped=None, action=None):
         """ A decorator that forbids access (by a call to `forbid_action`)
             to `func` once the counter threshold is reached (lock is set).
-        """
-        key_prefix = 'lock:' + self.key_prefix
 
-        def forbid_locked_wrapper(ctx, *args, **kwargs):
-            locks = self.cache.get_multi(
-                [key_prefix + c.key_func(ctx) for c in self.counters],
-                '', self.namespace)
-            if locks:
-                return self.forbid_action(ctx)
-            return func(ctx, *args, **kwargs)
-        return forbid_locked_wrapper
+            You can override default forbid action by `action`.
+
+            See `test_lockout.py` for an example.
+        """
+        action = action or self.forbid_action
+        assert action
+
+        def decorate(func):
+            key_prefix = 'lock:' + self.key_prefix
+
+            def forbid_locked_wrapper(ctx, *args, **kwargs):
+                locks = self.cache.get_multi(
+                    [key_prefix + c.key_func(ctx) for c in self.counters],
+                    '', self.namespace)
+                if locks:
+                    return action(ctx)
+                return func(ctx, *args, **kwargs)
+            return forbid_locked_wrapper
+        if wrapped is None:
+            return decorate
+        else:
+            return decorate(wrapped)
