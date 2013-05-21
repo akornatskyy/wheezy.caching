@@ -66,28 +66,24 @@ class Lockout(object):
         """
         def guard_wrapper(ctx, *args, **kwargs):
             succeed = func(ctx, *args, **kwargs)
-            key_prefix = self.key_prefix
             if succeed:
-                keys = [key_prefix + c.key_func(ctx)
-                        for c in self.counters if c.reset]
-                key_prefix = 'lock:' + key_prefix
-                keys.extend([key_prefix + c.key_func(ctx)
-                             for c in self.counters if c.reset])
-                keys and self.cache.delete_multi(keys, 0, '', self.namespace)
+                self.reset(ctx)
             else:
-                for c in self.counters:
-                    key = key_prefix + c.key_func(ctx)
-                    max_try = self.cache.add(
-                        key, 1, c.period, self.namespace
-                    ) and 1 or self.cache.incr(key, 1, self.namespace)
-                    #print("%s ~ %d" % (key, max_try))
-                    if max_try >= c.count:
-                        self.cache.delete(key, 0, self.namespace)
-                        self.cache.add('lock:' + key, 1,
-                                       c.duration, self.namespace)
-                        c.alert and c.alert(ctx, self.name, c)
+                self.incr(ctx)
             return succeed
         return guard_wrapper
+
+    def quota(self, func):
+        """ A quota decorator is applied to a `func` which returns a
+            boolean indicating success or failure. Each success is a
+            subject to increase counter.
+        """
+        def quota_wrapper(ctx, *args, **kwargs):
+            succeed = func(ctx, *args, **kwargs)
+            if succeed:
+                self.incr(ctx)
+            return succeed
+        return quota_wrapper
 
     def forbid_locked(self, wrapped=None, action=None):
         """ A decorator that forbids access (by a call to `forbid_action`)
@@ -115,3 +111,30 @@ class Lockout(object):
             return decorate
         else:
             return decorate(wrapped)
+
+    def reset(self, ctx):
+        """ Removes locks for counters that support reset.
+        """
+        key_prefix = self.key_prefix
+        keys = [key_prefix + c.key_func(ctx)
+                for c in self.counters if c.reset]
+        key_prefix = 'lock:' + key_prefix
+        keys.extend([key_prefix + c.key_func(ctx)
+                     for c in self.counters if c.reset])
+        keys and self.cache.delete_multi(keys, 0, '', self.namespace)
+
+    def incr(self, ctx):
+        """ Increments lockout counters for given context.
+        """
+        key_prefix = self.key_prefix
+        for c in self.counters:
+            key = key_prefix + c.key_func(ctx)
+            max_try = self.cache.add(
+                key, 1, c.period, self.namespace
+            ) and 1 or self.cache.incr(key, 1, self.namespace)
+            #print("%s ~ %d" % (key, max_try))
+            if max_try >= c.count:
+                self.cache.delete(key, 0, self.namespace)
+                self.cache.add('lock:' + key, 1,
+                               c.duration, self.namespace)
+                c.alert and c.alert(ctx, self.name, c)
