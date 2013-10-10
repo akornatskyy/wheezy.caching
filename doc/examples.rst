@@ -3,7 +3,7 @@ Examples
 ========
 
 We start with a simple example. Before we proceed
-let setup `virtualenv`_ environment::
+let's setup a `virtualenv`_ environment::
 
     $ virtualenv env
     $ env/bin/easy_install wheezy.caching
@@ -13,7 +13,7 @@ let setup `virtualenv`_ environment::
 Playing Around
 --------------
 
-We are going create a number of items, add them to cache, try get them
+We are going create a number of items, add them to cache, try to get them
 back, establish dependency and finally invalidate all together::
 
     from wheezy.caching import MemoryCache as Cache
