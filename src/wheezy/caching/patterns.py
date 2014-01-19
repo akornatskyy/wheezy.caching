@@ -432,7 +432,7 @@ def key_formatter(key_prefix):
     return key_format_wrapper
 
 
-def key_builder(key_prefix):
+def key_builder(key_prefix=''):
     """ Returns a key builder that allows build a make cache key
         function at runtime.
 
