@@ -204,10 +204,11 @@ class Cached(object):
             return decorate(wrapped)
 
     def get_or_set_multi(self, make_key, create_factory, args):
-        """ Cache Pattern: `get_milti` items by *make_key* over
+        """ Cache Pattern: `get_multi` items by *make_key* over
             *args* from *cache* and if there are any missing use
-            *create_factory* to aquire them. If result is not
-            `None` use cache `set_multi` operation to store results.
+            *create_factory* to aquire them, if result available
+            use cache `set_multi` operation to store results,
+            return cached items if any.
         """
         key_map = dict((make_key(a), a) for a in args)
         cache_result = self.get_multi(key_map.keys())
@@ -221,14 +222,16 @@ class Cached(object):
             return dict([(key_map[key], cache_result[key])
                          for key in cache_result])
 
-        if data_result:
-            self.set_multi(dict([
-                (key, data_result[k])
-                for key, k in key_map.items()
-                if k in data_result
-            ]))
-            data_result.update([(key_map[key], cache_result[key])
-                                for key in cache_result])
+        if not data_result:
+            return dict([(key_map[key], cache_result[key])
+                         for key in cache_result])
+        self.set_multi(dict([
+            (key, data_result[k])
+            for key, k in key_map.items()
+            if k in data_result
+        ]))
+        data_result.update([(key_map[key], cache_result[key])
+                            for key in cache_result])
         return data_result
 
     def wraps_get_or_set_multi(self, make_key):
