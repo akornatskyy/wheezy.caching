@@ -573,6 +573,21 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         self.mock_cache.set_multi.assert_called_once_with(
             {'k1': 'a'}, 10, '', 'ns')
 
+    def test_some_cache_miss_create_factory_no_result(self):
+        """ Some items are missed in cache and factory returns
+            no results.
+        """
+        from wheezy.caching.patterns import Cached
+        mk = lambda i: 'k%d' % i
+        cached = Cached(self.mock_cache, time=10, namespace='ns')
+        self.mock_cache.get_multi.return_value = {'k2': 'b'}
+        self.mock_create_factory.return_value = {}
+        r = cached.get_or_set_multi(
+            mk, self.mock_create_factory, [1, 2])
+        assert [(2, 'b')] == r.items()
+        self.mock_create_factory.assert_called_once_with([1])
+        assert not self.mock_cache.set_multi.called
+
 
 class WrapsGetOrSetMultiTestCase(GetOrSetMultiTestCase):
 
