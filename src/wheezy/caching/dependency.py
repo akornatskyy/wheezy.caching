@@ -54,27 +54,43 @@ class CacheDependency(object):
             key_prefix and map(lambda k: key_prefix + k, keys) or keys))
         return self.cache.add_multi(mapping, self.time, '', self.namespace)
 
+    def get_keys(self, master_key):
+        """ Returns all keys wired by *master_key* cache dependency.
+        """
+        n = self.cache.get(master_key, self.namespace)
+        if n is None:
+            return []
+        keys = [master_key + str(i) for i in xrange(1, n + 1)]
+        keys.extend(itervalues(self.cache.get_multi(
+            keys, '', self.namespace)))
+        keys.append(master_key)
+        return keys
+
+    def get_multi_keys(self, master_keys):
+        """ Returns all keys wired by *master_keys* cache dependencies.
+        """
+        numbers = self.cache.get_multi(master_keys, '', self.namespace)
+        if not numbers:
+            return []
+        keys = [master_key + str(i) for master_key, n in numbers.items()
+                for i in xrange(1, n + 1)]
+        keys.extend(itervalues(self.cache.get_multi(
+            keys, '', self.namespace)))
+        keys.extend(master_keys)
+        return keys
+
     def delete(self, master_key):
         """ Delete all items wired by *master_key* cache dependency.
         """
-        cache = self.cache
-        n = cache.get(master_key, self.namespace)
-        if n is None:
+        keys = self.get_keys(master_key)
+        if not keys:
             return True
-        keys = [master_key + str(i) for i in xrange(1, n + 1)]
-        keys.extend(itervalues(cache.get_multi(keys, '', self.namespace)))
-        keys.append(master_key)
-        return cache.delete_multi(keys, 0, '', self.namespace)
+        return self.cache.delete_multi(keys, 0, '', self.namespace)
 
     def delete_multi(self, master_keys):
         """ Delete all items wired by *master_keys* cache dependencies.
         """
-        cache = self.cache
-        numbers = cache.get_multi(master_keys, '', self.namespace)
-        if not numbers:
+        keys = self.get_multi_keys(master_keys)
+        if not keys:
             return True
-        keys = [master_key + str(i) for master_key, n in numbers.items()
-                for i in xrange(1, n + 1)]
-        keys.extend(itervalues(cache.get_multi(keys, '', self.namespace)))
-        keys.extend(master_keys)
-        return cache.delete_multi(keys, 0, '', self.namespace)
+        return self.cache.delete_multi(keys, 0, '', self.namespace)
