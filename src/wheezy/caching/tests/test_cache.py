@@ -83,6 +83,7 @@ class CacheTestMixin(object):
         assert not self.client.delete('d', namespace=self.namespace)
         self.setget('d', 1)
         assert self.client.delete('d', namespace=self.namespace)
+        assert not self.client.get('d', self.namespace)
 
     def test_delete_multi(self):
         mapping = {'d1': 1, 'd2': 2}
@@ -90,6 +91,7 @@ class CacheTestMixin(object):
         assert self.client.delete_multi(keys, namespace=self.namespace)
         self.setget_multi(mapping)
         assert self.client.delete_multi(keys, namespace=self.namespace)
+        assert not self.client.get_multi(keys, '', self.namespace)
 
     def test_incr(self):
         assert 1 == self.client.incr(
