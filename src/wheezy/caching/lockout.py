@@ -31,6 +31,20 @@ class Locker(object):
                        self.cache, self.namespace, key_prefix)
 
 
+class NullLocker(object):
+    """ Null locker implementation.
+    """
+
+    def __init__(self, cache, forbid_action, namespace=None,
+                 key_prefix='c', **terms):
+        pass
+
+    def define(self, name, **terms):
+        if not terms:  # pragma: nocover
+            warn('NullLocker: no terms', stacklevel=2)
+        return NullLockout()
+
+
 class Counter(object):
     """ A container of various attributes used by lockout.
     """
@@ -138,3 +152,29 @@ class Lockout(object):
                 self.cache.add('lock:' + key, 1,
                                c.duration, self.namespace)
                 c.alert and c.alert(ctx, self.name, c)
+
+
+class NullLockout(object):
+    """ Null lockout implementation.
+    """
+
+    def guard(self, func):
+        return func
+
+    def quota(self, func):
+        return func
+
+    def forbid_locked(self, wrapped=None, action=None):
+
+        def decorate(func):
+            return func
+        if wrapped is None:
+            return decorate
+        else:
+            return wrapped
+
+    def reset(self, ctx):
+        pass
+
+    def incr(self, ctx):
+        pass
