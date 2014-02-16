@@ -2,6 +2,7 @@
 """ ``pylibmc`` module.
 """
 
+from wheezy.caching.comp import __import__
 from wheezy.caching.encoding import encode_keys
 from wheezy.caching.encoding import string_encode
 
