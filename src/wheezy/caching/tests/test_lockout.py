@@ -191,3 +191,28 @@ class LockoutTestCase(unittest.TestCase):
             assert 'show ok' == s.action3()
         assert ['ignore: action'] == alerts
         assert 'forbidden' == s.action3(), 'lock by id/ip'
+
+
+class NullLockoutTestCase(unittest.TestCase):
+
+    def test_locker(self):
+        from wheezy.caching.lockout import NullLocker
+        from wheezy.caching.lockout import NullLockout
+        locker = NullLocker(cache, key_prefix='my_app',
+                forbid_action=lambda s: 'forbidden',
+                by_id=lockout_by_id,
+                by_ip=lockout_by_ip,
+                by_id_ip=lockout_by_id_ip)
+        assert isinstance(locker.define('x', by_id_ip={}), NullLockout)
+
+    def test_lockout(self):
+        from wheezy.caching.lockout import NullLockout
+        l = NullLockout()
+        def f():
+            pass
+        assert f == l.guard(f)
+        assert f == l.quota(f)
+        assert f == l.forbid_locked(f)
+        assert f == l.forbid_locked(action=None)(f)
+        l.reset(None)
+        l.incr(None)
