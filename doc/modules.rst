@@ -25,6 +25,18 @@ wheezy.caching.encoding
 .. automodule:: wheezy.caching.encoding
    :members:
 
+wheezy.caching.lockout
+----------------------
+
+.. automodule:: wheezy.caching.lockout
+   :members:
+
+wheezy.caching.logging
+----------------------
+
+.. automodule:: wheezy.caching.logging
+   :members:
+
 wheezy.caching.memcache
 -----------------------
 
@@ -53,4 +65,10 @@ wheezy.caching.pylibmc
 ----------------------
 
 .. automodule:: wheezy.caching.pylibmc
+   :members:
+
+wheezy.caching.utils
+--------------------
+
+.. automodule:: wheezy.caching.utils
    :members:
