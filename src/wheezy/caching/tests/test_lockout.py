@@ -199,15 +199,16 @@ class NullLockoutTestCase(unittest.TestCase):
         from wheezy.caching.lockout import NullLocker
         from wheezy.caching.lockout import NullLockout
         locker = NullLocker(cache, key_prefix='my_app',
-                forbid_action=lambda s: 'forbidden',
-                by_id=lockout_by_id,
-                by_ip=lockout_by_ip,
-                by_id_ip=lockout_by_id_ip)
+                            forbid_action=lambda s: 'forbidden',
+                            by_id=lockout_by_id,
+                            by_ip=lockout_by_ip,
+                            by_id_ip=lockout_by_id_ip)
         assert isinstance(locker.define('x', by_id_ip={}), NullLockout)
 
     def test_lockout(self):
         from wheezy.caching.lockout import NullLockout
         l = NullLockout()
+
         def f():
             pass
         assert f == l.guard(f)
