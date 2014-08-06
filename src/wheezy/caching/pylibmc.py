@@ -138,7 +138,7 @@ class MemcachedClient(object):
             self.pool.get_back(client)
         if mapping:
             key_mapping = dict(zip(encoded_keys, keys))
-            return dict((key_mapping[key], mapping[key]) for key in mapping)
+            return dict([(key_mapping[key], mapping[key]) for key in mapping])
         return mapping
 
     def delete(self, key, seconds=0, namespace=None):
