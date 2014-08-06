@@ -35,9 +35,9 @@ class CachedTestCase(unittest.TestCase):
     def test_set_multi(self):
         """ Ensure set_multi operation is passed to cache.
         """
-        self.cached.set_multi({'key': 'value'}, 'key_prefix')
+        self.cached.set_multi({'key': 'value'})
         self.mock_cache.set_multi.assert_called_once_with(
-            {'key': 'value'}, 10, 'key_prefix', 'ns')
+            {'key': 'value'}, 10, 'ns')
 
     def test_add(self):
         """ Ensure add operation is passed to cache.
@@ -65,9 +65,9 @@ class CachedTestCase(unittest.TestCase):
     def test_add_multi(self):
         """ Ensure add_multi operation is passed to cache.
         """
-        self.cached.add_multi({'key': 'value'}, 'key_prefix')
+        self.cached.add_multi({'key': 'value'})
         self.mock_cache.add_multi.assert_called_once_with(
-            {'key': 'value'}, 10, 'key_prefix', 'ns')
+            {'key': 'value'}, 10, 'ns')
 
     def test_replace(self):
         """ Ensure replace operation is passed to cache.
@@ -79,9 +79,9 @@ class CachedTestCase(unittest.TestCase):
     def test_replace_multi(self):
         """ Ensure replace_multi operation is passed to cache.
         """
-        self.cached.replace_multi({'key': 'value'}, 'key_prefix')
+        self.cached.replace_multi({'key': 'value'})
         self.mock_cache.replace_multi.assert_called_once_with(
-            {'key': 'value'}, 10, 'key_prefix', 'ns')
+            {'key': 'value'}, 10, 'ns')
 
     def test_get(self):
         """ Ensure get operation is passed to cache.
@@ -92,9 +92,8 @@ class CachedTestCase(unittest.TestCase):
     def test_get_multi(self):
         """ Ensure get_multi operation is passed to cache.
         """
-        self.cached.get_multi(['key'], 'key_prefix')
-        self.mock_cache.get_multi.assert_called_once_with(
-            ['key'], 'key_prefix', 'ns')
+        self.cached.get_multi(['key'])
+        self.mock_cache.get_multi.assert_called_once_with(['key'], 'ns')
 
     def test_delete(self):
         """ Ensure delete operation is passed to cache.
@@ -105,9 +104,9 @@ class CachedTestCase(unittest.TestCase):
     def test_delete_multi(self):
         """ Ensure delete_multi operation is passed to cache.
         """
-        self.cached.delete_multi(['key'], 0, 'key_prefix')
+        self.cached.delete_multi(['key'], 0)
         self.mock_cache.delete_multi.assert_called_once_with(
-            ['key'], 0, 'key_prefix', 'ns')
+            ['key'], 0, 'ns')
 
     def test_incr(self):
         """ Ensure incr operation is passed to cache.
@@ -554,7 +553,7 @@ class GetOrSetMultiTestCase(unittest.TestCase):
     def test_all_cache_miss(self):
         """ All items are missed in cache.
         """
-        def set_multi(keys, time, key_prefix, namespace):
+        def set_multi(keys, time, namespace):
             assert [('k1', 'a'), ('k2', 'b')] == sorted(keys.items())
         self.mock_cache.get_multi.return_value = {}
         self.mock_create_factory.return_value = {1: 'a', 2: 'b'}
@@ -571,7 +570,7 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         self.get_or_set_multi()
         self.mock_create_factory.assert_called_once_with([1])
         self.mock_cache.set_multi.assert_called_once_with(
-            {'k1': 'a'}, 10, '', 'ns')
+            {'k1': 'a'}, 10, 'ns')
 
     def test_some_cache_miss_create_factory_no_result(self):
         """ Some items are missed in cache and factory returns

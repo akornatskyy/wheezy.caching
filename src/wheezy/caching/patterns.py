@@ -35,11 +35,10 @@ class Cached(object):
             self.dependency.add(dependency_key, key)
         return succeed
 
-    def set_multi(self, mapping, key_prefix=''):
+    def set_multi(self, mapping):
         """ Set multiple keys' values at once.
         """
-        return self.cache.set_multi(mapping, self.time, key_prefix,
-                                    self.namespace)
+        return self.cache.set_multi(mapping, self.time, self.namespace)
 
     def add(self, key, value, dependency_key=None):
         """ Sets a key's value, if and only if the item is not
@@ -50,46 +49,43 @@ class Cached(object):
             self.dependency.add(dependency_key, key)
         return succeed
 
-    def add_multi(self, mapping, key_prefix=''):
+    def add_multi(self, mapping):
         """ Adds multiple values at once, with no effect for keys
             already in cache.
         """
-        return self.cache.add_multi(mapping, self.time, key_prefix,
-                                    self.namespace)
+        return self.cache.add_multi(mapping, self.time, self.namespace)
 
     def replace(self, key, value):
         """ Replaces a key's value, failing if item isn't already.
         """
         return self.cache.replace(key, value, self.time, self.namespace)
 
-    def replace_multi(self, mapping, key_prefix=''):
+    def replace_multi(self, mapping):
         """ Replaces multiple values at once, with no effect for
             keys not in cache.
         """
-        return self.cache.replace_multi(mapping, self.time, key_prefix,
-                                        self.namespace)
+        return self.cache.replace_multi(mapping, self.time, self.namespace)
 
     def get(self, key):
         """ Looks up a single key.
         """
         return self.cache.get(key, self.namespace)
 
-    def get_multi(self, keys, key_prefix=''):
+    def get_multi(self, keys):
         """ Looks up multiple keys from cache in one operation.
             This is the recommended way to do bulk loads.
         """
-        return self.cache.get_multi(keys, key_prefix, self.namespace)
+        return self.cache.get_multi(keys, self.namespace)
 
     def delete(self, key, seconds=0):
         """ Deletes a key from cache.
         """
         return self.cache.delete(key, seconds, self.namespace)
 
-    def delete_multi(self, keys, seconds=0, key_prefix=''):
+    def delete_multi(self, keys, seconds=0):
         """ Delete multiple keys at once.
         """
-        return self.cache.delete_multi(keys, seconds, key_prefix,
-                                       self.namespace)
+        return self.cache.delete_multi(keys, seconds, self.namespace)
 
     def incr(self, key, delta=1, initial_value=None):
         """ Atomically increments a key's value.

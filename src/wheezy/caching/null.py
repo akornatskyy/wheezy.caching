@@ -19,7 +19,7 @@ class NullCache(object):
         """
         return True
 
-    def set_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def set_multi(self, mapping, time=0, namespace=None):
         """ Set multiple keys' values at once.
 
             >>> c = NullCache()
@@ -38,7 +38,7 @@ class NullCache(object):
         """
         return True
 
-    def add_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def add_multi(self, mapping, time=0, namespace=None):
         """ Adds multiple values at once, with no effect for keys
             already in cache.
 
@@ -57,7 +57,7 @@ class NullCache(object):
         """
         return True
 
-    def replace_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def replace_multi(self, mapping, time=0, namespace=None):
         """ Replaces multiple values at once, with no effect for
             keys not in cache.
 
@@ -75,7 +75,7 @@ class NullCache(object):
         """
         return None
 
-    def get_multi(self, keys, key_prefix='', namespace=None):
+    def get_multi(self, keys, namespace=None):
         """ Looks up multiple keys from cache in one operation.
             This is the recommended way to do bulk loads.
 
@@ -94,7 +94,7 @@ class NullCache(object):
         """
         return True
 
-    def delete_multi(self, keys, seconds=0, key_prefix='', namespace=None):
+    def delete_multi(self, keys, seconds=0, namespace=None):
         """ Delete multiple keys at once.
 
             >>> c = NullCache()

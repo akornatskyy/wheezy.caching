@@ -12,9 +12,9 @@ class CacheTestMixin(object):
         assert value == self.client.get(key, self.namespace)
 
     def setget_multi(self, mapping):
-        assert self.client.set_multi(mapping, 10, '', self.namespace) == []
+        assert self.client.set_multi(mapping, 10, self.namespace) == []
         keys = list(mapping.keys())
-        values = self.client.get_multi(keys, '', self.namespace)
+        values = self.client.get_multi(keys, self.namespace)
         for key in keys:
             assert mapping[key] == values[key]
 
@@ -91,7 +91,7 @@ class CacheTestMixin(object):
         assert self.client.delete_multi(keys, namespace=self.namespace)
         self.setget_multi(mapping)
         assert self.client.delete_multi(keys, namespace=self.namespace)
-        assert not self.client.get_multi(keys, '', self.namespace)
+        assert not self.client.get_multi(keys, self.namespace)
 
     def test_incr(self):
         assert 1 == self.client.incr(

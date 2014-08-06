@@ -31,13 +31,12 @@ class MemcachedClient(object):
         """
         return self.client.set(self.key_encode(key), value, time)
 
-    def set_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def set_multi(self, mapping, time=0, namespace=None):
         """ Set multiple keys' values at once.
         """
         key_encode = self.key_encode
         keys, mapping = encode_keys(mapping, key_encode)
-        failed = self.client.set_multi(
-            mapping, time, key_encode(key_prefix))
+        failed = self.client.set_multi(mapping, time)
         return failed and [keys[key] for key in failed] or failed
 
     def add(self, key, value, time=0, namespace=None):
@@ -46,7 +45,7 @@ class MemcachedClient(object):
         """
         return self.client.add(self.key_encode(key), value, time)
 
-    def add_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def add_multi(self, mapping, time=0, namespace=None):
         """ Adds multiple values at once, with no effect for keys
             already in cache.
         """
@@ -54,10 +53,7 @@ class MemcachedClient(object):
         key_encode = self.key_encode
         client = self.client
         for key in mapping:
-            if not client.add(
-                    key_encode(key_prefix) + key_encode(key),
-                    mapping[key],
-                    time):
+            if not client.add(key_encode(key), mapping[key], time):
                 failed.append(key)
         return failed
 
@@ -66,7 +62,7 @@ class MemcachedClient(object):
         """
         return self.client.replace(self.key_encode(key), value, time)
 
-    def replace_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def replace_multi(self, mapping, time=0, namespace=None):
         """ Replaces multiple values at once, with no effect for
             keys not in cache.
         """
@@ -74,10 +70,7 @@ class MemcachedClient(object):
         key_encode = self.key_encode
         client = self.client
         for key in mapping:
-            if not client.replace(
-                    key_encode(key_prefix) + key_encode(key),
-                    mapping[key],
-                    time):
+            if not client.replace(key_encode(key), mapping[key], time):
                 failed.append(key)
         return failed
 
@@ -86,13 +79,13 @@ class MemcachedClient(object):
         """
         return self.client.get(self.key_encode(key))
 
-    def get_multi(self, keys, key_prefix='', namespace=None):
+    def get_multi(self, keys, namespace=None):
         """ Looks up multiple keys from cache in one operation.
             This is the recommended way to do bulk loads.
         """
         key_encode = self.key_encode
         encoded_keys = map(key_encode, keys)
-        mapping = self.client.get_multi(encoded_keys, key_encode(key_prefix))
+        mapping = self.client.get_multi(encoded_keys)
         if mapping:
             key_mapping = dict(zip(encoded_keys, keys))
             return dict([(key_mapping[key], mapping[key]) for key in mapping])
@@ -103,14 +96,11 @@ class MemcachedClient(object):
         """
         return self.client.delete(self.key_encode(key), seconds) == 1
 
-    def delete_multi(self, keys, seconds=0, key_prefix='', namespace=None):
+    def delete_multi(self, keys, seconds=0, namespace=None):
         """ Delete multiple keys at once.
         """
-        key_encode = self.key_encode
-        return self.client.delete_multi(
-            map(key_encode, keys),
-            seconds,
-            key_encode(key_prefix)) == 1
+        return self.client.delete_multi(map(self.key_encode, keys),
+                                        seconds) == 1
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too

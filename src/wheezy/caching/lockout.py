@@ -116,7 +116,7 @@ class Lockout(object):
             def forbid_locked_wrapper(ctx, *args, **kwargs):
                 locks = self.cache.get_multi(
                     [key_prefix + c.key_func(ctx) for c in self.counters],
-                    '', self.namespace)
+                    self.namespace)
                 if locks:
                     return action(ctx)
                 return func(ctx, *args, **kwargs)
@@ -135,7 +135,7 @@ class Lockout(object):
         key_prefix = 'lock:' + key_prefix
         keys.extend([key_prefix + c.key_func(ctx)
                      for c in self.counters if c.reset])
-        keys and self.cache.delete_multi(keys, 0, '', self.namespace)
+        keys and self.cache.delete_multi(keys, 0, self.namespace)
 
     def incr(self, ctx):
         """ Increments lockout counters for given context.
@@ -146,7 +146,7 @@ class Lockout(object):
             max_try = self.cache.add(
                 key, 1, c.period, self.namespace
             ) and 1 or self.cache.incr(key, 1, self.namespace)
-            #print("%s ~ %d" % (key, max_try))
+            # print("%s ~ %d" % (key, max_try))
             if max_try >= c.count:
                 self.cache.delete(key, 0, self.namespace)
                 self.cache.add('lock:' + key, 1,

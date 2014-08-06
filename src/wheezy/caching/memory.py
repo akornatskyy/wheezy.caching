@@ -49,7 +49,7 @@ def find_expired(bucket_items, now):
         [('k1', 1), ('k2', 2), ('k3', 3)]
 
         Expired items are returned in the list and deleted from
-        th bucket
+        the bucket
 
         >>> find_expired(bucket_items, 2)
         ['k1']
@@ -99,14 +99,14 @@ class MemoryCache(object):
         """
         return self.store(key, value, time, 0)
 
-    def set_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def set_multi(self, mapping, time=0, namespace=None):
         """ Set multiple keys' values at once.
 
             >>> c = MemoryCache()
             >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
             []
         """
-        return self.store_multi(mapping, time, key_prefix)
+        return self.store_multi(mapping, time)
 
     def add(self, key, value, time=0, namespace=None):
         """ Sets a key's value, if and only if the item is not
@@ -120,7 +120,7 @@ class MemoryCache(object):
         """
         return self.store(key, value, time, 1)
 
-    def add_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def add_multi(self, mapping, time=0, namespace=None):
         """ Adds multiple values at once, with no effect for keys
             already in cache.
 
@@ -130,7 +130,7 @@ class MemoryCache(object):
             >>> c.add_multi({'k': 'v'}, 100)
             ['k']
         """
-        return self.store_multi(mapping, time, key_prefix, 1)
+        return self.store_multi(mapping, time, 1)
 
     def replace(self, key, value, time=0, namespace=None):
         """ Replaces a key's value, failing if item isn't already.
@@ -145,7 +145,7 @@ class MemoryCache(object):
         """
         return self.store(key, value, time, 2)
 
-    def replace_multi(self, mapping, time=0, key_prefix='', namespace=None):
+    def replace_multi(self, mapping, time=0, namespace=None):
         """ Replaces multiple values at once, with no effect for
             keys not in cache.
 
@@ -157,7 +157,7 @@ class MemoryCache(object):
             >>> c.replace_multi({'k': 'v'}, 100)
             []
         """
-        return self.store_multi(mapping, time, key_prefix, 2)
+        return self.store_multi(mapping, time, 2)
 
     def get(self, key, namespace=None):
         """ Looks up a single key.
@@ -194,7 +194,7 @@ class MemoryCache(object):
         finally:
             self.lock.release()
 
-    def get_multi(self, keys, key_prefix='', namespace=None):
+    def get_multi(self, keys, namespace=None):
         """ Looks up multiple keys from cache in one operation.
             This is the recommended way to do bulk loads.
 
@@ -219,14 +219,13 @@ class MemoryCache(object):
         items = self.items
         self.lock.acquire(1)
         try:
-            for k in keys:
-                key = key_prefix + k
+            for key in keys:
                 try:
                     entry = items[key]
                     if entry.expires < now:
                         del items[key]
                     else:
-                        results[k] = entry.value
+                        results[key] = entry.value
                 except KeyError:
                     pass
         finally:
@@ -267,7 +266,7 @@ class MemoryCache(object):
         finally:
             self.lock.release()
 
-    def delete_multi(self, keys, seconds=0, key_prefix='', namespace=None):
+    def delete_multi(self, keys, seconds=0, namespace=None):
         """ Delete multiple keys at once.
 
             >>> c = MemoryCache()
@@ -289,7 +288,7 @@ class MemoryCache(object):
         try:
             for key in keys:
                 try:
-                    del items[key_prefix + key]
+                    del items[key]
                 except KeyError:
                     pass
         finally:
@@ -410,7 +409,7 @@ class MemoryCache(object):
                 self.delete_multi(expired_keys)
         return True
 
-    def store_multi(self, mapping, time=0, key_prefix='', op=0):
+    def store_multi(self, mapping, time=0, op=0):
         """
             There is item in cached that expired
 
@@ -435,18 +434,17 @@ class MemoryCache(object):
         succeeded = []
         self.lock.acquire(1)
         try:
-            for k, value in iteritems(mapping):
-                key = key_prefix + k
+            for key, value in iteritems(mapping):
                 try:
                     entry = items[key]
                     if entry.expires < now:
                         del items[key]
                     elif op == 1:  # add
-                        keys_failed.append(k)
+                        keys_failed.append(key)
                         continue
                 except KeyError:
                     if op == 2:  # replace
-                        keys_failed.append(k)
+                        keys_failed.append(key)
                         continue
                 items[key] = CacheItem(key, value, time)
                 succeeded.append((key, time))

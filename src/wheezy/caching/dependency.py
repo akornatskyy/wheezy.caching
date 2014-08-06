@@ -46,13 +46,12 @@ class CacheDependency(object):
         return self.cache.add(self.next_key(master_key),
                               key, self.time, self.namespace)
 
-    def add_multi(self, master_key, keys, key_prefix=''):
+    def add_multi(self, master_key, keys):
         """ Adds several *keys* to dependency.
         """
         mapping = dict(zip(
-            self.next_keys(master_key, len(keys)),
-            key_prefix and map(lambda k: key_prefix + k, keys) or keys))
-        return self.cache.add_multi(mapping, self.time, '', self.namespace)
+            self.next_keys(master_key, len(keys)), keys))
+        return self.cache.add_multi(mapping, self.time, self.namespace)
 
     def get_keys(self, master_key):
         """ Returns all keys wired by *master_key* cache dependency.
@@ -62,20 +61,20 @@ class CacheDependency(object):
             return []
         keys = [master_key + str(i) for i in xrange(1, n + 1)]
         keys.extend(itervalues(self.cache.get_multi(
-            keys, '', self.namespace)))
+            keys, self.namespace)))
         keys.append(master_key)
         return keys
 
     def get_multi_keys(self, master_keys):
         """ Returns all keys wired by *master_keys* cache dependencies.
         """
-        numbers = self.cache.get_multi(master_keys, '', self.namespace)
+        numbers = self.cache.get_multi(master_keys, self.namespace)
         if not numbers:
             return []
         keys = [master_key + str(i) for master_key, n in numbers.items()
                 for i in xrange(1, n + 1)]
         keys.extend(itervalues(self.cache.get_multi(
-            keys, '', self.namespace)))
+            keys, self.namespace)))
         keys.extend(master_keys)
         return keys
 
@@ -85,7 +84,7 @@ class CacheDependency(object):
         keys = self.get_keys(master_key)
         if not keys:
             return True
-        return self.cache.delete_multi(keys, 0, '', self.namespace)
+        return self.cache.delete_multi(keys, 0, self.namespace)
 
     def delete_multi(self, master_keys):
         """ Delete all items wired by *master_keys* cache dependencies.
@@ -93,4 +92,4 @@ class CacheDependency(object):
         keys = self.get_multi_keys(master_keys)
         if not keys:
             return True
-        return self.cache.delete_multi(keys, 0, '', self.namespace)
+        return self.cache.delete_multi(keys, 0, self.namespace)
