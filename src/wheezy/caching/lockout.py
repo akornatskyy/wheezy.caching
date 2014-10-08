@@ -132,9 +132,15 @@ class Lockout(object):
         key_prefix = self.key_prefix
         keys = [key_prefix + c.key_func(ctx)
                 for c in self.counters if c.reset]
-        key_prefix = 'lock:' + key_prefix
-        keys.extend([key_prefix + c.key_func(ctx)
-                     for c in self.counters if c.reset])
+        keys.extend(['lock:' + key for key in keys])
+        keys and self.cache.delete_multi(keys, 0, self.namespace)
+
+    def force_reset(self, ctx):
+        """ Removes locks for all counters.
+        """
+        key_prefix = self.key_prefix
+        keys = [key_prefix + c.key_func(ctx) for c in self.counters]
+        keys.extend(['lock:' + key for key in keys])
         keys and self.cache.delete_multi(keys, 0, self.namespace)
 
     def incr(self, ctx):
@@ -174,6 +180,9 @@ class NullLockout(object):
             return wrapped
 
     def reset(self, ctx):
+        pass
+
+    def force_reset(self, ctx):
         pass
 
     def incr(self, ctx):

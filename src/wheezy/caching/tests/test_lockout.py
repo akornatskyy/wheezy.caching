@@ -87,6 +87,11 @@ class MyService(object):
         by_ip=dict(count=8, duration=timedelta(minutes=5))
     )
 
+    lockout2 = locker.define(
+        name='action 2',
+        by_ip=dict(count=4, duration=timedelta(minutes=5), reset=False)
+    )
+
     action_result = False
     user_id = None
     user_ip = None
@@ -98,7 +103,7 @@ class MyService(object):
         else:
             return 'show error'
 
-    @lockout.forbid_locked(action=lambda s: "show captcha")
+    @lockout.forbid_locked(action=lambda s: 'show captcha')
     def action2(self):
         if self.do_action():
             return 'show ok'
@@ -120,6 +125,17 @@ class MyService(object):
     def do_action3(self):
         return self.action_result
 
+    @lockout2.forbid_locked
+    def action4(self):
+        if self.do_action4():
+            return 'show ok'
+        else:
+            return 'show error'
+
+    @lockout2.guard
+    def do_action4(self):
+        return self.action_result
+
 
 # region: test case
 
@@ -127,6 +143,7 @@ class LockoutTestCase(unittest.TestCase):
 
     def setUp(self):
         del alerts[:]
+        cache.flush_all()
 
     def test_forbidden(self):
         s = MyService()
@@ -168,6 +185,40 @@ class LockoutTestCase(unittest.TestCase):
         for i in range(4):
             assert 'show error' == s.action()
         assert 'forbidden' == s.action()
+
+    def test_reset(self):
+        s = MyService()
+        s.user_id = 'u0'
+        s.user_ip = 'ip0'
+        # reset supported
+        for i in range(4):
+            assert 'show error' == s.action()
+        assert 'forbidden' == s.action()
+        s.lockout.reset(s)
+        assert 'show error' == s.action()
+        # reset not supported
+        for i in range(4):
+            s.action4()
+        assert 'forbidden' == s.action4()
+        s.lockout2.reset(s)
+        assert 'forbidden' == s.action4()
+
+    def test_force_reset(self):
+        s = MyService()
+        s.user_id = 'u0'
+        s.user_ip = 'ip0'
+        # reset supported
+        for i in range(4):
+            assert 'show error' == s.action()
+        assert 'forbidden' == s.action()
+        s.lockout.force_reset(s)
+        assert 'show error' == s.action()
+        # reset not supported
+        for i in range(4):
+            s.action4()
+        assert 'forbidden' == s.action4()
+        s.lockout2.force_reset(s)
+        assert 'show error' == s.action4()
 
     def test_custom_forbid_action(self):
         s = MyService()
@@ -216,4 +267,5 @@ class NullLockoutTestCase(unittest.TestCase):
         assert f == l.forbid_locked(f)
         assert f == l.forbid_locked(action=None)(f)
         l.reset(None)
+        l.force_reset(None)
         l.incr(None)
