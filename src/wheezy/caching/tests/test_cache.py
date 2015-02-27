@@ -19,7 +19,7 @@ class CacheTestMixin(object):
             assert mapping[key] == values[key]
 
     def test_get_notfound(self):
-        assert None == self.client.get('uknown', self.namespace)
+        assert self.client.get('uknown', self.namespace) is None
 
     def test_get_multi_some_found(self):
         self.setget('s1', 'some string')

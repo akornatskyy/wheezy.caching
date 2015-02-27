@@ -38,7 +38,9 @@ def lockout_by_id(count=10,
                   duration=timedelta(hours=2),
                   reset=False,
                   alert=send_mail):
-    key_func = lambda s: 'by_id:%s' % s.user_id
+
+    def key_func(s):
+        return 'by_id:%s' % s.user_id
     return Counter(key_func=key_func, count=count,
                    period=period, duration=duration,
                    reset=reset, alert=alert)
@@ -49,7 +51,9 @@ def lockout_by_ip(count=10,
                   duration=timedelta(hours=2),
                   reset=True,
                   alert=send_sms):
-    key_func = lambda s: 'by_ip:%s' % s.user_ip
+
+    def key_func(s):
+        return 'by_ip:%s' % s.user_ip
     return Counter(key_func=key_func, count=count,
                    period=period, duration=duration,
                    reset=reset, alert=alert)
@@ -60,7 +64,9 @@ def lockout_by_id_ip(count=10,
                      duration=timedelta(hours=2),
                      reset=True,
                      alert=ignore_alert):
-    key_func = lambda s: 'by_id_ip:%s:%s' % (s.user_id, s.user_ip)
+
+    def key_func(s):
+        return 'by_id_ip:%s:%s' % (s.user_id, s.user_ip)
     return Counter(key_func=key_func, count=count,
                    period=period, duration=duration,
                    reset=reset, alert=alert)

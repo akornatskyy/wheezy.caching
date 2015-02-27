@@ -134,7 +134,8 @@ class CachedTestCase(unittest.TestCase):
         """ Adapts make_key to function args.
         """
 
-        make_key = lambda: 'key'
+        def make_key():
+            return 'key'
 
         def my_func():
             pass
@@ -145,7 +146,8 @@ class CachedTestCase(unittest.TestCase):
         """ Ignore 'cls' argument.
         """
 
-        make_key = lambda: 'key'
+        def make_key():
+            return 'key'
 
         def my_func(cls):
             pass
@@ -196,7 +198,7 @@ class OnePassTestCase(unittest.TestCase):
         self.one_pass.__enter__()
         assert not self.one_pass.acquired
         self.mock_cache.get.return_value = None
-        assert True == self.one_pass.wait()
+        assert self.one_pass.wait()
 
     @patch('wheezy.caching.patterns.sleep')
     def test_wait_timeout(self, mock_sleep):
@@ -206,7 +208,7 @@ class OnePassTestCase(unittest.TestCase):
         self.one_pass.__enter__()
         assert not self.one_pass.acquired
         self.mock_cache.get.return_value = 1
-        assert False == self.one_pass.wait()
+        assert not self.one_pass.wait()
 
 
 class GetOrAddTestCase(unittest.TestCase):
@@ -275,7 +277,11 @@ class WrapsGetOrAddTestCase(GetOrAddTestCase):
 
     def get_or_add(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
-        kb = lambda f: lambda *args, **kwargs: 'key'
+
+        def kb(f):
+            def key(*args, **kwargs):
+                return 'key'
+            return key
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns')
         return cached.wraps_get_or_add(self.mock_create_factory)()
 
@@ -358,7 +364,11 @@ class WrapsGetOrSetTestCase(GetOrSetTestCase):
 
     def get_or_set(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
-        kb = lambda f: lambda *args, **kwargs: 'key'
+
+        def kb(f):
+            def key(*args, **kwargs):
+                return 'key'
+            return key
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns')
         return cached.wraps_get_or_set(self.mock_create_factory)()
 
@@ -383,7 +393,11 @@ class CachedCallTestCase(GetOrSetTestCase):
 
     def get_or_set(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
-        kb = lambda f: lambda *args, **kwargs: 'key'
+
+        def kb(f):
+            def key(*args, **kwargs):
+                return 'key'
+            return key
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns')
         return cached(self.mock_create_factory)()
 
@@ -508,7 +522,11 @@ class WrapsGetOrCreateTestCase(GetOrCreateTestCase):
 
     def get_or_create(self, dependency_factory=None):
         from wheezy.caching.patterns import Cached
-        kb = lambda f: lambda *args, **kwargs: 'key'
+
+        def kb(f):
+            def key(*args, **kwargs):
+                return 'key'
+            return key
         cached = Cached(self.mock_cache, kb, time=10, namespace='ns',
                         timeout=5)
         return cached.wraps_get_or_create(self.mock_create_factory)()
@@ -534,7 +552,9 @@ class GetOrSetMultiTestCase(unittest.TestCase):
 
     def get_or_set_multi(self):
         from wheezy.caching.patterns import Cached
-        mk = lambda i: 'k%d' % i
+
+        def mk(i):
+            return 'k%d' % i
         cached = Cached(self.mock_cache, time=10, namespace='ns')
         r = cached.get_or_set_multi(
             mk, self.mock_create_factory, [1, 2])
@@ -577,7 +597,9 @@ class GetOrSetMultiTestCase(unittest.TestCase):
             no results.
         """
         from wheezy.caching.patterns import Cached
-        mk = lambda i: 'k%d' % i
+
+        def mk(i):
+            return 'k%d' % i
         cached = Cached(self.mock_cache, time=10, namespace='ns')
         self.mock_cache.get_multi.return_value = {'k2': 'b'}
         self.mock_create_factory.return_value = {}
@@ -592,7 +614,9 @@ class WrapsGetOrSetMultiTestCase(GetOrSetMultiTestCase):
 
     def get_or_set_multi(self):
         from wheezy.caching.patterns import Cached
-        mk = lambda i: 'k%d' % i
+
+        def mk(i):
+            return 'k%d' % i
         cached = Cached(self.mock_cache, time=10, namespace='ns')
 
         @cached.wraps_get_or_set_multi(make_key=mk)
@@ -606,7 +630,9 @@ class WrapsGetOrSetMultiCtxTestCase(GetOrSetMultiTestCase):
 
     def get_or_set_multi(self):
         from wheezy.caching.patterns import Cached
-        mk = lambda i: 'k%d' % i
+
+        def mk(i):
+            return 'k%d' % i
         cached = Cached(self.mock_cache, time=10, namespace='ns')
 
         @cached.wraps_get_or_set_multi(make_key=mk)

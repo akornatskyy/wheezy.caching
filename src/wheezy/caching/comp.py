@@ -12,13 +12,21 @@ PY3 = PY_MAJOR >= 3
 
 
 if PY3:  # pragma: nocover
-    iteritems = lambda d: d.items()
-    itervalues = lambda d: d.values()
+    def iteritems(d):
+        return d.items()
+
+    def itervalues(d):
+        return d.values()
+
     xrange = range
     string_type = str
 else:  # pragma: nocover
-    iteritems = lambda d: d.iteritems()
-    itervalues = lambda d: d.itervalues()
+    def iteritems(d):
+        return d.iteritems()
+
+    def itervalues(d):
+        return d.itervalues()
+
     xrange = xrange
     string_type = unicode
 
@@ -33,8 +41,9 @@ if PY2 and PY_MINOR == 4:  # pragma: nocover
 else:  # pragma: nocover
     # perform absolute import
     __saved_import__ = __import__
-    __import__ = lambda n, g=None, l=None, f=None: \
-        __saved_import__(n, g, l, f, 0)
+
+    def __import__(n, g=None, l=None, f=None):
+        return __saved_import__(n, g, l, f, 0)
 
 if PY3:  # pragma: nocover
     from queue import Queue
