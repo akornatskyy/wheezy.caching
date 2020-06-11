@@ -111,7 +111,7 @@ class MyService(object):
 
     @lockout.forbid_locked(action=lambda s: 'show captcha')
     def action2(self):
-        if self.do_action():
+        if self.do_action():  # pragma: nocover
             return 'show ok'
         else:
             return 'show error'
@@ -133,7 +133,7 @@ class MyService(object):
 
     @lockout2.forbid_locked
     def action4(self):
-        if self.do_action4():
+        if self.do_action4():  # pragma: nocover
             return 'show ok'
         else:
             return 'show error'
@@ -267,7 +267,7 @@ class NullLockoutTestCase(unittest.TestCase):
         l = NullLockout()
 
         def f():
-            pass
+            pass  # pragma: nocover
         assert f == l.guard(f)
         assert f == l.quota(f)
         assert f == l.forbid_locked(f)

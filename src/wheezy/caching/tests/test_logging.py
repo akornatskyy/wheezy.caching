@@ -23,7 +23,7 @@ class OnePassHandlerTestCase(unittest.TestCase):
         self.mock_cache.add.return_value = True
         self.h.emit(mock_record)
         assert self.mock_cache.add.called
-        self.mock_inner.emit.assert_called_once(mock_record)
+        self.mock_inner.emit.assert_called_once_with(mock_record)
 
     def test_emit_next_call(self):
         """ Ensure there is no call to inner handler emit on next call.

@@ -138,7 +138,7 @@ class CachedTestCase(unittest.TestCase):
             return 'key'
 
         def my_func():
-            pass
+            pass  # pragma: nocover
         mk = self.cached.adapt(my_func, make_key)
         assert 'key' == mk()
 
@@ -150,7 +150,7 @@ class CachedTestCase(unittest.TestCase):
             return 'key'
 
         def my_func(cls):
-            pass
+            pass  # pragma: nocover
         mk = self.cached.adapt(my_func, make_key)
         assert 'key' == mk('cls')
 
@@ -563,11 +563,11 @@ class GetOrSetMultiTestCase(unittest.TestCase):
     def test_all_cache_hit(self):
         """ All items are taken from cache.
         """
-        def get_multi(keys, key_prefix, namespace):
+        def get_multi(keys, namespace):
             assert ['k1', 'k2'] == sorted(keys)
-        self.mock_cache.get_multi.return_value = {'k1': 'a', 'k2': 'b'}
-        self.get_or_set_multi()
+            return {'k1': 'a', 'k2': 'b'}
         self.mock_cache.get_multi.side_effect = get_multi
+        self.get_or_set_multi()
         assert not self.mock_create_factory.called
 
     def test_all_cache_miss(self):
@@ -605,7 +605,7 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         self.mock_create_factory.return_value = {}
         r = cached.get_or_set_multi(
             mk, self.mock_create_factory, [1, 2])
-        assert [(2, 'b')] == r.items()
+        assert [(2, 'b')] == list(r.items())
         self.mock_create_factory.assert_called_once_with([1])
         assert not self.mock_cache.set_multi.called
 
@@ -650,24 +650,24 @@ class KeyBuilderTestCase(unittest.TestCase):
 
     def test_noargs(self):
         def items():
-            pass
+            pass  # pragma: nocover
         assert 'prefix-items' == self.mk(items)()
 
     def test_args(self):
         def items(x, y):
-            pass
+            pass  # pragma: nocover
         assert "prefix-items:'None':None" == self.mk(items)('None', None)
 
     def test_defaults(self):
         def items(x, y=''):
-            pass
+            pass  # pragma: nocover
         assert "prefix-items:1:''" == self.mk(items)(1)
         assert "prefix-items:1:'s'" == self.mk(items)(1, y='s')
         assert "prefix-items:1:2" == self.mk(items)(1, y=2)
 
     def test_sepecial(self):
         def items(cls, y):
-            pass
+            pass  # pragma: nocover
         assert 'prefix-items:1' == self.mk(items)('cls', 1)
         assert 'prefix-items:None' == self.mk(items)('cls', None)
         assert "prefix-items:''" == self.mk(items)('cls', '')
@@ -681,5 +681,5 @@ class KeyBuilderTestCase(unittest.TestCase):
                 return '<spec:%s>' % self.locale
 
         def items(spec):
-            pass
+            pass  # pragma: nocover
         assert 'prefix-items:<spec:en>' == self.mk(items)(Spec())

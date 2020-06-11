@@ -38,7 +38,7 @@ def string_encode(key):
     if isinstance(key, string_type):
         return key.encode('UTF-8')
     else:
-        return key
+        return key  # pragma: nocover
 
 
 def base64_encode(key):

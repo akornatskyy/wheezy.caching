@@ -2,15 +2,18 @@
 """ Unit tests for ``wheezy.caching.pylibmc``.
 """
 
+import os
+
 from unittest import TestCase
 
 from wheezy.caching.comp import Queue
+from wheezy.caching.comp import xrange
 from wheezy.caching.tests.test_cache import CacheTestMixin
 
 
 try:
     from wheezy.caching.pylibmc import client_factory
-except ImportError:
+except ImportError:  # pragma: nocover
     pass
 else:
     from wheezy.caching.pylibmc import MemcachedClient
@@ -26,7 +29,9 @@ else:
             self.get_back = pool.put
 
     client_pool = EagerPool(
-        lambda: client_factory(['/tmp/memcached.sock']), 1)
+        lambda: client_factory([
+                os.environ.get('MEMCACHED_HOST', '127.0.0.1')
+            ]), 1)
 
     class PylibmcClientTestCase(TestCase, CacheTestMixin):
 

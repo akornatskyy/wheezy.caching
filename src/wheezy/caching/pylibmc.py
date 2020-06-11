@@ -3,6 +3,7 @@
 """
 
 from wheezy.caching.comp import __import__
+from wheezy.caching.comp import list_map
 from wheezy.caching.encoding import encode_keys
 from wheezy.caching.encoding import string_encode
 
@@ -130,7 +131,7 @@ class MemcachedClient(object):
             This is the recommended way to do bulk loads.
         """
         key_encode = self.key_encode
-        encoded_keys = map(key_encode, keys)
+        encoded_keys = list_map(key_encode, keys)
         try:
             client = self.pool.acquire()
             mapping = client.get_multi(encoded_keys)

@@ -2,6 +2,8 @@
 """ Unit tests for ``wheezy.caching.memcache``.
 """
 
+import os
+
 from unittest import TestCase
 
 from wheezy.caching.tests.test_cache import CacheTestMixin
@@ -14,7 +16,9 @@ if Client:
     class MemcacheClientTestCase(TestCase, CacheTestMixin):
 
         def setUp(self):
-            self.client = MemcachedClient(['unix:/tmp/memcached.sock'])
+            self.client = MemcachedClient([
+                os.environ.get('MEMCACHED_HOST', '127.0.0.1')
+            ])
             self.namespace = None
 
         def tearDown(self):

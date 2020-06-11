@@ -20,6 +20,9 @@ if PY3:  # pragma: nocover
 
     xrange = range
     string_type = str
+
+    def list_map(f, iter):
+        return list(map(f, iter))
 else:  # pragma: nocover
     def iteritems(d):
         return d.iteritems()
@@ -29,6 +32,8 @@ else:  # pragma: nocover
 
     xrange = xrange
     string_type = unicode
+
+    list_map = map
 
 
 if PY3:  # pragma: nocover
