@@ -1,0 +1,23 @@
+dist: bionic
+
+language: python
+
+services:
+  - memcached
+
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.7
+      env: TOXENV=py37
+    - python: 3.8
+      env: TOXENV=py38
+    - python: 3.8
+      env: TOXENV=docs
+
+install:
+    - pip install tox
+
+script:
+    - tox
