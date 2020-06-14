@@ -23,7 +23,7 @@ Resources:
   and [issues](https://github.com/akornatskyy/wheezy.caching/issues)
   tracker are available on
   [github](https://github.com/akornatskyy/wheezy.caching)
-- [documentation](http://readthedocs.org/builds/wheezycaching)
+- [documentation](https://wheezycaching.readthedocs.io/en/latest/)
 
 ## Install
 

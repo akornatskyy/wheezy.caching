@@ -1,6 +1,6 @@
 .. _`wheezy.caching`:
 
-Wheezy Caching
+wheezy.caching
 ==============
 
 Introduction
@@ -12,17 +12,16 @@ It is a lightweight caching library that provides integration with:
 * `python-memcached`_ - Pure Python `memcached`_ client.
 * `pylibmc`_ - Quick and small `memcached`_ client for Python written in C.
 
-It introduces the idea of *cache dependency* (effectively invalidate dependent 
+It introduces the idea of *cache dependency* (effectively invalidate dependent
 cache items) and other cache related algorithms.
 
 It is optimized for performance, well tested and documented.
 
 Resources:
 
-* `source code`_, `examples`_ and `issues`_ tracker are available
-  on `bitbucket`_
-* `documentation`_, `readthedocs`_
-* `eggs`_ on `pypi`_
+* `source code`_ and `issues`_ tracker are available
+  on `github`_
+* `documentation`_
 
 Contents
 --------
@@ -35,15 +34,11 @@ Contents
    userguide
    modules
 
-.. _`bitbucket`: http://bitbucket.org/akorn/wheezy.caching
-.. _`documentation`: http://packages.python.org/wheezy.caching
-.. _`eggs`: http://pypi.python.org/pypi/wheezy.caching
-.. _`examples`: http://bitbucket.org/akorn/wheezy.caching/src/tip/demos
-.. _`issues`: http://bitbucket.org/akorn/wheezy.caching/issues
+.. _`github`: https://github.com/akornatskyy/wheezy.caching
+.. _`documentation`: https://wheezycaching.readthedocs.io/en/latest/
+.. _`issues`: https://github.com/akornatskyy/wheezy.caching/issues
 .. _`memcached`: http://memcached.org
 .. _`pylibmc`: http://pypi.python.org/pypi/pylibmc
-.. _`pypi`: http://pypi.python.org
 .. _`python`: http://www.python.org
 .. _`python-memcached`: http://pypi.python.org/pypi/python-memcached
-.. _`readthedocs`: http://readthedocs.org/builds/wheezycaching
-.. _`source code`: http://bitbucket.org/akorn/wheezy.caching/src
+.. _`source code`: https://github.com/akornatskyy/wheezy.caching
