@@ -141,9 +141,9 @@ python-memcached
 ----------------
 
 `python-memcached`_ is a pure Python `memcached`_ client. You can install
-this package via easy_install::
+this package via pip::
 
-    $ env/bin/easy_install python-memcached
+    $ pip install python-memcached
 
 Here is a typical use case::
 
@@ -169,9 +169,9 @@ version of this library installed so pylibmc can be compiled. If you are using D
 
     apt-get install libmemcached-dev
 
-Now, you can install this package via easy_install::
+Now, you can install this package via pip::
 
-    $ env/bin/easy_install pylibmc
+    $ pip install pylibmc
 
 Here is a typical use case::
 
@@ -219,8 +219,8 @@ There is a general purpose function:
   with ``key_encode`` callable. Returns a tuple of: *key mapping*
   (encoded key => key) and *value mapping* (encoded key => value).
 
-You can specify the key encoding function to use, by passing the ``key_encode`` argument to
-*memcache* and/or *pylibmc* cache factory.
+You can specify the key encoding function to use, by passing the ``key_encode``
+argument to *memcache* and/or *pylibmc* cache factory.
 
 CacheDependency
 ---------------
