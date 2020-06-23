@@ -1,7 +1,6 @@
 mock
 pytest
 pytest-cov
-pytest-pep8
 pylibmc
 python-memcached
 pip-tools
