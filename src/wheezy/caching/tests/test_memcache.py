@@ -3,11 +3,10 @@
 """
 
 import os
-
 from unittest import TestCase
 
-from wheezy.caching.tests.test_cache import CacheTestMixin
 from wheezy.caching.memcache import Client
+from wheezy.caching.tests.test_cache import CacheTestMixin
 
 
 if Client:

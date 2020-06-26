@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 
 from setuptools import setup
 
@@ -16,18 +17,24 @@ except ImportError:
     pass
 
 README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+VERSION = (
+    re.search(
+        r"__version__ = '(.+)'",
+        open("src/wheezy/caching/__init__.py").read(),
+    )
+    .group(1)
+    .strip()
+)
 
 setup(
     name='wheezy.caching',
-    version='0.1',
+    version=VERSION,
     description='A lightweight caching library',
     long_description=README,
     long_description_content_type='text/markdown',
     url='https://github.com/akornatskyy/wheezy.caching',
-
     author='Andriy Kornatskyy',
     author_email='andriy.kornatskyy at live.com',
-
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -44,6 +51,11 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Libraries :: Python Modules'
@@ -52,25 +64,16 @@ setup(
     packages=['wheezy', 'wheezy.caching'],
     package_dir={'': 'src'},
     namespace_packages=['wheezy'],
-
     zip_safe=False,
-    install_requires=[
-    ],
+    install_requires=[],
     extras_require={
         'pylibmc': [
             'pylibmc'
         ],
         'python-memcached': [
             'python-memcached'
-        ],
-        'dev': [
-            'mock',
-            'pytest',
-            'pytest-pep8',
-            'pytest-cov'
         ]
     },
-
     platforms='any',
     **extra
 )

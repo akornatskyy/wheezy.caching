@@ -3,7 +3,6 @@
 """
 
 import os
-
 from unittest import TestCase
 
 from wheezy.caching.comp import Queue
@@ -22,7 +21,7 @@ else:
 
         def __init__(self, create_factory, size):
             pool = Queue(size)
-            for i in xrange(size):
+            for _ in xrange(size):
                 pool.put(create_factory())
             self.pool = pool
             self.acquire = pool.get

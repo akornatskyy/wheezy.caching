@@ -327,7 +327,7 @@ class MemoryCache(object):
                     del items[key]
                     entry = None
             except KeyError:
-                    entry = None
+                entry = None
             if entry is None:
                 if initial_value is None:
                     return None

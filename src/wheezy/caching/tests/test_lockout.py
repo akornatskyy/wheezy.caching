@@ -3,12 +3,11 @@
 """
 
 import unittest
-
 from datetime import timedelta
 
-from wheezy.caching.memory import MemoryCache
 from wheezy.caching.lockout import Counter
 from wheezy.caching.lockout import Locker
+from wheezy.caching.memory import MemoryCache
 
 
 # region: alerts
@@ -34,8 +33,8 @@ def ignore_alert(s, name, counter):
 # region: lockouts and defaults
 
 def lockout_by_id(count=10,
-                  period=timedelta(minutes=1),
-                  duration=timedelta(hours=2),
+                  period=timedelta(minutes=1),  # noqa: B008
+                  duration=timedelta(hours=2),  # noqa: B008
                   reset=False,
                   alert=send_mail):
 
@@ -47,8 +46,8 @@ def lockout_by_id(count=10,
 
 
 def lockout_by_ip(count=10,
-                  period=timedelta(minutes=1),
-                  duration=timedelta(hours=2),
+                  period=timedelta(minutes=1),  # noqa: B008
+                  duration=timedelta(hours=2),  # noqa: B008
                   reset=True,
                   alert=send_sms):
 
@@ -60,8 +59,8 @@ def lockout_by_ip(count=10,
 
 
 def lockout_by_id_ip(count=10,
-                     period=timedelta(minutes=1),
-                     duration=timedelta(hours=2),
+                     period=timedelta(minutes=1),  # noqa: B008
+                     duration=timedelta(hours=2),  # noqa: B008
                      reset=True,
                      alert=ignore_alert):
 
@@ -155,24 +154,24 @@ class LockoutTestCase(unittest.TestCase):
         s = MyService()
         s.user_id = 'u1'
         s.user_ip = 'ip1'
-        for i in range(4):
+        for _ in range(4):
             assert 'show error' == s.action()
         assert ['ignore: action'] == alerts
         del alerts[:]
         assert 'forbidden' == s.action(), 'lock by id/ip'
 
         s.user_ip = 'ip2'
-        for i in range(2):
+        for _ in range(2):
             assert 'show error' == s.action()
         assert ['send mail: action'] == alerts
         del alerts[:]
         assert 'forbidden' == s.action(), 'lock by id'
 
         s.user_id = 'u3'
-        for i in range(3):
+        for _ in range(3):
             assert 'show error' == s.action()
         s.user_id = 'u4'
-        for i in range(3):
+        for _ in range(3):
             assert 'show error' == s.action()
         assert ['send sms: action'] == alerts
         assert 'forbidden' == s.action(), 'lock by ip'
@@ -181,14 +180,14 @@ class LockoutTestCase(unittest.TestCase):
         s = MyService()
         s.user_id = 'u0'
         s.user_ip = 'ip0'
-        for i in range(2):
+        for _ in range(2):
             assert 'show error' == s.action()
 
         s.action_result = True
         assert 'show ok' == s.action()
 
         s.action_result = False
-        for i in range(4):
+        for _ in range(4):
             assert 'show error' == s.action()
         assert 'forbidden' == s.action()
 
@@ -197,13 +196,13 @@ class LockoutTestCase(unittest.TestCase):
         s.user_id = 'u0'
         s.user_ip = 'ip0'
         # reset supported
-        for i in range(4):
+        for _ in range(4):
             assert 'show error' == s.action()
         assert 'forbidden' == s.action()
         s.lockout.reset(s)
         assert 'show error' == s.action()
         # reset not supported
-        for i in range(4):
+        for _ in range(4):
             s.action4()
         assert 'forbidden' == s.action4()
         s.lockout2.reset(s)
@@ -214,13 +213,13 @@ class LockoutTestCase(unittest.TestCase):
         s.user_id = 'u0'
         s.user_ip = 'ip0'
         # reset supported
-        for i in range(4):
+        for _ in range(4):
             assert 'show error' == s.action()
         assert 'forbidden' == s.action()
         s.lockout.force_reset(s)
         assert 'show error' == s.action()
         # reset not supported
-        for i in range(4):
+        for _ in range(4):
             s.action4()
         assert 'forbidden' == s.action4()
         s.lockout2.force_reset(s)
@@ -230,7 +229,7 @@ class LockoutTestCase(unittest.TestCase):
         s = MyService()
         s.user_id = 'cfa-u1'
         s.user_ip = 'cfa-ip1'
-        for i in range(4):
+        for _ in range(4):
             assert 'show error' == s.action2()
         assert 'show captcha' == s.action2()
 
@@ -238,13 +237,13 @@ class LockoutTestCase(unittest.TestCase):
         s = MyService()
         s.user_id = 'u1q'
         s.user_ip = 'ip1q'
-        for i in range(10):
+        for _ in range(10):
             assert 'show error' == s.action3()
         assert [] == alerts
         del alerts[:]
 
         s.action_result = True
-        for i in range(4):
+        for _ in range(4):
             assert 'show ok' == s.action3()
         assert ['ignore: action'] == alerts
         assert 'forbidden' == s.action3(), 'lock by id/ip'
@@ -264,14 +263,14 @@ class NullLockoutTestCase(unittest.TestCase):
 
     def test_lockout(self):
         from wheezy.caching.lockout import NullLockout
-        l = NullLockout()
+        lockout = NullLockout()
 
         def f():
             pass  # pragma: nocover
-        assert f == l.guard(f)
-        assert f == l.quota(f)
-        assert f == l.forbid_locked(f)
-        assert f == l.forbid_locked(action=None)(f)
-        l.reset(None)
-        l.force_reset(None)
-        l.incr(None)
+        assert f == lockout.guard(f)
+        assert f == lockout.quota(f)
+        assert f == lockout.forbid_locked(f)
+        assert f == lockout.forbid_locked(action=None)(f)
+        lockout.reset(None)
+        lockout.force_reset(None)
+        lockout.incr(None)
