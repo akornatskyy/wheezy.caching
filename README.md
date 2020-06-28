@@ -1,7 +1,9 @@
 # wheezy.caching
 
 [![Build Status](https://travis-ci.org/akornatskyy/wheezy.caching.svg?branch=master)](https://travis-ci.org/akornatskyy/wheezy.caching)
+[![Coverage Status](https://coveralls.io/repos/github/akornatskyy/wheezy.caching/badge.svg?branch=master)](https://coveralls.io/github/akornatskyy/wheezy.caching?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/wheezycaching/badge/?version=latest)](https://wheezycaching.readthedocs.io/en/latest/?badge=latest)
+[![pypi version](https://badge.fury.io/py/wheezy.caching.svg)](https://badge.fury.io/py/wheezy.caching)
 
 [wheezy.caching](https://pypi.org/project/wheezy.caching/) is a
 [python](http://www.python.org) package written in pure Python code. It
@@ -33,9 +35,9 @@ independent of operating system. You can install it from
 [pypi](https://pypi.org/project/wheezy.caching/) site:
 
 ```sh
-pip install wheezy.caching
-pip install wheezy.caching[pylibmc]
-pip install wheezy.caching[python-memcached]
+pip install -U wheezy.caching
+pip install -U wheezy.caching[pylibmc]
+pip install -U wheezy.caching[python-memcached]
 ```
 
 If you run into any issue or have comments, go ahead and add on
