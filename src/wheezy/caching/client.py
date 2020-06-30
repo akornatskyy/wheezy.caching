@@ -1,4 +1,3 @@
-
 """ ``client`` module.
 """
 
@@ -26,38 +25,33 @@ class CacheClient(object):
             in cache.
         """
         namespace = namespace or self.default_namespace
-        return self.namespaces[namespace].set(
-            key, value, time, namespace)
+        return self.namespaces[namespace].set(key, value, time, namespace)
 
     def set_multi(self, mapping, time=0, namespace=None):
         """ Set multiple keys' values at once.
         """
         namespace = namespace or self.default_namespace
-        return self.namespaces[namespace].set_multi(
-            mapping, time, namespace)
+        return self.namespaces[namespace].set_multi(mapping, time, namespace)
 
     def add(self, key, value, time=0, namespace=None):
         """ Sets a key's value, if and only if the item is not
             already.
         """
         namespace = namespace or self.default_namespace
-        return self.namespaces[namespace].add(
-            key, value, time, namespace)
+        return self.namespaces[namespace].add(key, value, time, namespace)
 
     def add_multi(self, mapping, time=0, namespace=None):
         """ Adds multiple values at once, with no effect for keys
             already in cache.
         """
         namespace = namespace or self.default_namespace
-        return self.namespaces[namespace].add_multi(
-            mapping, time, namespace)
+        return self.namespaces[namespace].add_multi(mapping, time, namespace)
 
     def replace(self, key, value, time=0, namespace=None):
         """ Replaces a key's value, failing if item isn't already.
         """
         namespace = namespace or self.default_namespace
-        return self.namespaces[namespace].replace(
-            key, value, time, namespace)
+        return self.namespaces[namespace].replace(key, value, time, namespace)
 
     def replace_multi(self, mapping, time=0, namespace=None):
         """ Replaces multiple values at once, with no effect for
@@ -65,7 +59,8 @@ class CacheClient(object):
         """
         namespace = namespace or self.default_namespace
         return self.namespaces[namespace].replace_multi(
-            mapping, time, namespace)
+            mapping, time, namespace
+        )
 
     def get(self, key, namespace=None):
         """ Looks up a single key.
@@ -78,8 +73,7 @@ class CacheClient(object):
             This is the recommended way to do bulk loads.
         """
         namespace = namespace or self.default_namespace
-        return self.namespaces[namespace].get_multi(
-            keys, namespace)
+        return self.namespaces[namespace].get_multi(keys, namespace)
 
     def delete(self, key, seconds=0, namespace=None):
         """ Deletes a key from cache.
@@ -92,7 +86,8 @@ class CacheClient(object):
         """
         namespace = namespace or self.default_namespace
         return self.namespaces[namespace].delete_multi(
-            keys, seconds, namespace)
+            keys, seconds, namespace
+        )
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too
@@ -106,7 +101,8 @@ class CacheClient(object):
         """
         namespace = namespace or self.default_namespace
         return self.namespaces[namespace].incr(
-            key, delta, namespace, initial_value)
+            key, delta, namespace, initial_value
+        )
 
     def decr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically decrements a key's value. The value, if too
@@ -120,7 +116,8 @@ class CacheClient(object):
         """
         namespace = namespace or self.default_namespace
         return self.namespaces[namespace].decr(
-            key, delta, namespace, initial_value)
+            key, delta, namespace, initial_value
+        )
 
     def flush_all(self):
         """ Deletes everything in cache.

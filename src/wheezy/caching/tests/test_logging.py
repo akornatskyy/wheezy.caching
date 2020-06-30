@@ -1,4 +1,3 @@
-
 """ Unit tests for ``wheezy.caching.logging``.
 """
 
@@ -8,9 +7,9 @@ from mock import Mock
 
 
 class OnePassHandlerTestCase(unittest.TestCase):
-
     def setUp(self):
         from wheezy.caching.logging import OnePassHandler
+
         self.mock_inner = Mock()
         self.mock_cache = Mock()
         self.h = OnePassHandler(self.mock_inner, self.mock_cache, 60)
@@ -19,7 +18,7 @@ class OnePassHandlerTestCase(unittest.TestCase):
         """ Ensure the inner handler emit on first call.
         """
         mock_record = Mock()
-        mock_record.getMessage.return_value = 'msg'
+        mock_record.getMessage.return_value = "msg"
         self.mock_cache.add.return_value = True
         self.h.emit(mock_record)
         assert self.mock_cache.add.called
@@ -29,7 +28,7 @@ class OnePassHandlerTestCase(unittest.TestCase):
         """ Ensure there is no call to inner handler emit on next call.
         """
         mock_record = Mock()
-        mock_record.getMessage.return_value = 'msg'
+        mock_record.getMessage.return_value = "msg"
         self.mock_cache.add.return_value = False
         self.h.emit(mock_record)
         assert self.mock_cache.add.called

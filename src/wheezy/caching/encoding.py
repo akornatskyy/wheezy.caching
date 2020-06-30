@@ -1,4 +1,3 @@
-
 """ ``encoding`` module.
 """
 
@@ -6,8 +5,7 @@ from base64 import b64encode
 
 from wheezy.caching.comp import string_type
 
-
-BASE64_ALTCHARS = '-_'.encode('latin1')
+BASE64_ALTCHARS = "-_".encode("latin1")
 
 
 def encode_keys(mapping, key_encode):
@@ -36,7 +34,7 @@ def string_encode(key):
     """ Encodes ``key`` with UTF-8 encoding.
     """
     if isinstance(key, string_type):
-        return key.encode('UTF-8')
+        return key.encode("UTF-8")
     else:
         return key  # pragma: nocover
 
@@ -49,7 +47,7 @@ def base64_encode(key):
         True
     """
     if isinstance(key, string_type):
-        key = key.encode('UTF-8')
+        key = key.encode("UTF-8")
     return b64encode(key, BASE64_ALTCHARS)
 
 
@@ -76,7 +74,8 @@ def hash_encode(hash_factory):
     def key_encode(key):
         h = hash_factory()
         if isinstance(key, string_type):
-            key = key.encode('UTF-8')
+            key = key.encode("UTF-8")
         h.update(key)
         return h.digest()
+
     return key_encode

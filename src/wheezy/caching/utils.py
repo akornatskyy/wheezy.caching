@@ -1,4 +1,3 @@
-
 """ ``utils`` module.
 """
 
@@ -30,5 +29,6 @@ def total_seconds(delta):
     elif isinstance(delta, timedelta):
         return delta.seconds + delta.days * 86400
     else:
-        raise TypeError('Expecting type datetime.timedelta '
-                        'or int for seconds')
+        raise TypeError(
+            "Expecting type datetime.timedelta " "or int for seconds"
+        )

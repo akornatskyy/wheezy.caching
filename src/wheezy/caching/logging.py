@@ -1,4 +1,3 @@
-
 """ `logging` module.
 """
 
@@ -8,8 +7,7 @@ from wheezy.caching.comp import __import__
 from wheezy.caching.encoding import hash_encode
 from wheezy.caching.utils import total_seconds
 
-
-Handler = __import__('logging', None, None, ['Handler']).Handler
+Handler = __import__("logging", None, None, ["Handler"]).Handler
 
 
 class OnePassHandler(Handler):

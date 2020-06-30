@@ -1,17 +1,15 @@
-
 """ ``memcache`` module.
 """
 
-from wheezy.caching.comp import __import__
-from wheezy.caching.comp import list_map
-from wheezy.caching.encoding import encode_keys
-from wheezy.caching.encoding import string_encode
+from wheezy.caching.comp import __import__, list_map
+from wheezy.caching.encoding import encode_keys, string_encode
 
 try:
-    Client = __import__('memcache', None, None, ['Client']).Client
+    Client = __import__("memcache", None, None, ["Client"]).Client
 except ImportError:  # pragma: nocover
     Client = None
     import warnings
+
     warnings.warn("No module named 'memcache'", stacklevel=2)
 
 
@@ -21,7 +19,7 @@ class MemcachedClient(object):
     """
 
     def __init__(self, *args, **kwargs):
-        self.key_encode = kwargs.pop('key_encode', string_encode)
+        self.key_encode = kwargs.pop("key_encode", string_encode)
         if Client is None:  # pragma: nocover
             raise ImportError("No module named 'memcache'")
         self.client = Client(*args, **kwargs)
@@ -100,8 +98,9 @@ class MemcachedClient(object):
     def delete_multi(self, keys, seconds=0, namespace=None):
         """ Delete multiple keys at once.
         """
-        return self.client.delete_multi(map(self.key_encode, keys),
-                                        seconds) == 1
+        return (
+            self.client.delete_multi(map(self.key_encode, keys), seconds) == 1
+        )
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
         """ Atomically increments a key's value. The value, if too

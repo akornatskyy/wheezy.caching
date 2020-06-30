@@ -1,29 +1,27 @@
-
 """ ``pylibmc`` module.
 """
 
-from wheezy.caching.comp import __import__
-from wheezy.caching.comp import list_map
-from wheezy.caching.encoding import encode_keys
-from wheezy.caching.encoding import string_encode
+from wheezy.caching.comp import __import__, list_map
+from wheezy.caching.encoding import encode_keys, string_encode
 
 try:
-    c = __import__('pylibmc', None, None, ['Client', 'NotFound'])
+    c = __import__("pylibmc", None, None, ["Client", "NotFound"])
     Client = c.Client
     NotFound = c.NotFound
 
     def client_factory(*args, **kwargs):
         """ Client factory for pylibmc.
         """
-        kwargs.setdefault('binary', True)
-        behaviors = kwargs.setdefault('behaviors', {})
-        behaviors.setdefault('tcp_nodelay', True)
-        behaviors.setdefault('ketama', True)
+        kwargs.setdefault("binary", True)
+        behaviors = kwargs.setdefault("behaviors", {})
+        behaviors.setdefault("tcp_nodelay", True)
+        behaviors.setdefault("ketama", True)
         return Client(*args, **kwargs)
 
     del c
 except ImportError:  # pragma: nocover
     import warnings
+
     warnings.warn("No module named 'pylibmc'", stacklevel=2)
 
 
@@ -32,8 +30,8 @@ class MemcachedClient(object):
     """
 
     def __init__(self, pool, key_encode=None):
-        assert hasattr(pool, 'acquire')
-        assert hasattr(pool, 'get_back')
+        assert hasattr(pool, "acquire")
+        assert hasattr(pool, "get_back")
         self.pool = pool
         self.key_encode = key_encode or string_encode
 
@@ -103,8 +101,7 @@ class MemcachedClient(object):
         """
         key_encode = self.key_encode
         failed = []
-        mapping = [(key, key_encode(key), mapping[key])
-                   for key in mapping]
+        mapping = [(key, key_encode(key), mapping[key]) for key in mapping]
         try:
             client = self.pool.acquire()
             for key, key_encoded, value in mapping:

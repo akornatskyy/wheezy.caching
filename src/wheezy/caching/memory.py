@@ -1,12 +1,9 @@
-
 """ ``memory`` module.
 """
 
 from time import time as unixtime
 
-from wheezy.caching.comp import allocate_lock
-from wheezy.caching.comp import iteritems
-from wheezy.caching.comp import xrange
+from wheezy.caching.comp import allocate_lock, iteritems, xrange
 
 
 def expires(now, time):
@@ -68,7 +65,8 @@ def find_expired(bucket_items, now):
 class CacheItem(object):
     """ A single cache item stored in cache.
     """
-    __slots__ = ('key', 'value', 'expires')
+
+    __slots__ = ("key", "value", "expires")
 
     def __init__(self, key, value, expires):
         self.key = key
@@ -86,7 +84,8 @@ class MemoryCache(object):
         self.items = {}
         self.lock = allocate_lock()
         self.expire_buckets = [
-            (allocate_lock(), []) for i in xrange(0, buckets)]
+            (allocate_lock(), []) for i in xrange(0, buckets)
+        ]
         self.last_expire_bucket_id = -1
 
     def set(self, key, value, time=0, namespace=None):
@@ -333,7 +332,8 @@ class MemoryCache(object):
                     return None
                 else:
                     entry = items[key] = CacheItem(
-                        key, initial_value, expires(now, 0))
+                        key, initial_value, expires(now, 0)
+                    )
             value = entry.value = entry.value + delta
             return value
         finally:
@@ -489,6 +489,7 @@ class MemoryCache(object):
         return True
 
 
-if __name__ == '__main__':  # pragma: nocover
+if __name__ == "__main__":  # pragma: nocover
     import doctest
+
     doctest.testmod()

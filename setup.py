@@ -8,72 +8,70 @@ from setuptools import setup
 extra = {}
 try:
     from Cython.Build import cythonize
-    p = os.path.join('src', 'wheezy', 'caching')
-    extra['ext_modules'] = cythonize(
-        [os.path.join(p, '*.py')],
-        exclude=os.path.join(p, '__init__.py'),
-        nthreads=2, quiet=True)
+
+    p = os.path.join("src", "wheezy", "caching")
+    extra["ext_modules"] = cythonize(
+        [os.path.join(p, "*.py")],
+        exclude=os.path.join(p, "__init__.py"),
+        nthreads=2,
+        quiet=True,
+    )
 except ImportError:
     pass
 
-README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+README = open(os.path.join(os.path.dirname(__file__), "README.md")).read()
 VERSION = (
     re.search(
-        r"__version__ = '(.+)'",
-        open("src/wheezy/caching/__init__.py").read(),
+        r'__version__ = "(.+)"', open("src/wheezy/caching/__init__.py").read(),
     )
     .group(1)
     .strip()
 )
 
 setup(
-    name='wheezy.caching',
+    name="wheezy.caching",
     version=VERSION,
-    description='A lightweight caching library',
+    description="A lightweight caching library",
     long_description=README,
-    long_description_content_type='text/markdown',
-    url='https://github.com/akornatskyy/wheezy.caching',
-    author='Andriy Kornatskyy',
-    author_email='andriy.kornatskyy@live.com',
-    license='MIT',
+    long_description_content_type="text/markdown",
+    url="https://github.com/akornatskyy/wheezy.caching",
+    author="Andriy Kornatskyy",
+    author_email="andriy.kornatskyy@live.com",
+    license="MIT",
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.4',
-        'Programming Language :: Python :: 2.5',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.4",
+        "Programming Language :: Python :: 2.5",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords='caching dependency memory null memcache memcached pylibmc',
-    packages=['wheezy', 'wheezy.caching'],
-    package_dir={'': 'src'},
-    namespace_packages=['wheezy'],
+    keywords="caching dependency memory null memcache memcached pylibmc",
+    packages=["wheezy", "wheezy.caching"],
+    package_dir={"": "src"},
+    namespace_packages=["wheezy"],
     zip_safe=False,
     install_requires=[],
     extras_require={
-        'pylibmc': [
-            'pylibmc'
-        ],
-        'python-memcached': [
-            'python-memcached'
-        ]
+        "pylibmc": ["pylibmc"],
+        "python-memcached": ["python-memcached"],
     },
-    platforms='any',
+    platforms="any",
     **extra
 )

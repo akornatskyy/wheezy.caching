@@ -1,9 +1,7 @@
-
 """ ``comp`` module.
 """
 
 import sys
-
 
 PY_MAJOR = sys.version_info[0]
 PY_MINOR = sys.version_info[1]
@@ -12,6 +10,7 @@ PY3 = PY_MAJOR >= 3
 
 
 if PY3:  # pragma: nocover
+
     def iteritems(d):
         return d.items()
 
@@ -23,7 +22,10 @@ if PY3:  # pragma: nocover
 
     def list_map(f, iter):
         return list(map(f, iter))
+
+
 else:  # pragma: nocover
+
     def iteritems(d):
         return d.iteritems()  # noqa: B301
 
@@ -49,6 +51,7 @@ else:  # pragma: nocover
 
     def __import__(name, globals=None, locals=None, f=None):  # noqa: N807
         return __saved_import__(name, globals, locals, f, 0)
+
 
 if PY3:  # pragma: nocover
     from queue import Queue

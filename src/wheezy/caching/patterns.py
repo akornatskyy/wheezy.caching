@@ -1,10 +1,8 @@
-
 """ ``patterns`` module.
 """
 
 from inspect import getargspec
-from time import sleep
-from time import time
+from time import sleep, time
 
 from wheezy.caching.dependency import CacheDependency
 from wheezy.caching.utils import total_seconds
@@ -15,9 +13,15 @@ class Cached(object):
         for various cache operations and patterns.
     """
 
-    def __init__(self, cache, key_builder=None,
-                 time=0, namespace=None,
-                 timeout=10, key_prefix='one_pass:'):
+    def __init__(
+        self,
+        cache,
+        key_builder=None,
+        time=0,
+        namespace=None,
+        timeout=10,
+        key_prefix="one_pass:",
+    ):
         self.cache = cache
         self.key_builder = key_builder
         self.time = total_seconds(time)
@@ -140,7 +144,9 @@ class Cached(object):
                 if result is not None:
                     self.cache.add(key, result, self.time, self.namespace)
                 return result
+
             return get_or_add_wrapper
+
         if wrapped is None:
             return decorate
         else:
@@ -193,7 +199,9 @@ class Cached(object):
                 if result is not None:
                     self.cache.set(key, result, self.time, self.namespace)
                 return result
+
             return get_or_set_wrapper
+
         if wrapped is None:
             return decorate
         else:
@@ -212,22 +220,29 @@ class Cached(object):
             data_result = create_factory(args)
         elif len(cache_result) != len(key_map):
             data_result = create_factory(
-                [key_map[key] for key in key_map
-                 if key not in cache_result])
+                [key_map[key] for key in key_map if key not in cache_result]
+            )
         else:
-            return dict([(key_map[key], cache_result[key])
-                         for key in cache_result])
+            return dict(
+                [(key_map[key], cache_result[key]) for key in cache_result]
+            )
 
         if not data_result:
-            return dict([(key_map[key], cache_result[key])
-                         for key in cache_result])
-        self.set_multi(dict([
-            (key, data_result[k])
-            for key, k in key_map.items()
-            if k in data_result
-        ]))
-        data_result.update([(key_map[key], cache_result[key])
-                            for key in cache_result])
+            return dict(
+                [(key_map[key], cache_result[key]) for key in cache_result]
+            )
+        self.set_multi(
+            dict(
+                [
+                    (key, data_result[k])
+                    for key, k in key_map.items()
+                    if k in data_result
+                ]
+            )
+        )
+        data_result.update(
+            [(key_map[key], cache_result[key]) for key in cache_result]
+        )
         return data_result
 
     def wraps_get_or_set_multi(self, make_key):
@@ -247,25 +262,28 @@ class Cached(object):
 
         def decorate(func):
             argnames = getargspec(func)[0]
-            if argnames and argnames[0] in ('self', 'cls', 'klass'):
+            if argnames and argnames[0] in ("self", "cls", "klass"):
                 assert len(argnames) == 2
 
                 def get_or_set_multi_wrapper_with_ctx(ctx, args):
                     return self.get_or_set_multi(
-                        make_key,
-                        lambda fargs: func(ctx, fargs),
-                        args)
+                        make_key, lambda fargs: func(ctx, fargs), args
+                    )
+
                 return get_or_set_multi_wrapper_with_ctx
             else:
                 assert len(argnames) == 1
 
                 def get_or_set_multi_wrapper(args):
                     return self.get_or_set_multi(make_key, func, args)
+
                 return get_or_set_multi_wrapper
+
         return decorate
 
-    def one_pass_create(self, key, create_factory,
-                        dependency_key_factory=None):
+    def one_pass_create(
+        self, key, create_factory, dependency_key_factory=None
+    ):
         """ Cache Pattern: try enter one pass: (1) if entered
             use *create_factory* to get a value if result is not `None`
             use cache `set` operation to store result and use
@@ -275,8 +293,9 @@ class Cached(object):
             *cache*.
         """
         result = None
-        one_pass = OnePass(self.cache, self.key_prefix + key,
-                           self.timeout, self.namespace)
+        one_pass = OnePass(
+            self.cache, self.key_prefix + key, self.timeout, self.namespace
+        )
         try:
             one_pass.__enter__()
             if one_pass.acquired:
@@ -298,8 +317,9 @@ class Cached(object):
         result = self.cache.get(key, self.namespace)
         if result is not None:
             return result
-        return self.one_pass_create(key, create_factory,
-                                    dependency_key_factory)
+        return self.one_pass_create(
+            key, create_factory, dependency_key_factory
+        )
 
     def wraps_get_or_create(self, wrapped=None, make_key=None):
         """ Returns specialized decorator for `get_or_create` cache
@@ -314,6 +334,7 @@ class Cached(object):
                 def list_items(self, locale):
                     pass
         """
+
         def decorate(func):
             mk = self.adapt(func, make_key)
 
@@ -322,10 +343,10 @@ class Cached(object):
                 result = self.cache.get(key, self.namespace)
                 if result is not None:
                     return result
-                return self.one_pass_create(
-                    key,
-                    lambda: func(*args, **kwargs))
+                return self.one_pass_create(key, lambda: func(*args, **kwargs))
+
             return get_or_create_wrapper
+
         if wrapped is None:
             return decorate
         else:
@@ -336,9 +357,10 @@ class Cached(object):
     def adapt(self, func, make_key=None):
         if make_key:
             argnames = getargspec(func)[0]
-            if argnames and argnames[0] in ('self', 'cls', 'klass'):
+            if argnames and argnames[0] in ("self", "cls", "klass"):
                 return lambda ignore, *args, **kwargs: make_key(
-                    *args, **kwargs)
+                    *args, **kwargs
+                )
             else:
                 return make_key
         else:
@@ -361,7 +383,7 @@ class OnePass(object):
                     # timeout
     """
 
-    __slots__ = ('cache', 'key', 'time', 'namespace', 'acquired')
+    __slots__ = ("cache", "key", "time", "namespace", "acquired")
 
     def __init__(self, cache, key, time=10, namespace=None):
         self.cache = cache
@@ -372,8 +394,9 @@ class OnePass(object):
 
     def __enter__(self):
         marker = int(time())
-        self.acquired = self.cache.add(self.key, marker, self.time,
-                                       self.namespace)
+        self.acquired = self.cache.add(
+            self.key, marker, self.time, self.namespace
+        )
         return self
 
     def wait(self, timeout=None):
@@ -412,9 +435,9 @@ def key_format(func, key_prefix):
     """
     argnames = getargspec(func)[0]
     n = len(argnames)
-    if n and argnames[0] in ('self', 'cls', 'klass'):
+    if n and argnames[0] in ("self", "cls", "klass"):
         n -= 1
-    return '%s-%s%s' % (key_prefix, func.__name__, ':%r' * n)
+    return "%s-%s%s" % (key_prefix, func.__name__, ":%r" * n)
 
 
 def key_formatter(key_prefix):
@@ -426,12 +449,14 @@ def key_formatter(key_prefix):
         >>> repo_key_format(list_items)
         'repo-list_items:%r:%r'
     """
+
     def key_format_wrapper(func):
         return key_format(func, key_prefix)
+
     return key_format_wrapper
 
 
-def key_builder(key_prefix=''):
+def key_builder(key_prefix=""):
     """ Returns a key builder that allows build a make cache key
         function at runtime.
 
@@ -453,6 +478,7 @@ def key_builder(key_prefix=''):
                 return "repo-list_items:%r:%r" % (locale, sort_order)
 
     """
+
     def build(func):
         argnames, varargs, kwargs, defaults = getargspec(func)
         if defaults:
@@ -462,20 +488,25 @@ def key_builder(key_prefix=''):
             args.extend('%s=defaults["%s"]' % (n, n) for n in argnames[-n:])
         else:
             args = argnames
-        if argnames and argnames[0] in ('self', 'cls', 'klass'):
+        if argnames and argnames[0] in ("self", "cls", "klass"):
             argnames = argnames[1:]
-        fname = 'key_' + func.__name__
+        fname = "key_" + func.__name__
         code = 'def %s(%s): return "%s" %% (%s)\ndel defaults' % (
-            fname, ', '.join(args), key_format(func, key_prefix),
-            ', '.join(argnames))
-        return compile_source(code, 'keys_' + key_prefix, defaults)[fname]
+            fname,
+            ", ".join(args),
+            key_format(func, key_prefix),
+            ", ".join(argnames),
+        )
+        return compile_source(code, "keys_" + key_prefix, defaults)[fname]
+
     return build
 
 
 # region: internal details
 
+
 def compile_source(source, name, defaults):
-    compiled = compile(source, name, 'exec')
-    local_vars = {'defaults': defaults}
+    compiled = compile(source, name, "exec")
+    local_vars = {"defaults": defaults}
     exec(compiled, {}, local_vars)
     return local_vars
