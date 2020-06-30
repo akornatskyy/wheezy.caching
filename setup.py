@@ -39,7 +39,6 @@ setup(
     author_email="andriy.kornatskyy@live.com",
     license="MIT",
     classifiers=[
-        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
