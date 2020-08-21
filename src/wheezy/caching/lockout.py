@@ -7,8 +7,7 @@ from wheezy.caching.utils import total_seconds
 
 
 class Locker(object):
-    """ Used to define lockout terms.
-    """
+    """Used to define lockout terms."""
 
     def __init__(
         self, cache, forbid_action, namespace=None, key_prefix="c", **terms
@@ -20,8 +19,8 @@ class Locker(object):
         self.terms = terms
 
     def define(self, name, **terms):
-        """ Defines a new lockout with given `name` and `terms`.
-            The `terms` keys must correspond to `known terms` of locker.
+        """Defines a new lockout with given `name` and `terms`.
+        The `terms` keys must correspond to `known terms` of locker.
         """
         if not terms:  # pragma: nocover
             warn("Locker: no terms", stacklevel=2)
@@ -38,8 +37,7 @@ class Locker(object):
 
 
 class NullLocker(object):
-    """ Null locker implementation.
-    """
+    """Null locker implementation."""
 
     def __init__(
         self, cache, forbid_action, namespace=None, key_prefix="c", **terms
@@ -53,8 +51,7 @@ class NullLocker(object):
 
 
 class Counter(object):
-    """ A container of various attributes used by lockout.
-    """
+    """A container of various attributes used by lockout."""
 
     def __init__(
         self, key_func, count, period, duration, reset=True, alert=None
@@ -68,8 +65,7 @@ class Counter(object):
 
 
 class Lockout(object):
-    """ A lockout is used to enforce terms of use policy.
-    """
+    """A lockout is used to enforce terms of use policy."""
 
     def __init__(
         self, name, counters, forbid_action, cache, namespace, key_prefix
@@ -82,10 +78,10 @@ class Lockout(object):
         self.forbid_action = forbid_action
 
     def guard(self, func):
-        """ A guard decorator is applied to a `func` which returns a
-            boolean indicating success or failure. Each failure is a
-            subject to increase counter. The counters that support
-            `reset` (and related locks) are deleted on success.
+        """A guard decorator is applied to a `func` which returns a
+        boolean indicating success or failure. Each failure is a
+        subject to increase counter. The counters that support
+        `reset` (and related locks) are deleted on success.
         """
 
         def guard_wrapper(ctx, *args, **kwargs):
@@ -99,9 +95,9 @@ class Lockout(object):
         return guard_wrapper
 
     def quota(self, func):
-        """ A quota decorator is applied to a `func` which returns a
-            boolean indicating success or failure. Each success is a
-            subject to increase counter.
+        """A quota decorator is applied to a `func` which returns a
+        boolean indicating success or failure. Each success is a
+        subject to increase counter.
         """
 
         def quota_wrapper(ctx, *args, **kwargs):
@@ -113,12 +109,12 @@ class Lockout(object):
         return quota_wrapper
 
     def forbid_locked(self, wrapped=None, action=None):
-        """ A decorator that forbids access (by a call to `forbid_action`)
-            to `func` once the counter threshold is reached (lock is set).
+        """A decorator that forbids access (by a call to `forbid_action`)
+        to `func` once the counter threshold is reached (lock is set).
 
-            You can override default forbid action by `action`.
+        You can override default forbid action by `action`.
 
-            See `test_lockout.py` for an example.
+        See `test_lockout.py` for an example.
         """
         action = action or self.forbid_action
         assert action
@@ -143,24 +139,21 @@ class Lockout(object):
             return decorate(wrapped)
 
     def reset(self, ctx):
-        """ Removes locks for counters that support reset.
-        """
+        """Removes locks for counters that support reset."""
         key_prefix = self.key_prefix
         keys = [key_prefix + c.key_func(ctx) for c in self.counters if c.reset]
         keys.extend(["lock:" + key for key in keys])
         keys and self.cache.delete_multi(keys, 0, self.namespace)
 
     def force_reset(self, ctx):
-        """ Removes locks for all counters.
-        """
+        """Removes locks for all counters."""
         key_prefix = self.key_prefix
         keys = [key_prefix + c.key_func(ctx) for c in self.counters]
         keys.extend(["lock:" + key for key in keys])
         keys and self.cache.delete_multi(keys, 0, self.namespace)
 
     def incr(self, ctx):
-        """ Increments lockout counters for given context.
-        """
+        """Increments lockout counters for given context."""
         key_prefix = self.key_prefix
         for c in self.counters:
             key = key_prefix + c.key_func(ctx)
@@ -177,8 +170,7 @@ class Lockout(object):
 
 
 class NullLockout(object):
-    """ Null lockout implementation.
-    """
+    """Null lockout implementation."""
 
     def guard(self, func):
         return func

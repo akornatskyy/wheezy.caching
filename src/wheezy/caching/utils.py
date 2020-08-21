@@ -5,24 +5,24 @@ from datetime import timedelta
 
 
 def total_seconds(delta):
-    """ Returns a total number of seconds for the given delta.
+    """Returns a total number of seconds for the given delta.
 
-        ``delta`` can be ``datetime.timedelta``.
+    ``delta`` can be ``datetime.timedelta``.
 
-        >>> total_seconds(timedelta(hours=2))
-        7200
+    >>> total_seconds(timedelta(hours=2))
+    7200
 
-        or int:
+    or int:
 
-        >>> total_seconds(100)
-        100
+    >>> total_seconds(100)
+    100
 
-        otherwise raise ``TypeError``.
+    otherwise raise ``TypeError``.
 
-        >>> total_seconds('100') # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        TypeError: ...
+    >>> total_seconds('100') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    TypeError: ...
     """
     if isinstance(delta, int):
         return delta

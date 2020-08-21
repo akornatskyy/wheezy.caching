@@ -8,22 +8,22 @@ from wheezy.caching.comp import allocate_lock, iteritems, xrange
 
 def expires(now, time):
     """
-        ``time`` is below 1 month
+    ``time`` is below 1 month
 
-        >>> expires(10, 1)
-        11
+    >>> expires(10, 1)
+    11
 
-        more than month
+    more than month
 
-        >>> expires(10, 3000000)
-        3000000
+    >>> expires(10, 3000000)
+    3000000
 
-        otherwise
+    otherwise
 
-        >>> expires(0, 0)
-        2147483647
-        >>> expires(0, -1)
-        2147483647
+    >>> expires(0, 0)
+    2147483647
+    >>> expires(0, -1)
+    2147483647
     """
     if time > 0:
         if time < 2592000:  # 1 month
@@ -36,22 +36,22 @@ def expires(now, time):
 
 def find_expired(bucket_items, now):
     """
-        If there are no expired items in the bucket returns
-        empty list
+    If there are no expired items in the bucket returns
+    empty list
 
-        >>> bucket_items = [('k1', 1), ('k2', 2), ('k3', 3)]
-        >>> find_expired(bucket_items, 0)
-        []
-        >>> bucket_items
-        [('k1', 1), ('k2', 2), ('k3', 3)]
+    >>> bucket_items = [('k1', 1), ('k2', 2), ('k3', 3)]
+    >>> find_expired(bucket_items, 0)
+    []
+    >>> bucket_items
+    [('k1', 1), ('k2', 2), ('k3', 3)]
 
-        Expired items are returned in the list and deleted from
-        the bucket
+    Expired items are returned in the list and deleted from
+    the bucket
 
-        >>> find_expired(bucket_items, 2)
-        ['k1']
-        >>> bucket_items
-        [('k2', 2), ('k3', 3)]
+    >>> find_expired(bucket_items, 2)
+    ['k1']
+    >>> bucket_items
+    [('k2', 2), ('k3', 3)]
     """
     expired_keys = []
     for i in xrange(len(bucket_items) - 1, -1, -1):
@@ -63,8 +63,7 @@ def find_expired(bucket_items, now):
 
 
 class CacheItem(object):
-    """ A single cache item stored in cache.
-    """
+    """A single cache item stored in cache."""
 
     __slots__ = ("key", "value", "expires")
 
@@ -75,8 +74,7 @@ class CacheItem(object):
 
 
 class MemoryCache(object):
-    """ Effectively implements in-memory cache.
-    """
+    """Effectively implements in-memory cache."""
 
     def __init__(self, buckets=60, bucket_interval=15):
         self.period = buckets * bucket_interval
@@ -89,94 +87,94 @@ class MemoryCache(object):
         self.last_expire_bucket_id = -1
 
     def set(self, key, value, time=0, namespace=None):
-        """ Sets a key's value, regardless of previous contents
-            in cache.
+        """Sets a key's value, regardless of previous contents
+        in cache.
 
-            >>> c = MemoryCache()
-            >>> c.set('k', 'v', 100)
-            True
+        >>> c = MemoryCache()
+        >>> c.set('k', 'v', 100)
+        True
         """
         return self.store(key, value, time, 0)
 
     def set_multi(self, mapping, time=0, namespace=None):
-        """ Set multiple keys' values at once.
+        """Set multiple keys' values at once.
 
-            >>> c = MemoryCache()
-            >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
-            []
+        >>> c = MemoryCache()
+        >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
+        []
         """
         return self.store_multi(mapping, time)
 
     def add(self, key, value, time=0, namespace=None):
-        """ Sets a key's value, if and only if the item is not
-            already.
+        """Sets a key's value, if and only if the item is not
+        already.
 
-            >>> c = MemoryCache()
-            >>> c.add('k', 'v', 100)
-            True
-            >>> c.add('k', 'v', 100)
-            False
+        >>> c = MemoryCache()
+        >>> c.add('k', 'v', 100)
+        True
+        >>> c.add('k', 'v', 100)
+        False
         """
         return self.store(key, value, time, 1)
 
     def add_multi(self, mapping, time=0, namespace=None):
-        """ Adds multiple values at once, with no effect for keys
-            already in cache.
+        """Adds multiple values at once, with no effect for keys
+        already in cache.
 
-            >>> c = MemoryCache()
-            >>> c.add_multi({'k': 'v'}, 100)
-            []
-            >>> c.add_multi({'k': 'v'}, 100)
-            ['k']
+        >>> c = MemoryCache()
+        >>> c.add_multi({'k': 'v'}, 100)
+        []
+        >>> c.add_multi({'k': 'v'}, 100)
+        ['k']
         """
         return self.store_multi(mapping, time, 1)
 
     def replace(self, key, value, time=0, namespace=None):
-        """ Replaces a key's value, failing if item isn't already.
+        """Replaces a key's value, failing if item isn't already.
 
-            >>> c = MemoryCache()
-            >>> c.replace('k', 'v', 100)
-            False
-            >>> c.add('k', 'v', 100)
-            True
-            >>> c.replace('k', 'v', 100)
-            True
+        >>> c = MemoryCache()
+        >>> c.replace('k', 'v', 100)
+        False
+        >>> c.add('k', 'v', 100)
+        True
+        >>> c.replace('k', 'v', 100)
+        True
         """
         return self.store(key, value, time, 2)
 
     def replace_multi(self, mapping, time=0, namespace=None):
-        """ Replaces multiple values at once, with no effect for
-            keys not in cache.
+        """Replaces multiple values at once, with no effect for
+        keys not in cache.
 
-            >>> c = MemoryCache()
-            >>> c.replace_multi({'k': 'v'}, 100)
-            ['k']
-            >>> c.add_multi({'k': 'v'}, 100)
-            []
-            >>> c.replace_multi({'k': 'v'}, 100)
-            []
+        >>> c = MemoryCache()
+        >>> c.replace_multi({'k': 'v'}, 100)
+        ['k']
+        >>> c.add_multi({'k': 'v'}, 100)
+        []
+        >>> c.replace_multi({'k': 'v'}, 100)
+        []
         """
         return self.store_multi(mapping, time, 2)
 
     def get(self, key, namespace=None):
-        """ Looks up a single key.
+        """Looks up a single key.
 
-            If ``key`` is not found return None
+        If ``key`` is not found return None
 
-            >>> c = MemoryCache()
-            >>> c.get('k')
+        >>> c = MemoryCache()
+        >>> c.get('k')
 
-            Otherwise return value
+        Otherwise return value
 
-            >>> c.set('k', 'v', 100)
-            True
-            >>> c.get('k')
-            'v'
+        >>> c.set('k', 'v', 100)
+        True
+        >>> c.get('k')
+        'v'
 
-            There is item in cached that expired
+        There is item in cached that expired
 
-            >>> c.items['k'] = CacheItem('k', 'v', 1)
-            >>> c.get('k')
+        >>> c.items['k'] = CacheItem('k', 'v', 1)
+        >>> c.get('k')
         """
         now = int(unixtime())
         items = self.items
@@ -194,24 +192,24 @@ class MemoryCache(object):
             self.lock.release()
 
     def get_multi(self, keys, namespace=None):
-        """ Looks up multiple keys from cache in one operation.
-            This is the recommended way to do bulk loads.
+        """Looks up multiple keys from cache in one operation.
+        This is the recommended way to do bulk loads.
 
-            >>> c = MemoryCache()
-            >>> c.get_multi(('k1', 'k2', 'k3'))
-            {}
-            >>> c.store('k1', 'v1', 100)
-            True
-            >>> c.store('k2', 'v2', 100)
-            True
-            >>> sorted(c.get_multi(('k1', 'k2')).items())
-            [('k1', 'v1'), ('k2', 'v2')]
+        >>> c = MemoryCache()
+        >>> c.get_multi(('k1', 'k2', 'k3'))
+        {}
+        >>> c.store('k1', 'v1', 100)
+        True
+        >>> c.store('k2', 'v2', 100)
+        True
+        >>> sorted(c.get_multi(('k1', 'k2')).items())
+        [('k1', 'v1'), ('k2', 'v2')]
 
-            There is item in cache that expired
+        There is item in cache that expired
 
-            >>> c.items['k'] = CacheItem('k', 'v', 1)
-            >>> c.get_multi(('k', ))
-            {}
+        >>> c.items['k'] = CacheItem('k', 'v', 1)
+        >>> c.get_multi(('k', ))
+        {}
         """
         now = int(unixtime())
         results = {}
@@ -232,23 +230,23 @@ class MemoryCache(object):
         return results
 
     def delete(self, key, seconds=0, namespace=None):
-        """ Deletes a key from cache.
+        """Deletes a key from cache.
 
-            If ``key`` is not found return False
+        If ``key`` is not found return False
 
-            >>> c = MemoryCache()
-            >>> c.delete('k')
-            False
-            >>> c.store('k', 'v', 100)
-            True
-            >>> c.delete('k')
-            True
+        >>> c = MemoryCache()
+        >>> c.delete('k')
+        False
+        >>> c.store('k', 'v', 100)
+        True
+        >>> c.delete('k')
+        True
 
-            There is item in cache that expired
+        There is item in cache that expired
 
-            >>> c.items['k'] = CacheItem('k', 'v', 1)
-            >>> c.delete('k')
-            False
+        >>> c.items['k'] = CacheItem('k', 'v', 1)
+        >>> c.delete('k')
+        False
         """
         now = int(unixtime())
         items = self.items
@@ -266,21 +264,21 @@ class MemoryCache(object):
             self.lock.release()
 
     def delete_multi(self, keys, seconds=0, namespace=None):
-        """ Delete multiple keys at once.
+        """Delete multiple keys at once.
 
-            >>> c = MemoryCache()
-            >>> c.delete_multi(('k1', 'k2', 'k3'))
-            True
-            >>> c.store_multi({'k1':1, 'k2': 2}, 100)
-            []
-            >>> c.delete_multi(('k1', 'k2'))
-            True
+        >>> c = MemoryCache()
+        >>> c.delete_multi(('k1', 'k2', 'k3'))
+        True
+        >>> c.store_multi({'k1':1, 'k2': 2}, 100)
+        []
+        >>> c.delete_multi(('k1', 'k2'))
+        True
 
-            There is item in cached that expired
+        There is item in cached that expired
 
-            >>> c.items['k'] = CacheItem('k', 'v', 1)
-            >>> c.get_multi(('k', ))
-            {}
+        >>> c.items['k'] = CacheItem('k', 'v', 1)
+        >>> c.get_multi(('k', ))
+        {}
         """
         items = self.items
         self.lock.acquire(1)
@@ -295,26 +293,26 @@ class MemoryCache(object):
         return True
 
     def incr(self, key, delta=1, namespace=None, initial_value=None):
-        """ Atomically increments a key's value. The value, if too
-            large, will wrap around.
+        """Atomically increments a key's value. The value, if too
+        large, will wrap around.
 
-            If the key does not yet exist in the cache and you specify
-            an initial_value, the key's value will be set to this
-            initial value and then incremented. If the key does not
-            exist and no initial_value is specified, the key's value
-            will not be set.
+        If the key does not yet exist in the cache and you specify
+        an initial_value, the key's value will be set to this
+        initial value and then incremented. If the key does not
+        exist and no initial_value is specified, the key's value
+        will not be set.
 
-            >>> c = MemoryCache()
-            >>> c.incr('k')
-            >>> c.incr('k', initial_value=0)
-            1
-            >>> c.incr('k')
-            2
+        >>> c = MemoryCache()
+        >>> c.incr('k')
+        >>> c.incr('k', initial_value=0)
+        1
+        >>> c.incr('k')
+        2
 
-            There is item in cached that expired
+        There is item in cached that expired
 
-            >>> c.items['k'] = CacheItem('k', 1, 1)
-            >>> c.incr('k')
+        >>> c.items['k'] = CacheItem('k', 1, 1)
+        >>> c.incr('k')
         """
         now = int(unixtime())
         items = self.items
@@ -340,41 +338,41 @@ class MemoryCache(object):
             self.lock.release()
 
     def decr(self, key, delta=1, namespace=None, initial_value=None):
-        """ Atomically decrements a key's value. The value, if too
-            large, will wrap around.
+        """Atomically decrements a key's value. The value, if too
+        large, will wrap around.
 
-            If the key does not yet exist in the cache and you specify
-            an initial_value, the key's value will be set to this
-            initial value and then decremented. If the key does not
-            exist and no initial_value is specified, the key's value
-            will not be set.
+        If the key does not yet exist in the cache and you specify
+        an initial_value, the key's value will be set to this
+        initial value and then decremented. If the key does not
+        exist and no initial_value is specified, the key's value
+        will not be set.
 
-            >>> c = MemoryCache()
-            >>> c.decr('k')
-            >>> c.decr('k', initial_value=10)
-            9
-            >>> c.decr('k')
-            8
+        >>> c = MemoryCache()
+        >>> c.decr('k')
+        >>> c.decr('k', initial_value=10)
+        9
+        >>> c.decr('k')
+        8
         """
         return self.incr(key, -delta, namespace, initial_value)
 
     def store(self, key, value, time=0, op=0):
         """
-            There is item in cached that expired
+        There is item in cached that expired
 
-            >>> c = MemoryCache()
-            >>> c.items['k'] = CacheItem('k', 'v', 1)
-            >>> c.store('k', 'v', 100)
-            True
+        >>> c = MemoryCache()
+        >>> c.items['k'] = CacheItem('k', 'v', 1)
+        >>> c.store('k', 'v', 100)
+        True
 
-            There is item in expire_buckets that expired
+        There is item in expire_buckets that expired
 
-            >>> c = MemoryCache()
-            >>> i = int((int(unixtime()) % c.period)
-            ...         / c.interval) - 1
-            >>> c.expire_buckets[i] = (allocate_lock(), [('x', 10)])
-            >>> c.store('k', 'v', 100)
-            True
+        >>> c = MemoryCache()
+        >>> i = int((int(unixtime()) % c.period)
+        ...         / c.interval) - 1
+        >>> c.expire_buckets[i] = (allocate_lock(), [('x', 10)])
+        >>> c.store('k', 'v', 100)
+        True
         """
         now = int(unixtime())
         time = expires(now, time)
@@ -411,21 +409,21 @@ class MemoryCache(object):
 
     def store_multi(self, mapping, time=0, op=0):
         """
-            There is item in cached that expired
+        There is item in cached that expired
 
-            >>> c = MemoryCache()
-            >>> c.items['k'] = CacheItem('k', 'v', 1)
-            >>> c.store_multi({'k': 'v'}, 100)
-            []
+        >>> c = MemoryCache()
+        >>> c.items['k'] = CacheItem('k', 'v', 1)
+        >>> c.store_multi({'k': 'v'}, 100)
+        []
 
-            There is item in expire_buckets that expired
+        There is item in expire_buckets that expired
 
-            >>> c = MemoryCache()
-            >>> i = int((int(unixtime()) % c.period)
-            ...         / c.interval) - 1
-            >>> c.expire_buckets[i] = (allocate_lock(), [('x', 10)])
-            >>> c.store_multi({'k': 'v'}, 100)
-            []
+        >>> c = MemoryCache()
+        >>> i = int((int(unixtime()) % c.period)
+        ...         / c.interval) - 1
+        >>> c.expire_buckets[i] = (allocate_lock(), [('x', 10)])
+        >>> c.store_multi({'k': 'v'}, 100)
+        []
         """
         now = int(unixtime())
         time = expires(now, time)
@@ -467,13 +465,13 @@ class MemoryCache(object):
         return keys_failed
 
     def flush_all(self):
-        """ Deletes everything in cache.
+        """Deletes everything in cache.
 
-            >>> c = MemoryCache()
-            >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
-            []
-            >>> c.flush_all()
-            True
+        >>> c = MemoryCache()
+        >>> c.set_multi({'k1': 1, 'k2': 2}, 100)
+        []
+        >>> c.flush_all()
+        True
         """
         self.lock.acquire(1)
         try:

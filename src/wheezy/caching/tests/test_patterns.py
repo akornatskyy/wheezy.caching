@@ -16,36 +16,33 @@ class CachedTestCase(unittest.TestCase):
         self.cached.dependency = self.mock_dependency
 
     def test_set(self):
-        """ Ensure set operation is passed to cache.
-        """
+        """Ensure set operation is passed to cache."""
         self.cached.set("key", "value")
         self.mock_cache.set.assert_called_once_with("key", "value", 10, "ns")
 
     def test_set_with_dependency(self):
-        """ Ensure set operation is passed to cache and
-            key added to dependency.
+        """Ensure set operation is passed to cache and
+        key added to dependency.
         """
         self.cached.set("key", "value", "master_key")
         self.mock_cache.set.assert_called_once_with("key", "value", 10, "ns")
         self.mock_dependency.add.assert_called_once_with("master_key", "key")
 
     def test_set_multi(self):
-        """ Ensure set_multi operation is passed to cache.
-        """
+        """Ensure set_multi operation is passed to cache."""
         self.cached.set_multi({"key": "value"})
         self.mock_cache.set_multi.assert_called_once_with(
             {"key": "value"}, 10, "ns"
         )
 
     def test_add(self):
-        """ Ensure add operation is passed to cache.
-        """
+        """Ensure add operation is passed to cache."""
         self.cached.add("key", "value")
         self.mock_cache.add.assert_called_once_with("key", "value", 10, "ns")
 
     def test_add_failed_with_dependency(self):
-        """ Ensure add operation is passed to cache and
-            key added to dependency.
+        """Ensure add operation is passed to cache and
+        key added to dependency.
         """
         self.mock_cache.add.return_value = False
         self.cached.add("key", "value", self.mock_dependency)
@@ -53,76 +50,66 @@ class CachedTestCase(unittest.TestCase):
         assert not self.mock_dependency.add.called
 
     def test_add_with_dependency(self):
-        """ Ensure add operation is passed to cache and
-            key added to dependency.
+        """Ensure add operation is passed to cache and
+        key added to dependency.
         """
         self.cached.add("key", "value", "master_key")
         self.mock_cache.add.assert_called_once_with("key", "value", 10, "ns")
         self.mock_dependency.add.assert_called_once_with("master_key", "key")
 
     def test_add_multi(self):
-        """ Ensure add_multi operation is passed to cache.
-        """
+        """Ensure add_multi operation is passed to cache."""
         self.cached.add_multi({"key": "value"})
         self.mock_cache.add_multi.assert_called_once_with(
             {"key": "value"}, 10, "ns"
         )
 
     def test_replace(self):
-        """ Ensure replace operation is passed to cache.
-        """
+        """Ensure replace operation is passed to cache."""
         self.cached.replace("key", "value")
         self.mock_cache.replace.assert_called_once_with(
             "key", "value", 10, "ns"
         )
 
     def test_replace_multi(self):
-        """ Ensure replace_multi operation is passed to cache.
-        """
+        """Ensure replace_multi operation is passed to cache."""
         self.cached.replace_multi({"key": "value"})
         self.mock_cache.replace_multi.assert_called_once_with(
             {"key": "value"}, 10, "ns"
         )
 
     def test_get(self):
-        """ Ensure get operation is passed to cache.
-        """
+        """Ensure get operation is passed to cache."""
         self.cached.get("key")
         self.mock_cache.get.assert_called_once_with("key", "ns")
 
     def test_get_multi(self):
-        """ Ensure get_multi operation is passed to cache.
-        """
+        """Ensure get_multi operation is passed to cache."""
         self.cached.get_multi(["key"])
         self.mock_cache.get_multi.assert_called_once_with(["key"], "ns")
 
     def test_delete(self):
-        """ Ensure delete operation is passed to cache.
-        """
+        """Ensure delete operation is passed to cache."""
         self.cached.delete("key", 0)
         self.mock_cache.delete.assert_called_once_with("key", 0, "ns")
 
     def test_delete_multi(self):
-        """ Ensure delete_multi operation is passed to cache.
-        """
+        """Ensure delete_multi operation is passed to cache."""
         self.cached.delete_multi(["key"], 0)
         self.mock_cache.delete_multi.assert_called_once_with(["key"], 0, "ns")
 
     def test_incr(self):
-        """ Ensure incr operation is passed to cache.
-        """
+        """Ensure incr operation is passed to cache."""
         self.cached.incr("key", 1, 0)
         self.mock_cache.incr.assert_called_once_with("key", 1, "ns", 0)
 
     def test_decr(self):
-        """ Ensure decr operation is passed to cache.
-        """
+        """Ensure decr operation is passed to cache."""
         self.cached.decr("key", 1, 0)
         self.mock_cache.decr.assert_called_once_with("key", 1, "ns", 0)
 
     def test_dependency(self):
-        """ Ensure returned CacheDependency is properly initialized.
-        """
+        """Ensure returned CacheDependency is properly initialized."""
         from wheezy.caching.patterns import Cached
 
         cached = Cached(self.mock_cache, time=10, namespace="ns")
@@ -132,8 +119,7 @@ class CachedTestCase(unittest.TestCase):
         assert cached.namespace == d.namespace
 
     def test_adapt_make_key(self):
-        """ Adapts make_key to function args.
-        """
+        """Adapts make_key to function args."""
 
         def make_key():
             return "key"
@@ -145,8 +131,7 @@ class CachedTestCase(unittest.TestCase):
         assert "key" == mk()
 
     def test_adapt_make_key_cls(self):
-        """ Ignore 'cls' argument.
-        """
+        """Ignore 'cls' argument."""
 
         def make_key():
             return "key"
@@ -168,16 +153,14 @@ class OnePassTestCase(unittest.TestCase):
         )
 
     def test_enter(self):
-        """ Enter returns one_pass instance.
-        """
+        """Enter returns one_pass instance."""
         self.mock_cache.add.return_value = True
         assert self.one_pass == self.one_pass.__enter__()
         assert self.one_pass.acquired
         self.mock_cache.add.assert_called_once_with("key", ANY, 10, "ns")
 
     def test_exit_acquired(self):
-        """ Releases key if acquired.
-        """
+        """Releases key if acquired."""
         self.mock_cache.add.return_value = True
         self.one_pass.__enter__()
         assert self.one_pass.acquired
@@ -186,8 +169,7 @@ class OnePassTestCase(unittest.TestCase):
         assert not self.one_pass.acquired
 
     def test_exit_not_acquired(self):
-        """ If one pass was not acquired, do not release key.
-        """
+        """If one pass was not acquired, do not release key."""
         self.mock_cache.add.return_value = False
         self.one_pass.__enter__()
         assert not self.one_pass.acquired
@@ -196,8 +178,7 @@ class OnePassTestCase(unittest.TestCase):
 
     @patch("wheezy.caching.patterns.sleep")
     def test_wait_no_marker(self, mock_sleep):
-        """ Exit wait loop if there is no marker.
-        """
+        """Exit wait loop if there is no marker."""
         self.mock_cache.add.return_value = False
         self.one_pass.__enter__()
         assert not self.one_pass.acquired
@@ -206,8 +187,7 @@ class OnePassTestCase(unittest.TestCase):
 
     @patch("wheezy.caching.patterns.sleep")
     def test_wait_timeout(self, mock_sleep):
-        """ Exit wait loop if there is timeout reached.
-        """
+        """Exit wait loop if there is timeout reached."""
         self.mock_cache.add.return_value = False
         self.one_pass.__enter__()
         assert not self.one_pass.acquired
@@ -231,16 +211,14 @@ class GetOrAddTestCase(unittest.TestCase):
         )
 
     def test_found(self):
-        """ An item found in cache.
-        """
+        """An item found in cache."""
         self.mock_cache.get.return_value = "x"
         assert "x" == self.get_or_add()
         self.mock_cache.get.assert_called_once_with("key", "ns")
         assert not self.mock_create_factory.called
 
     def test_create_none(self):
-        """ Create factory returned None.
-        """
+        """Create factory returned None."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = None
 
@@ -250,8 +228,7 @@ class GetOrAddTestCase(unittest.TestCase):
         assert not self.mock_cache.add.called
 
     def test_add_failed(self):
-        """ Attempt to add a value to cache failed.
-        """
+        """Attempt to add a value to cache failed."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = "x"
         self.mock_cache.add.return_value = False
@@ -261,8 +238,7 @@ class GetOrAddTestCase(unittest.TestCase):
         self.mock_cache.add.assert_called_once_with("key", "x", 10, "ns")
 
     def test_has_dependency(self):
-        """ There is specified `dependency_factory`.
-        """
+        """There is specified `dependency_factory`."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = "x"
         self.mock_cache.add.return_value = True
@@ -321,16 +297,14 @@ class GetOrSetTestCase(unittest.TestCase):
         )
 
     def test_found(self):
-        """ An item found in cache.
-        """
+        """An item found in cache."""
         self.mock_cache.get.return_value = "x"
         assert "x" == self.get_or_set()
         self.mock_cache.get.assert_called_once_with("key", "ns")
         assert not self.mock_create_factory.called
 
     def test_create_none(self):
-        """ Create factory returned None.
-        """
+        """Create factory returned None."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = None
 
@@ -340,8 +314,7 @@ class GetOrSetTestCase(unittest.TestCase):
         assert not self.mock_cache.add.called
 
     def test_no_dependency(self):
-        """ There is specified `dependency_factory`.
-        """
+        """There is specified `dependency_factory`."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = "x"
         self.mock_cache.set.return_value = True
@@ -351,8 +324,7 @@ class GetOrSetTestCase(unittest.TestCase):
         self.mock_cache.set.assert_called_once_with("key", "x", 10, "ns")
 
     def test_has_dependency(self):
-        """ There is specified `dependency_factory`.
-        """
+        """There is specified `dependency_factory`."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = "x"
         self.mock_cache.set.return_value = True
@@ -413,8 +385,7 @@ class CachedCallTestCase(GetOrSetTestCase):
         return cached(self.mock_create_factory)()
 
     def test_has_dependency(self):
-        """ Not supported.
-        """
+        """Not supported."""
 
 
 class OnePassCreateTestCase(unittest.TestCase):
@@ -433,8 +404,7 @@ class OnePassCreateTestCase(unittest.TestCase):
         )
 
     def test_create_none(self):
-        """ One pass has been entered and create factory returns None.
-        """
+        """One pass has been entered and create factory returns None."""
         self.mock_cache.add.return_value = True
         self.mock_create_factory.return_value = None
         assert not self.one_pass_create()
@@ -447,8 +417,7 @@ class OnePassCreateTestCase(unittest.TestCase):
         self.mock_cache.delete.assert_called_once_with("one_pass:key", 0, "ns")
 
     def test_no_dependency(self):
-        """ Create factory returned value.
-        """
+        """Create factory returned value."""
         self.mock_cache.add.return_value = True
         self.mock_create_factory.return_value = "x"
         assert "x" == self.one_pass_create()
@@ -461,8 +430,7 @@ class OnePassCreateTestCase(unittest.TestCase):
         self.mock_cache.delete.assert_called_once_with("one_pass:key", 0, "ns")
 
     def test_with_dependency(self):
-        """ Create factory returned value.
-        """
+        """Create factory returned value."""
         self.mock_cache.add.return_value = True
         self.mock_create_factory.return_value = "x"
         mock_dependency_key_factory = Mock()
@@ -479,8 +447,7 @@ class OnePassCreateTestCase(unittest.TestCase):
 
     @patch("wheezy.caching.patterns.OnePass")
     def test_wait_timedout(self, mock_cls_one_pass):
-        """ Wait on one pass has timed out.
-        """
+        """Wait on one pass has timed out."""
         mock_one_pass = mock_cls_one_pass.return_value
         self.mock_cache.add.return_value = False
         mock_one_pass.acquired = False
@@ -490,8 +457,7 @@ class OnePassCreateTestCase(unittest.TestCase):
 
     @patch("wheezy.caching.patterns.OnePass")
     def test_wait_get(self, mock_cls_one_pass):
-        """ Wait on one pass succeed, get value.
-        """
+        """Wait on one pass succeed, get value."""
         mock_one_pass = mock_cls_one_pass.return_value
         self.mock_cache.add.return_value = False
         mock_one_pass.acquired = False
@@ -513,16 +479,14 @@ class GetOrCreateTestCase(unittest.TestCase):
         return cached.get_or_create("key", self.mock_create_factory)
 
     def test_found(self):
-        """ An item found in cache.
-        """
+        """An item found in cache."""
         self.mock_cache.get.return_value = "x"
         assert "x" == self.get_or_create()
         self.mock_cache.get.assert_called_once_with("key", "ns")
         assert not self.mock_create_factory.called
 
     def test_not_found(self):
-        """ Not found in cache.
-        """
+        """Not found in cache."""
         self.mock_cache.get.return_value = None
         self.mock_create_factory.return_value = "x"
         assert "x" == self.get_or_create()
@@ -574,8 +538,7 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         assert [(1, "a"), (2, "b")] == sorted(r.items())
 
     def test_all_cache_hit(self):
-        """ All items are taken from cache.
-        """
+        """All items are taken from cache."""
 
         def get_multi(keys, namespace):
             assert ["k1", "k2"] == sorted(keys)
@@ -586,8 +549,7 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         assert not self.mock_create_factory.called
 
     def test_all_cache_miss(self):
-        """ All items are missed in cache.
-        """
+        """All items are missed in cache."""
 
         def set_multi(keys, time, namespace):
             assert [("k1", "a"), ("k2", "b")] == sorted(keys.items())
@@ -600,8 +562,7 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         assert self.mock_cache.set_multi.called
 
     def test_some_cache_miss(self):
-        """ Some items are missed in cache.
-        """
+        """Some items are missed in cache."""
         self.mock_cache.get_multi.return_value = {"k2": "b"}
         self.mock_create_factory.return_value = {1: "a"}
         self.get_or_set_multi()
@@ -611,8 +572,8 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         )
 
     def test_some_cache_miss_create_factory_no_result(self):
-        """ Some items are missed in cache and factory returns
-            no results.
+        """Some items are missed in cache and factory returns
+        no results.
         """
         from wheezy.caching.patterns import Cached
 

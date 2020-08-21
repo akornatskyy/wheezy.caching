@@ -9,8 +9,8 @@ from wheezy.caching.utils import total_seconds
 
 
 class Cached(object):
-    """ Specializes access to cache by using a number of common settings
-        for various cache operations and patterns.
+    """Specializes access to cache by using a number of common settings
+    for various cache operations and patterns.
     """
 
     def __init__(
@@ -31,8 +31,8 @@ class Cached(object):
         self.dependency = CacheDependency(cache, time, namespace)
 
     def set(self, key, value, dependency_key=None):
-        """ Sets a key's value, regardless of previous contents
-            in cache.
+        """Sets a key's value, regardless of previous contents
+        in cache.
         """
         succeed = self.cache.set(key, value, self.time, self.namespace)
         if dependency_key:
@@ -40,13 +40,12 @@ class Cached(object):
         return succeed
 
     def set_multi(self, mapping):
-        """ Set multiple keys' values at once.
-        """
+        """Set multiple keys' values at once."""
         return self.cache.set_multi(mapping, self.time, self.namespace)
 
     def add(self, key, value, dependency_key=None):
-        """ Sets a key's value, if and only if the item is not
-            already.
+        """Sets a key's value, if and only if the item is not
+        already.
         """
         succeed = self.cache.add(key, value, self.time, self.namespace)
         if succeed and dependency_key:
@@ -54,59 +53,53 @@ class Cached(object):
         return succeed
 
     def add_multi(self, mapping):
-        """ Adds multiple values at once, with no effect for keys
-            already in cache.
+        """Adds multiple values at once, with no effect for keys
+        already in cache.
         """
         return self.cache.add_multi(mapping, self.time, self.namespace)
 
     def replace(self, key, value):
-        """ Replaces a key's value, failing if item isn't already.
-        """
+        """Replaces a key's value, failing if item isn't already."""
         return self.cache.replace(key, value, self.time, self.namespace)
 
     def replace_multi(self, mapping):
-        """ Replaces multiple values at once, with no effect for
-            keys not in cache.
+        """Replaces multiple values at once, with no effect for
+        keys not in cache.
         """
         return self.cache.replace_multi(mapping, self.time, self.namespace)
 
     def get(self, key):
-        """ Looks up a single key.
-        """
+        """Looks up a single key."""
         return self.cache.get(key, self.namespace)
 
     def get_multi(self, keys):
-        """ Looks up multiple keys from cache in one operation.
-            This is the recommended way to do bulk loads.
+        """Looks up multiple keys from cache in one operation.
+        This is the recommended way to do bulk loads.
         """
         return self.cache.get_multi(keys, self.namespace)
 
     def delete(self, key, seconds=0):
-        """ Deletes a key from cache.
-        """
+        """Deletes a key from cache."""
         return self.cache.delete(key, seconds, self.namespace)
 
     def delete_multi(self, keys, seconds=0):
-        """ Delete multiple keys at once.
-        """
+        """Delete multiple keys at once."""
         return self.cache.delete_multi(keys, seconds, self.namespace)
 
     def incr(self, key, delta=1, initial_value=None):
-        """ Atomically increments a key's value.
-        """
+        """Atomically increments a key's value."""
         return self.cache.incr(key, delta, self.namespace, initial_value)
 
     def decr(self, key, delta=1, initial_value=None):
-        """ Atomically decrements a key's value.
-        """
+        """Atomically decrements a key's value."""
         return self.cache.decr(key, delta, self.namespace, initial_value)
 
     def get_or_add(self, key, create_factory, dependency_key_factory):
-        """ Cache Pattern: get an item by *key* from *cache* and
-            if it is not available use *create_factory* to aquire one.
-            If result is not `None` use cache `add` operation to store
-            result and if operation succeed use *dependency_key_factory*
-            to get an instance of `dependency_key` to link with *key*.
+        """Cache Pattern: get an item by *key* from *cache* and
+        if it is not available use *create_factory* to aquire one.
+        If result is not `None` use cache `add` operation to store
+        result and if operation succeed use *dependency_key_factory*
+        to get an instance of `dependency_key` to link with *key*.
         """
         result = self.cache.get(key, self.namespace)
         if result is not None:
@@ -119,17 +112,17 @@ class Cached(object):
         return result
 
     def wraps_get_or_add(self, wrapped=None, make_key=None):
-        """ Returns specialized decorator for `get_or_add` cache
-            pattern.
+        """Returns specialized decorator for `get_or_add` cache
+        pattern.
 
-            Example::
+        Example::
 
-                kb = key_builder('repo')
-                cached = Cached(cache, kb, time=60)
+            kb = key_builder('repo')
+            cached = Cached(cache, kb, time=60)
 
-                @cached.wraps_get_or_add
-                def list_items(self, locale):
-                    pass
+            @cached.wraps_get_or_add
+            def list_items(self, locale):
+                pass
         """
 
         def decorate(func):
@@ -153,11 +146,11 @@ class Cached(object):
             return decorate(wrapped)
 
     def get_or_set(self, key, create_factory, dependency_key_factory=None):
-        """ Cache Pattern: get an item by *key* from *cache* and
-            if it is not available use *create_factory* to aquire one.
-            If result is not `None` use cache `set` operation to store
-            result and use *dependency_key_factory* to get an instance
-            of `dependency_key` to link with *key*.
+        """Cache Pattern: get an item by *key* from *cache* and
+        if it is not available use *create_factory* to aquire one.
+        If result is not `None` use cache `set` operation to store
+        result and use *dependency_key_factory* to get an instance
+        of `dependency_key` to link with *key*.
         """
         result = self.cache.get(key, self.namespace)
         if result is not None:
@@ -173,18 +166,18 @@ class Cached(object):
         return self.wraps_get_or_set(wrapped, make_key)
 
     def wraps_get_or_set(self, wrapped=None, make_key=None):
-        """ Returns specialized decorator for `get_or_set` cache
-            pattern.
+        """Returns specialized decorator for `get_or_set` cache
+        pattern.
 
-            Example::
+        Example::
 
-                kb = key_builder('repo')
-                cached = Cached(cache, kb, time=60)
+            kb = key_builder('repo')
+            cached = Cached(cache, kb, time=60)
 
-                @cached
-                # or @cached.wraps_get_or_set
-                def list_items(self, locale):
-                    pass
+            @cached
+            # or @cached.wraps_get_or_set
+            def list_items(self, locale):
+                pass
         """
 
         def decorate(func):
@@ -208,11 +201,11 @@ class Cached(object):
             return decorate(wrapped)
 
     def get_or_set_multi(self, make_key, create_factory, args):
-        """ Cache Pattern: `get_multi` items by *make_key* over
-            *args* from *cache* and if there are any missing use
-            *create_factory* to aquire them, if result available
-            use cache `set_multi` operation to store results,
-            return cached items if any.
+        """Cache Pattern: `get_multi` items by *make_key* over
+        *args* from *cache* and if there are any missing use
+        *create_factory* to aquire them, if result available
+        use cache `set_multi` operation to store results,
+        return cached items if any.
         """
         key_map = dict((make_key(a), a) for a in args)
         cache_result = self.get_multi(key_map.keys())
@@ -246,17 +239,17 @@ class Cached(object):
         return data_result
 
     def wraps_get_or_set_multi(self, make_key):
-        """ Returns specialized decorator for `get_or_set_multi` cache
-            pattern.
+        """Returns specialized decorator for `get_or_set_multi` cache
+        pattern.
 
-            Example::
+        Example::
 
-                cached = Cached(cache, kb, time=60)
+            cached = Cached(cache, kb, time=60)
 
-                @cached.wraps_get_or_set_multi(
-                    make_key=lambda i: 'key:%r' % i)
-                def get_multi_account(account_ids):
-                    pass
+            @cached.wraps_get_or_set_multi(
+                make_key=lambda i: 'key:%r' % i)
+            def get_multi_account(account_ids):
+                pass
         """
         assert make_key
 
@@ -284,13 +277,13 @@ class Cached(object):
     def one_pass_create(
         self, key, create_factory, dependency_key_factory=None
     ):
-        """ Cache Pattern: try enter one pass: (1) if entered
-            use *create_factory* to get a value if result is not `None`
-            use cache `set` operation to store result and use
-            *dependency_key_factory* to get an instance of `dependency_key`
-            to link with *key*; (2) if not entered `wait` until one pass is
-            available and it is not timed out get an item by *key* from
-            *cache*.
+        """Cache Pattern: try enter one pass: (1) if entered
+        use *create_factory* to get a value if result is not `None`
+        use cache `set` operation to store result and use
+        *dependency_key_factory* to get an instance of `dependency_key`
+        to link with *key*; (2) if not entered `wait` until one pass is
+        available and it is not timed out get an item by *key* from
+        *cache*.
         """
         result = None
         one_pass = OnePass(
@@ -311,8 +304,8 @@ class Cached(object):
         return result
 
     def get_or_create(self, key, create_factory, dependency_key_factory=None):
-        """ Cache Pattern: get an item by *key* from *cache* and
-            if it is not available see `one_pass_create`.
+        """Cache Pattern: get an item by *key* from *cache* and
+        if it is not available see `one_pass_create`.
         """
         result = self.cache.get(key, self.namespace)
         if result is not None:
@@ -322,17 +315,17 @@ class Cached(object):
         )
 
     def wraps_get_or_create(self, wrapped=None, make_key=None):
-        """ Returns specialized decorator for `get_or_create` cache
-            pattern.
+        """Returns specialized decorator for `get_or_create` cache
+        pattern.
 
-            Example::
+        Example::
 
-                kb = key_builder('repo')
-                cached = Cached(cache, kb, time=60)
+            kb = key_builder('repo')
+            cached = Cached(cache, kb, time=60)
 
-                @cached.wraps_get_or_create
-                def list_items(self, locale):
-                    pass
+            @cached.wraps_get_or_create
+            def list_items(self, locale):
+                pass
         """
 
         def decorate(func):
@@ -368,19 +361,19 @@ class Cached(object):
 
 
 class OnePass(object):
-    """ A solution to `Thundering Head` problem.
+    """A solution to `Thundering Head` problem.
 
-        see http://en.wikipedia.org/wiki/Thundering_herd_problem
+    see http://en.wikipedia.org/wiki/Thundering_herd_problem
 
-        Typical use::
+    Typical use::
 
-            with OnePass(cache, 'op:' + key) as one_pass:
-                if one_pass.acquired:
-                    # update *key* in cache
-                elif one_pass.wait():
-                    # obtain *key* from cache
-                else:
-                    # timeout
+        with OnePass(cache, 'op:' + key) as one_pass:
+            if one_pass.acquired:
+                # update *key* in cache
+            elif one_pass.wait():
+                # obtain *key* from cache
+            else:
+                # timeout
     """
 
     __slots__ = ("cache", "key", "time", "namespace", "acquired")
@@ -400,10 +393,10 @@ class OnePass(object):
         return self
 
     def wait(self, timeout=None):
-        """ Wait *timeout* seconds for the one pass become available.
+        """Wait *timeout* seconds for the one pass become available.
 
-            *timeout* - if not passed defaults to *time* used during
-            initialization.
+        *timeout* - if not passed defaults to *time* used during
+        initialization.
         """
         assert not self.acquired
         expected = marker = self.cache.get(self.key, self.namespace)
@@ -426,12 +419,12 @@ class OnePass(object):
 
 
 def key_format(func, key_prefix):
-    """ Returns a key format for *func* and *key_prefix*.
+    """Returns a key format for *func* and *key_prefix*.
 
-        >>> def list_items(self, locale='en', sort_order=1):
-        ...     pass
-        >>> key_format(list_items, 'repo')
-        'repo-list_items:%r:%r'
+    >>> def list_items(self, locale='en', sort_order=1):
+    ...     pass
+    >>> key_format(list_items, 'repo')
+    'repo-list_items:%r:%r'
     """
     argnames = getargspec(func)[0]
     n = len(argnames)
@@ -441,13 +434,13 @@ def key_format(func, key_prefix):
 
 
 def key_formatter(key_prefix):
-    """ Specialize a key format with *key_prefix*.
+    """Specialize a key format with *key_prefix*.
 
-        >>> def list_items(self, locale='en', sort_order=1):
-        ...     pass
-        >>> repo_key_format = key_formatter('repo')
-        >>> repo_key_format(list_items)
-        'repo-list_items:%r:%r'
+    >>> def list_items(self, locale='en', sort_order=1):
+    ...     pass
+    >>> repo_key_format = key_formatter('repo')
+    >>> repo_key_format(list_items)
+    'repo-list_items:%r:%r'
     """
 
     def key_format_wrapper(func):
@@ -457,25 +450,25 @@ def key_formatter(key_prefix):
 
 
 def key_builder(key_prefix=""):
-    """ Returns a key builder that allows build a make cache key
-        function at runtime.
+    """Returns a key builder that allows build a make cache key
+    function at runtime.
 
-        >>> def list_items(self, locale='en', sort_order=1):
-        ...     pass
+    >>> def list_items(self, locale='en', sort_order=1):
+    ...     pass
 
-        >>> repo_key_builder = key_builder('repo')
-        >>> make_key = repo_key_builder(list_items)
-        >>> make_key('self')
-        "repo-list_items:'en':1"
-        >>> make_key('self', 'uk')
-        "repo-list_items:'uk':1"
-        >>> make_key('self', sort_order=0)
-        "repo-list_items:'en':0"
+    >>> repo_key_builder = key_builder('repo')
+    >>> make_key = repo_key_builder(list_items)
+    >>> make_key('self')
+    "repo-list_items:'en':1"
+    >>> make_key('self', 'uk')
+    "repo-list_items:'uk':1"
+    >>> make_key('self', sort_order=0)
+    "repo-list_items:'en':0"
 
-        Here is an example of make key function::
+    Here is an example of make key function::
 
-            def key_list_items(self, locale='en', sort_order=1):
-                return "repo-list_items:%r:%r" % (locale, sort_order)
+        def key_list_items(self, locale='en', sort_order=1):
+            return "repo-list_items:%r:%r" % (locale, sort_order)
 
     """
 

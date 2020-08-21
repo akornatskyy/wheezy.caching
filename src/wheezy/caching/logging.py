@@ -11,13 +11,13 @@ Handler = __import__("logging", None, None, ["Handler"]).Handler
 
 
 class OnePassHandler(Handler):
-    """ One pass logging handler is used to proxy a message to inner
-        handler once per one pass duration.
+    """One pass logging handler is used to proxy a message to inner
+    handler once per one pass duration.
     """
 
     def __init__(self, inner, cache, time, key_encode=None, namespace=None):
-        """ Initialize the instance with the inner logging handler,
-            cache to use, time to keep lock, key encode and namespace.
+        """Initialize the instance with the inner logging handler,
+        cache to use, time to keep lock, key encode and namespace.
         """
         super(OnePassHandler, self).__init__()
         self.inner = inner
@@ -27,8 +27,7 @@ class OnePassHandler(Handler):
         self.namespace = namespace
 
     def emit(self, record):
-        """ Emit a record. Use log record message as a key in cache.
-        """
+        """Emit a record. Use log record message as a key in cache."""
         key = self.key_encode(record.getMessage())
         if self.cache.add(key, record.created, self.time, self.namespace):
             self.inner.emit(record)

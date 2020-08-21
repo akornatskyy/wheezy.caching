@@ -14,8 +14,7 @@ class CacheDependencyTestCase(unittest.TestCase):
         self.d = CacheDependency(self.mock_cache, time=10, namespace="ns")
 
     def test_next_key(self):
-        """ Ensures consistency of key issued.
-        """
+        """Ensures consistency of key issued."""
         self.mock_cache.incr.return_value = 1
         assert "key1" == self.d.next_key("key")
         self.mock_cache.incr.assert_called_once_with("key", 1, "ns", 0)
@@ -26,8 +25,7 @@ class CacheDependencyTestCase(unittest.TestCase):
         self.mock_cache.incr.assert_called_once_with("key", 1, "ns", 0)
 
     def test_next_keys(self):
-        """ Ensures consistency of keys issued.
-        """
+        """Ensures consistency of keys issued."""
         self.mock_cache.incr.return_value = 2
         assert ["key1", "key2"] == self.d.next_keys("key", 2)
         self.mock_cache.incr.assert_called_once_with("key", 2, "ns", 0)
@@ -38,16 +36,14 @@ class CacheDependencyTestCase(unittest.TestCase):
         self.mock_cache.incr.assert_called_once_with("key", 2, "ns", 0)
 
     def test_add(self):
-        """ Ensure dependency is added.
-        """
+        """Ensure dependency is added."""
         self.mock_cache.incr.return_value = 1
         self.mock_cache.add.return_value = True
         assert self.d.add("key", "k")
         self.mock_cache.add.assert_called_once_with("key1", "k", 10, "ns")
 
     def test_add_multi(self):
-        """ Ensure multiple dependency keys added.
-        """
+        """Ensure multiple dependency keys added."""
         self.mock_cache.incr.return_value = 1
         self.mock_cache.add.return_value = True
         assert self.d.add_multi("key", ["k"])
@@ -60,8 +56,7 @@ class CacheDependencyTestCase(unittest.TestCase):
         self.mock_cache.add.return_value = True
 
     def test_get_keys(self):
-        """ Ensure related keys are returned.
-        """
+        """Ensure related keys are returned."""
         self.mock_cache.get.return_value = None
         assert [] == self.d.get_keys("key")
         self.mock_cache.get.assert_called_once_with("key", "ns")
@@ -80,8 +75,8 @@ class CacheDependencyTestCase(unittest.TestCase):
         self.mock_cache.get_multi.assert_called_once_with(ANY, "ns")
 
     def test_get_multi(self):
-        """ Ensure related keys are returned for multi
-            dependencies.
+        """Ensure related keys are returned for multi
+        dependencies.
         """
         self.mock_cache.get_multi.return_value = None
         assert [] == self.d.get_multi_keys(["ka", "kb"])
@@ -112,8 +107,7 @@ class CacheDependencyTestCase(unittest.TestCase):
         assert 2 == self.mock_cache.get_multi.call_count
 
     def test_delete(self):
-        """ Ensure related keys are invalidated.
-        """
+        """Ensure related keys are invalidated."""
         self.mock_cache.get.return_value = None
         assert self.d.delete("key")
         self.mock_cache.get.assert_called_once_with("key", "ns")
@@ -136,8 +130,8 @@ class CacheDependencyTestCase(unittest.TestCase):
         )
 
     def test_delete_multi(self):
-        """ Ensure related keys are invalidated for multi
-            dependencies.
+        """Ensure related keys are invalidated for multi
+        dependencies.
         """
         self.mock_cache.get_multi.return_value = None
         assert self.d.delete_multi(["ka", "kb"])

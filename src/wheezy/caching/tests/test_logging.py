@@ -15,8 +15,7 @@ class OnePassHandlerTestCase(unittest.TestCase):
         self.h = OnePassHandler(self.mock_inner, self.mock_cache, 60)
 
     def test_emit_first_call(self):
-        """ Ensure the inner handler emit on first call.
-        """
+        """Ensure the inner handler emit on first call."""
         mock_record = Mock()
         mock_record.getMessage.return_value = "msg"
         self.mock_cache.add.return_value = True
@@ -25,8 +24,7 @@ class OnePassHandlerTestCase(unittest.TestCase):
         self.mock_inner.emit.assert_called_once_with(mock_record)
 
     def test_emit_next_call(self):
-        """ Ensure there is no call to inner handler emit on next call.
-        """
+        """Ensure there is no call to inner handler emit on next call."""
         mock_record = Mock()
         mock_record.getMessage.return_value = "msg"
         self.mock_cache.add.return_value = False
