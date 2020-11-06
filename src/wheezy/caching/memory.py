@@ -1,9 +1,8 @@
 """ ``memory`` module.
 """
 
+from _thread import allocate_lock
 from time import time as unixtime
-
-from wheezy.caching.comp import allocate_lock, iteritems, xrange
 
 
 def expires(now, time):
@@ -54,7 +53,7 @@ def find_expired(bucket_items, now):
     [('k2', 2), ('k3', 3)]
     """
     expired_keys = []
-    for i in xrange(len(bucket_items) - 1, -1, -1):
+    for i in range(len(bucket_items) - 1, -1, -1):
         key, expires = bucket_items[i]
         if expires < now:
             expired_keys.append(key)
@@ -82,7 +81,7 @@ class MemoryCache(object):
         self.items = {}
         self.lock = allocate_lock()
         self.expire_buckets = [
-            (allocate_lock(), []) for i in xrange(0, buckets)
+            (allocate_lock(), []) for i in range(0, buckets)
         ]
         self.last_expire_bucket_id = -1
 
@@ -432,7 +431,7 @@ class MemoryCache(object):
         succeeded = []
         self.lock.acquire(1)
         try:
-            for key, value in iteritems(mapping):
+            for key, value in mapping.items():
                 try:
                     entry = items[key]
                     if entry.expires < now:

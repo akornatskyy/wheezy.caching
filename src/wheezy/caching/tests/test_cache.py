@@ -1,8 +1,6 @@
 """ Unit tests for ``wheezy.caching``.
 """
 
-from wheezy.caching.comp import string_type
-
 
 class CacheTestMixin(object):
     def setget(self, key, value):
@@ -35,14 +33,14 @@ class CacheTestMixin(object):
         self.setget("i1", 100)
 
     def test_getset_unicode_keys(self):
-        self.setget(string_type("s1"), "some string")
-        self.setget(string_type("i1"), 100)
+        self.setget("s1", "some string")
+        self.setget("i1", 100)
 
     def test_getset_multi(self):
         self.setget_multi({"k1": "v1", "k2": "v2"})
 
     def test_getset_multi_unicode_keys(self):
-        self.setget_multi({string_type("k1"): "v1", string_type("k2"): "v2"})
+        self.setget_multi({"k1": "v1", "k2": "v2"})
 
     def test_add(self):
         assert self.client.add("a", 100, namespace=self.namespace)

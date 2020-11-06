@@ -2,9 +2,9 @@
 """
 
 import os
+from queue import Queue
 from unittest import TestCase
 
-from wheezy.caching.comp import Queue, xrange
 from wheezy.caching.tests.test_cache import CacheTestMixin
 
 try:
@@ -17,7 +17,7 @@ else:
     class EagerPool(object):
         def __init__(self, create_factory, size):
             pool = Queue(size)
-            for _ in xrange(size):
+            for _ in range(size):
                 pool.put(create_factory())
             self.pool = pool
             self.acquire = pool.get

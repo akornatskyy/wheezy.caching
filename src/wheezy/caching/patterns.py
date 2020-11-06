@@ -1,7 +1,7 @@
 """ ``patterns`` module.
 """
 
-from inspect import getargspec
+from inspect import getfullargspec
 from time import sleep, time
 
 from wheezy.caching.dependency import CacheDependency
@@ -254,7 +254,7 @@ class Cached(object):
         assert make_key
 
         def decorate(func):
-            argnames = getargspec(func)[0]
+            argnames = getfullargspec(func)[0]
             if argnames and argnames[0] in ("self", "cls", "klass"):
                 assert len(argnames) == 2
 
@@ -349,7 +349,7 @@ class Cached(object):
 
     def adapt(self, func, make_key=None):
         if make_key:
-            argnames = getargspec(func)[0]
+            argnames = getfullargspec(func)[0]
             if argnames and argnames[0] in ("self", "cls", "klass"):
                 return lambda ignore, *args, **kwargs: make_key(
                     *args, **kwargs
@@ -426,7 +426,7 @@ def key_format(func, key_prefix):
     >>> key_format(list_items, 'repo')
     'repo-list_items:%r:%r'
     """
-    argnames = getargspec(func)[0]
+    argnames = getfullargspec(func)[0]
     n = len(argnames)
     if n and argnames[0] in ("self", "cls", "klass"):
         n -= 1
@@ -473,7 +473,9 @@ def key_builder(key_prefix=""):
     """
 
     def build(func):
-        argnames, varargs, kwargs, defaults = getargspec(func)
+        spec = getfullargspec(func)
+        argnames = spec.args
+        defaults = spec.defaults
         if defaults:
             n = len(defaults)
             defaults = dict(zip(argnames[-n:], defaults))

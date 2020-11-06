@@ -3,8 +3,6 @@
 
 from base64 import b64encode
 
-from wheezy.caching.comp import string_type
-
 BASE64_ALTCHARS = "-_".encode("latin1")
 
 
@@ -32,7 +30,7 @@ def encode_keys(mapping, key_encode):
 
 def string_encode(key):
     """Encodes ``key`` with UTF-8 encoding."""
-    if isinstance(key, string_type):
+    if isinstance(key, str):
         return key.encode("UTF-8")
     else:
         return key  # pragma: nocover
@@ -41,11 +39,11 @@ def string_encode(key):
 def base64_encode(key):
     """Encodes ``key`` with base64 encoding.
 
-    >>> result = base64_encode(string_type('my key'))
+    >>> result = base64_encode('my key')
     >>> result == 'bXkga2V5'.encode('latin1')
     True
     """
-    if isinstance(key, string_type):
+    if isinstance(key, str):
         key = key.encode("UTF-8")
     return b64encode(key, BASE64_ALTCHARS)
 
@@ -63,7 +61,7 @@ def hash_encode(hash_factory):
     >>> try:
     ...     from hashlib import sha1
     ...     key_encode = hash_encode(sha1)
-    ...     r = base64_encode(key_encode(string_type('my key')))
+    ...     r = base64_encode(key_encode('my key'))
     ...     assert r == 'RigVwkWdSuGyFu7au08PzUMloU8='.encode('latin1')
     ... except ImportError:  # Python2.4
     ...     pass
@@ -72,7 +70,7 @@ def hash_encode(hash_factory):
 
     def key_encode(key):
         h = hash_factory()
-        if isinstance(key, string_type):
+        if isinstance(key, str):
             key = key.encode("UTF-8")
         h.update(key)
         return h.digest()

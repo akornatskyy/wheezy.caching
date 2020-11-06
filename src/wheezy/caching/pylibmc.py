@@ -1,13 +1,10 @@
 """ ``pylibmc`` module.
 """
 
-from wheezy.caching.comp import __import__, list_map
 from wheezy.caching.encoding import encode_keys, string_encode
 
 try:
-    c = __import__("pylibmc", None, None, ["Client", "NotFound"])
-    Client = c.Client
-    NotFound = c.NotFound
+    from pylibmc import Client, NotFound
 
     def client_factory(*args, **kwargs):
         """Client factory for pylibmc."""
@@ -17,7 +14,7 @@ try:
         behaviors.setdefault("ketama", True)
         return Client(*args, **kwargs)
 
-    del c
+
 except ImportError:  # pragma: nocover
     import warnings
 
@@ -123,7 +120,7 @@ class MemcachedClient(object):
         This is the recommended way to do bulk loads.
         """
         key_encode = self.key_encode
-        encoded_keys = list_map(key_encode, keys)
+        encoded_keys = list(map(key_encode, keys))
         try:
             client = self.pool.acquire()
             mapping = client.get_multi(encoded_keys)

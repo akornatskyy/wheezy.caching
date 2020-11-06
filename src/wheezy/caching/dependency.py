@@ -1,7 +1,6 @@
 """ ``dependency`` module.
 """
 
-from wheezy.caching.comp import itervalues, xrange
 from wheezy.caching.utils import total_seconds
 
 
@@ -37,7 +36,7 @@ class CacheDependency(object):
         """
         last_id = self.cache.incr(master_key, n, self.namespace, 0)
         return [
-            master_key + str(i) for i in xrange(last_id - n + 1, last_id + 1)
+            master_key + str(i) for i in range(last_id - n + 1, last_id + 1)
         ]
 
     def add(self, master_key, key):
@@ -56,8 +55,8 @@ class CacheDependency(object):
         n = self.cache.get(master_key, self.namespace)
         if n is None:
             return []
-        keys = [master_key + str(i) for i in xrange(1, n + 1)]
-        keys.extend(itervalues(self.cache.get_multi(keys, self.namespace)))
+        keys = [master_key + str(i) for i in range(1, n + 1)]
+        keys.extend(self.cache.get_multi(keys, self.namespace).values())
         keys.append(master_key)
         return keys
 
@@ -69,9 +68,9 @@ class CacheDependency(object):
         keys = [
             master_key + str(i)
             for master_key, n in numbers.items()
-            for i in xrange(1, n + 1)
+            for i in range(1, n + 1)
         ]
-        keys.extend(itervalues(self.cache.get_multi(keys, self.namespace)))
+        keys.extend(self.cache.get_multi(keys, self.namespace).values())
         keys.extend(master_keys)
         return keys
 
