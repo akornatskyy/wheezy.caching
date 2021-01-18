@@ -4,7 +4,7 @@
 import unittest
 from datetime import timedelta
 
-from wheezy.caching.lockout import Counter, Locker
+from wheezy.caching.lockout import Counter, Locker, NullLocker, NullLockout
 from wheezy.caching.memory import MemoryCache
 
 # region: alerts
@@ -274,8 +274,6 @@ class LockoutTestCase(unittest.TestCase):
 
 class NullLockoutTestCase(unittest.TestCase):
     def test_locker(self):
-        from wheezy.caching.lockout import NullLocker, NullLockout
-
         locker = NullLocker(
             cache,
             key_prefix="my_app",
@@ -287,8 +285,6 @@ class NullLockoutTestCase(unittest.TestCase):
         assert isinstance(locker.define("x", by_id_ip={}), NullLockout)
 
     def test_lockout(self):
-        from wheezy.caching.lockout import NullLockout
-
         lockout = NullLockout()
 
         def f():

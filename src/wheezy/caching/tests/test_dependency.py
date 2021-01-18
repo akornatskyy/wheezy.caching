@@ -2,14 +2,13 @@
 """
 
 import unittest
+from unittest.mock import ANY, Mock
 
-from mock import ANY, Mock
+from wheezy.caching.dependency import CacheDependency
 
 
 class CacheDependencyTestCase(unittest.TestCase):
     def setUp(self):
-        from wheezy.caching.dependency import CacheDependency
-
         self.mock_cache = Mock()
         self.d = CacheDependency(self.mock_cache, time=10, namespace="ns")
 

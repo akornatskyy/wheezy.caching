@@ -2,13 +2,13 @@
 """
 
 import unittest
+from unittest.mock import Mock
 
-from mock import Mock
+from wheezy.caching.logging import OnePassHandler
 
 
 class OnePassHandlerTestCase(unittest.TestCase):
     def setUp(self):
-        from wheezy.caching.logging import OnePassHandler
 
         self.mock_inner = Mock()
         self.mock_cache = Mock()

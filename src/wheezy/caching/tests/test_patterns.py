@@ -2,14 +2,13 @@
 """
 
 import unittest
+from unittest.mock import ANY, Mock, patch
 
-from mock import ANY, Mock, patch
+from wheezy.caching.patterns import Cached, OnePass, key_builder
 
 
 class CachedTestCase(unittest.TestCase):
     def setUp(self):
-        from wheezy.caching.patterns import Cached
-
         self.mock_cache = Mock()
         self.mock_dependency = Mock()
         self.cached = Cached(self.mock_cache, time=10, namespace="ns")
@@ -110,8 +109,6 @@ class CachedTestCase(unittest.TestCase):
 
     def test_dependency(self):
         """Ensure returned CacheDependency is properly initialized."""
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns")
         d = cached.dependency
         assert cached.cache == d.cache
@@ -145,8 +142,6 @@ class CachedTestCase(unittest.TestCase):
 
 class OnePassTestCase(unittest.TestCase):
     def setUp(self):
-        from wheezy.caching.patterns import OnePass
-
         self.mock_cache = Mock()
         self.one_pass = OnePass(
             self.mock_cache, "key", time=10, namespace="ns"
@@ -202,8 +197,6 @@ class GetOrAddTestCase(unittest.TestCase):
         self.mock_dependency = Mock()
 
     def get_or_add(self, dependency_key_factory=None):
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns")
         cached.dependency = self.mock_dependency
         return cached.get_or_add(
@@ -256,8 +249,6 @@ class WrapsGetOrAddTestCase(GetOrAddTestCase):
         pass
 
     def get_or_add(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
-
         def kb(f):
             def key(*args, **kwargs):
                 return "key"
@@ -270,8 +261,6 @@ class WrapsGetOrAddTestCase(GetOrAddTestCase):
 
 class WrapsGetOrAddMakeKeyTestCase(WrapsGetOrAddTestCase):
     def get_or_add(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns")
 
         @cached.wraps_get_or_add(make_key=lambda: "key")
@@ -288,8 +277,6 @@ class GetOrSetTestCase(unittest.TestCase):
         self.mock_dependency = Mock()
 
     def get_or_set(self, dependency_key_factory=None):
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns")
         cached.dependency = self.mock_dependency
         return cached.get_or_set(
@@ -342,8 +329,6 @@ class WrapsGetOrSetTestCase(GetOrSetTestCase):
         pass
 
     def get_or_set(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
-
         def kb(f):
             def key(*args, **kwargs):
                 return "key"
@@ -356,8 +341,6 @@ class WrapsGetOrSetTestCase(GetOrSetTestCase):
 
 class WrapsGetOrSetMakeKeyTestCase(WrapsGetOrSetTestCase):
     def get_or_set(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns")
 
         @cached.wraps_get_or_set(make_key=lambda: "key")
@@ -373,8 +356,6 @@ class CachedCallTestCase(GetOrSetTestCase):
         self.mock_create_factory = Mock()
 
     def get_or_set(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
-
         def kb(f):
             def key(*args, **kwargs):
                 return "key"
@@ -395,8 +376,6 @@ class OnePassCreateTestCase(unittest.TestCase):
         self.mock_dependency = Mock()
 
     def one_pass_create(self, dependency_key_factory=None):
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns", timeout=5)
         cached.dependency = self.mock_dependency
         return cached.one_pass_create(
@@ -473,8 +452,6 @@ class GetOrCreateTestCase(unittest.TestCase):
         self.mock_create_factory = Mock()
 
     def get_or_create(self):
-        from wheezy.caching.patterns import Cached
-
         cached = Cached(self.mock_cache, time=10, namespace="ns", timeout=5)
         return cached.get_or_create("key", self.mock_create_factory)
 
@@ -495,8 +472,6 @@ class GetOrCreateTestCase(unittest.TestCase):
 
 class WrapsGetOrCreateTestCase(GetOrCreateTestCase):
     def get_or_create(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
-
         def kb(f):
             def key(*args, **kwargs):
                 return "key"
@@ -511,7 +486,6 @@ class WrapsGetOrCreateTestCase(GetOrCreateTestCase):
 
 class WrapsGetOrCreateMakeKeyTestCase(WrapsGetOrCreateTestCase):
     def get_or_create(self, dependency_factory=None):
-        from wheezy.caching.patterns import Cached
 
         cached = Cached(self.mock_cache, time=10, namespace="ns")
 
@@ -528,8 +502,6 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         self.mock_create_factory = Mock()
 
     def get_or_set_multi(self):
-        from wheezy.caching.patterns import Cached
-
         def mk(i):
             return "k%d" % i
 
@@ -575,7 +547,6 @@ class GetOrSetMultiTestCase(unittest.TestCase):
         """Some items are missed in cache and factory returns
         no results.
         """
-        from wheezy.caching.patterns import Cached
 
         def mk(i):
             return "k%d" % i
@@ -591,8 +562,6 @@ class GetOrSetMultiTestCase(unittest.TestCase):
 
 class WrapsGetOrSetMultiTestCase(GetOrSetMultiTestCase):
     def get_or_set_multi(self):
-        from wheezy.caching.patterns import Cached
-
         def mk(i):
             return "k%d" % i
 
@@ -608,8 +577,6 @@ class WrapsGetOrSetMultiTestCase(GetOrSetMultiTestCase):
 
 class WrapsGetOrSetMultiCtxTestCase(GetOrSetMultiTestCase):
     def get_or_set_multi(self):
-        from wheezy.caching.patterns import Cached
-
         def mk(i):
             return "k%d" % i
 
@@ -625,8 +592,6 @@ class WrapsGetOrSetMultiCtxTestCase(GetOrSetMultiTestCase):
 
 class KeyBuilderTestCase(unittest.TestCase):
     def setUp(self):
-        from wheezy.caching.patterns import key_builder
-
         self.mk = key_builder("prefix")
 
     def test_noargs(self):
