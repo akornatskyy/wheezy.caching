@@ -107,7 +107,6 @@ locker = Locker(
 
 
 class MyService(object):
-
     lockout = locker.define(
         name="action",
         by_id_ip=dict(count=4, duration=60),

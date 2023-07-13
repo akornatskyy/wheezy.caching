@@ -14,7 +14,6 @@ try:
         behaviors.setdefault("ketama", True)
         return Client(*args, **kwargs)
 
-
 except ImportError:  # pragma: nocover
     import warnings
 

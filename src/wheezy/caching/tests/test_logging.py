@@ -9,7 +9,6 @@ from wheezy.caching.logging import OnePassHandler
 
 class OnePassHandlerTestCase(unittest.TestCase):
     def setUp(self):
-
         self.mock_inner = Mock()
         self.mock_cache = Mock()
         self.h = OnePassHandler(self.mock_inner, self.mock_cache, 60)

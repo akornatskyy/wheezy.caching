@@ -486,7 +486,6 @@ class WrapsGetOrCreateTestCase(GetOrCreateTestCase):
 
 class WrapsGetOrCreateMakeKeyTestCase(WrapsGetOrCreateTestCase):
     def get_or_create(self, dependency_factory=None):
-
         cached = Cached(self.mock_cache, time=10, namespace="ns")
 
         @cached.wraps_get_or_create(make_key=lambda: "key")
