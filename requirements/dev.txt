@@ -27,7 +27,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pygments==2.19.1
+pygments==2.19.2
     # via pytest
 pylibmc==1.6.3; platform_system != 'Windows'
     # via -r requirements/dev.in
@@ -35,7 +35,7 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.4.0
+pytest==8.4.1
     # via
     #   -r requirements/dev.in
     #   pytest-cov
