@@ -30,7 +30,7 @@ Resources:
 ## Install
 
 [wheezy.caching](https://pypi.org/project/wheezy.caching/) requires
-[python](http://www.python.org) version 3.9+. It is independent of operating
+[python](http://www.python.org) version 3.10+. It is independent of operating
 system. You can install it from
 [pypi](https://pypi.org/project/wheezy.caching/) site:
 
