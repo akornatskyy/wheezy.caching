@@ -1,6 +1,6 @@
 # wheezy.caching
 
-[![Build Status](https://travis-ci.org/akornatskyy/wheezy.caching.svg?branch=master)](https://travis-ci.org/akornatskyy/wheezy.caching)
+[![tests](https://github.com/akornatskyy/wheezy.caching/actions/workflows/tests.yml/badge.svg)](https://github.com/akornatskyy/wheezy.caching/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/akornatskyy/wheezy.caching/badge.svg?branch=master)](https://coveralls.io/github/akornatskyy/wheezy.caching?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/wheezycaching/badge/?version=latest)](https://wheezycaching.readthedocs.io/en/latest/?badge=latest)
 [![pypi version](https://badge.fury.io/py/wheezy.caching.svg)](https://badge.fury.io/py/wheezy.caching)

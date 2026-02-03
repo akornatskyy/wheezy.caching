@@ -1,6 +1,3 @@
-"""
-"""
-
 from unittest import TestCase
 
 from wheezy.caching.client import CacheClient

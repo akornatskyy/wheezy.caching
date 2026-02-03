@@ -1,7 +1,3 @@
-""" ``client`` module.
-"""
-
-
 class CacheClient(object):
     """CacheClient serves mediator purpose between a single entry
     point that implements Cache and one or many namespaces

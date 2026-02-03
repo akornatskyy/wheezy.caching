@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.caching.memory``.
-"""
-
 from unittest import TestCase
 
 from wheezy.caching.memory import MemoryCache

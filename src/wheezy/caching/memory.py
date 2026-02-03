@@ -1,6 +1,3 @@
-""" ``memory`` module.
-"""
-
 from _thread import allocate_lock
 from time import time as unixtime
 

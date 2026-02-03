@@ -1,7 +1,3 @@
-""" ``interface`` module.
-"""
-
-
 class NullCache(object):
     """NullCache is a cache implementation that actually doesn't
     do anything but silently performs cache operations that

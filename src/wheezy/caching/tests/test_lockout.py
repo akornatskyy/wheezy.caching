@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.caching.lockout``.
-"""
-
 import unittest
 from datetime import timedelta
 

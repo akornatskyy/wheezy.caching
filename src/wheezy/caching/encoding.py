@@ -1,6 +1,3 @@
-""" ``encoding`` module.
-"""
-
 from base64 import b64encode
 
 BASE64_ALTCHARS = "-_".encode("latin1")

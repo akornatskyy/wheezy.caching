@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.caching.patterns``.
-"""
-
 import unittest
 from unittest.mock import ANY, Mock, patch
 

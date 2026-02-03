@@ -1,13 +1,12 @@
-""" Unit tests for ``wheezy.caching.pylibmc``.
-"""
-
 import os
+import warnings
 from queue import Queue
 from unittest import TestCase
 
 from wheezy.caching.tests.test_cache import CacheTestMixin
 
 try:
+    warnings.simplefilter("ignore")
     from wheezy.caching.pylibmc import client_factory
 except ImportError:  # pragma: nocover
     pass

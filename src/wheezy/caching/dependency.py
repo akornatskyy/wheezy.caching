@@ -1,6 +1,3 @@
-""" ``dependency`` module.
-"""
-
 from wheezy.caching.utils import total_seconds
 
 

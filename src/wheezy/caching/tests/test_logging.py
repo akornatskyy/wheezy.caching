@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.caching.logging``.
-"""
-
 import unittest
 from unittest.mock import Mock
 

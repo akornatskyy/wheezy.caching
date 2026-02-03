@@ -1,6 +1,3 @@
-""" ``patterns`` module.
-"""
-
 from inspect import getfullargspec
 from time import sleep, time
 

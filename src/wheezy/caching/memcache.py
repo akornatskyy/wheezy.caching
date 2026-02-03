@@ -1,6 +1,3 @@
-""" ``memcache`` module.
-"""
-
 from wheezy.caching.encoding import encode_keys, string_encode
 
 try:

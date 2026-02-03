@@ -1,7 +1,3 @@
-""" Unit tests for ``wheezy.caching``.
-"""
-
-
 class CacheTestMixin(object):
     def setget(self, key, value):
         assert self.client.set(key, value, 10, self.namespace) is True

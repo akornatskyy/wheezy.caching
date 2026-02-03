@@ -1,6 +1,3 @@
-""" `logging` module.
-"""
-
 from hashlib import sha1
 from logging import Handler
 

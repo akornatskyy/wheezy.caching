@@ -1,6 +1,3 @@
-""" Unit tests for ``wheezy.caching.memcache``.
-"""
-
 import os
 from unittest import TestCase
 

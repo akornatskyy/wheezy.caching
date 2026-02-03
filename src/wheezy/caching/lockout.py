@@ -1,6 +1,3 @@
-""" ``lockout`` module.
-"""
-
 from warnings import warn
 
 from wheezy.caching.utils import total_seconds
