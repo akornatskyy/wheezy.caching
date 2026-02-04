@@ -64,14 +64,14 @@ arguments:
 In the example below we partition application cache into three (default,
 membership and funds)::
 
-    from wheezy.caching import ClientCache
+    from wheezy.caching import CacheClient
     from wheezy.caching import MemoryCache
     from wheezy.caching import NullCache
 
     default_cache = MemoryCache()
     membership_cache = MemoryCache()
     funds_cache = NullCache()
-    cache = ClientCache({
+    cache = CacheClient({
         'default': default_cache,
         'membership': membership_cache,
         'funds': funds_cache,
@@ -86,7 +86,7 @@ At some point of time we might change our partitioning scheme so all
 namespaces reside in a single cache::
 
     default_cache = MemoryCache()
-    cachey = ClientCache({
+    cachey = CacheClient({
         'default': default_cache,
         'membership': default_cache,
         'funds': default_cache
